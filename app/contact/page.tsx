@@ -1,14 +1,8 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 const sujets = [
   "Question generale",
@@ -41,16 +35,22 @@ export default function ContactPage() {
       return;
     }
 
-    const { error: dbError } = await supabase
-      .from("contact_messages")
-      .insert([form]);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    if (dbError) {
-      setError("Erreur lors de l envoi. Veuillez reessayer.");
-      console.error(dbError);
-    } else {
+      if (!res.ok) {
+        throw new Error("Erreur serveur");
+      }
+
       setSuccess(true);
       setForm({ nom_complet: "", telephone: "", email: "", sujet: "", message: "" });
+    } catch (err) {
+      setError("Erreur lors de l envoi. Veuillez reessayer.");
+      console.error(err);
     }
     setLoading(false);
   };
@@ -62,7 +62,6 @@ export default function ContactPage() {
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
           
-          {/* Colonne gauche - Coordonnees */}
           <div>
             <p className="text-[#C4A962] font-semibold text-sm tracking-wider mb-4">COORDONNEES</p>
             <h1 className="text-4xl font-bold text-[#1a3c34] mb-2">Nous sommes</h1>
@@ -109,7 +108,6 @@ export default function ContactPage() {
               </div>
             </div>
             
-            {/* Encart ONG */}
             <div className="mt-10 p-6 bg-[#1a3c34]/5 rounded-xl">
               <p className="font-semibold text-[#1a3c34] mb-2">Vous etes une organisation ?</p>
               <p className="text-gray-600 text-sm mb-3">Demandez une demonstration personnalisee de notre plateforme pour ONGs et programmes agricoles.</p>
@@ -119,7 +117,6 @@ export default function ContactPage() {
             </div>
           </div>
           
-          {/* Colonne droite - Formulaire */}
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <h2 className="text-2xl font-bold text-[#1a3c34] italic mb-6">Envoyez-nous un message</h2>
             
