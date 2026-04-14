@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import Link from "next/link";
@@ -119,7 +119,7 @@ export default function OrganisationsPage() {
               <h3 className="text-xl font-semibold text-forest-dark mb-2" style={{ fontFamily: "var(--serif)" }}>Starter</h3>
               <p className="text-ink-light text-sm mb-6">Pour les petits programmes et projets pilotes.</p>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-forest-dark">500 000</span>
+                <span className="text-4xl font-bold text-forest-dark">600 000</span>
                 <span className="text-ink-light"> FCFA/an</span>
               </div>
               <ul className="space-y-3 mb-8">
@@ -145,7 +145,7 @@ export default function OrganisationsPage() {
               <h3 className="text-xl font-semibold text-white mb-2" style={{ fontFamily: "var(--serif)" }}>Pro</h3>
               <p className="text-white/60 text-sm mb-6">Pour les programmes de taille moyenne.</p>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-white">1 500 000</span>
+                <span className="text-4xl font-bold text-white">1 800 000</span>
                 <span className="text-white/60"> FCFA/an</span>
               </div>
               <ul className="space-y-3 mb-8">
