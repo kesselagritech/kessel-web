@@ -29,19 +29,19 @@ export default function ConfidentialitePage() {
 
               <div className="reveal">
                 <p className="text-ink-mid leading-relaxed mb-8">
-                  Kessel Agritech accorde une grande importance a la protection de vos donnees personnelles. Cette politique de confidentialite explique quelles donnees nous collectons, comment nous les utilisons et quels sont vos droits.
+                  Kessel Agritech accorde une grande importance à la protection de vos données personnelles. Cette politique de confidentialite explique quelles données nous collectons, comment nous les utilisons et quels sont vos droits.
                 </p>
               </div>
 
               <div className="reveal reveal-delay-1">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>1. Donnees collectees</h2>
-                <p className="text-ink-mid leading-relaxed mb-4">Nous collectons les donnees suivantes :</p>
+                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>1. Donnees collectées</h2>
+                <p className="text-ink-mid leading-relaxed mb-4">Nous collectons les données suivantes :</p>
                 <ul className="space-y-2 mb-8">
                   {[
-                    "Informations d identification : nom, prenom, numero de telephone, email",
-                    "Donnees de localisation : region, ville (pour adapter les zones agro-ecologiques)",
+                    "Informations d'identification : nom, prénom, numéro de telephone, email",
+                    "Donnees de localisation : région, ville (pour adapter les zones agro-écologiques)",
                     "Donnees agricoles : projets, cultures, superficies, finances, taches",
-                    "Donnees techniques : type d appareil, version de l application, logs de connexion",
+                    "Donnees techniques : type d appareil, version de l'application, logs de connexion",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-ink-mid">
                       <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -54,14 +54,14 @@ export default function ConfidentialitePage() {
               </div>
 
               <div className="reveal reveal-delay-2">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>2. Utilisation des donnees</h2>
-                <p className="text-ink-mid leading-relaxed mb-4">Vos donnees sont utilisees pour :</p>
+                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>2. Utilisation des données</h2>
+                <p className="text-ink-mid leading-relaxed mb-4">Vos données sont utilisées pour :</p>
                 <ul className="space-y-2 mb-8">
                   {[
-                    "Fournir et ameliorer les services de l application",
-                    "Personnaliser votre experience (zone agro-ecologique, speculations)",
+                    "Fournir et améliorer les services de l'application",
+                    "Personnaliser votre expérience (zone agro-ecologique, spéculations)",
                     "Generer des rapports et statistiques pour votre usage",
-                    "Assurer le support technique et repondre a vos demandes",
+                    "Assurer le support technique et répondre a vos demandes",
                     "Envoyer des notifications importantes sur le service",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-ink-mid">
@@ -75,15 +75,15 @@ export default function ConfidentialitePage() {
               </div>
 
               <div className="reveal reveal-delay-3">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>3. Partage des donnees</h2>
+                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>3. Partage des données</h2>
                 <p className="text-ink-mid leading-relaxed mb-4">
-                  Nous ne vendons jamais vos donnees personnelles. Vos donnees peuvent etre partagees uniquement dans les cas suivants :
+                  Nous ne vendons jamais vos données personnelles. Vos données peuvent etre partagées uniquement dans les cas suivants :
                 </p>
                 <ul className="space-y-2 mb-8">
                   {[
-                    "Avec vos techniciens : les techniciens que vous invitez peuvent voir les projets auxquels ils sont assignes",
-                    "Prestataires techniques : hebergement (Supabase, Vercel) pour le fonctionnement du service",
-                    "Obligations legales : si requis par la loi ou une autorite competente",
+                    "Avec vos techniciens : les techniciens que vous invitez peuvent voir les projets auxquels ils sont assignés",
+                    "Prestataires techniques : hébergement (Supabase, Vercel) pour le fonctionnement du service",
+                    "Obligations légales : si requis par la loi ou une autorite competente",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-ink-mid">
                       <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -96,16 +96,16 @@ export default function ConfidentialitePage() {
               </div>
 
               <div className="reveal reveal-delay-4">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Securite des donnees</h2>
+                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Securite des données</h2>
                 <p className="text-ink-mid leading-relaxed mb-8">
-                  Nous mettons en oeuvre des mesures de securite techniques et organisationnelles pour proteger vos donnees : chiffrement des communications (HTTPS/TLS), authentification securisee, sauvegardes regulieres, acces restreint aux donnees.
+                  Nous mettons en oeuvre des mesures de sécurité techniques et organisationnelles pour protégér vos données : chiffrement des communications (HTTPS/TLS), authentification sécurisée, sauvegardes regulieres, acces restreint aux données.
                 </p>
               </div>
 
               <div className="reveal reveal-delay-5">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>5. Conservation des donnees</h2>
+                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>5. Conservation des données</h2>
                 <p className="text-ink-mid leading-relaxed mb-8">
-                  Vos donnees sont conservees tant que votre compte est actif. En cas de suppression de compte, vos donnees personnelles sont supprimees dans un delai de 30 jours. Les donnees agregees et anonymisees peuvent etre conservees a des fins statistiques.
+                  Vos données sont conservées tant que votre compte est actif. En cas de suppression de compte, vos données personnelles sont supprimées dans un délai de 30 jours. Les données agrégées et anonymisees peuvent etre conservées à des fins statistiques.
                 </p>
               </div>
 
@@ -114,11 +114,11 @@ export default function ConfidentialitePage() {
                 <p className="text-ink-mid leading-relaxed mb-4">Vous disposez des droits suivants :</p>
                 <ul className="space-y-2 mb-8">
                   {[
-                    "Droit d acces : obtenir une copie de vos donnees",
-                    "Droit de rectification : corriger vos donnees inexactes",
-                    "Droit de suppression : demander la suppression de vos donnees",
-                    "Droit a la portabilite : recevoir vos donnees dans un format structure",
-                    "Droit d opposition : vous opposer a certains traitements",
+                    "Droit d'accès : obtenir une copie de vos données",
+                    "Droit de rectification : corriger vos données inexactes",
+                    "Droit de suppression : demander la suppression de vos données",
+                    "Droit à la portabilite : recevoir vos données dans un format structure",
+                    "Droit d'opposition : vous opposer a certains traitements",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-ink-mid">
                       <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@ export default function ConfidentialitePage() {
               <div className="reveal">
                 <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>7. Modifications</h2>
                 <p className="text-ink-mid leading-relaxed">
-                  Nous pouvons modifier cette politique de confidentialite. Les modifications seront publiees sur cette page avec la date de mise a jour. Nous vous encourageons a consulter regulierement cette page.
+                  Nous pouvons modifier cette politique de confidentialite. Les modifications seront publiées sur cette page avec la date de mise a jour. Nous vous encourageons a consulter regulierement cette page.
                 </p>
               </div>
 

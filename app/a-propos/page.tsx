@@ -17,10 +17,10 @@ export default function AProposPage() {
         <div className="max-w-6xl mx-auto px-6 text-center">
           <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">A propos</p>
           <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
-            Notre mission : democratiser<br /><em className="text-amber-light">la gestion agricole.</em>
+            Notre mission : démocratiser<br /><em className="text-amber-light">la gestion agricole.</em>
           </h1>
           <p className="reveal reveal-delay-2 text-lg text-white/70 max-w-2xl mx-auto">
-            Kessel est ne de la conviction que chaque promoteur agricole camerounais merite des outils professionnels pour gerer ses projets.
+            Kessel est né de la conviction que chaque promoteur agricole camerounais mérite des outils professionnels pour gérer ses projets.
           </p>
         </div>
       </section>
@@ -32,17 +32,17 @@ export default function AProposPage() {
             <div>
               <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Notre histoire</p>
               <h2 className="reveal reveal-delay-1 text-3xl md:text-4xl font-bold text-forest-dark mb-6" style={{ fontFamily: "var(--serif)" }}>
-                Du terrain<br /><em>a l application.</em>
+                Du terrain<br /><em>a l'application.</em>
               </h2>
               <div className="reveal reveal-delay-2 space-y-4 text-ink-mid leading-relaxed">
                 <p>
-                  Kessel est fonde par Atine Mvom Philippe Andre, technicien agricole base a Kribi dans la Region du Sud du Cameroun.
+                  Kessel est fondé par Atine Mvom Philippe Andre, technicien agricole basé à Kribi dans la Région du Sud du Cameroun.
                 </p>
                 <p>
-                  Apres des annees a accompagner des promoteurs sur le terrain, le constat etait clair : les outils de gestion existants ne sont pas adaptes aux realites camerounaises. Trop complexes, trop chers, ou simplement indisponibles hors connexion.
+                  Après des années a accompagner des promoteurs sur le terrain, le constat etait clair : les outils de gestion existants ne sont pas adaptés aux réalités camerounaises. Trop complexes, trop chers, ou simplement indisponibles hors connexion.
                 </p>
                 <p>
-                  Kessel est ne de cette frustration. Une application simple, accessible, qui fonctionne meme sans internet, avec des prix adaptes au marche local.
+                  Kessel est né de cette frustration. Une application simple, accessible, qui fonctionne même sans internet, avec des prix adaptés au marche local.
                 </p>
               </div>
             </div>
@@ -57,7 +57,7 @@ export default function AProposPage() {
                 </div>
               </div>
               <p className="text-ink-mid leading-relaxed italic">
-                "Je voulais creer l outil que j aurais aime avoir quand j ai commence a accompagner des promoteurs. Un outil qui parle leur langue, qui comprend leurs contraintes, et qui les aide vraiment a reussir."
+                "Je voulais créér l outil que j'aurais aime avoir quand j'ai commence a accompagner des promoteurs. Un outil qui parle leur langue, qui comprend leurs contraintes, et qui les aide vraiment a reussir."
               </p>
             </div>
           </div>
@@ -76,9 +76,9 @@ export default function AProposPage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { title: "Proximite terrain", desc: "Nous connaissons les realites des agriculteurs camerounais. Chaque fonctionnalite est pensee pour le terrain, pas pour un bureau climatise.", icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" },
-              { title: "Simplicite", desc: "Pas besoin d etre un expert en informatique. Kessel est concu pour etre intuitif et accessible a tous, du promoteur debutant au technicien experimente.", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
-              { title: "Accessibilite", desc: "Application gratuite, mode hors-ligne, interface en francais et anglais. Nous supprimons les barrieres a l entree pour que chacun puisse en beneficier.", icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" },
+              { title: "Proximité terrain", desc: "Nous connaissons les réalités des agriculteurs camerounais. Chaque fonctionnalite est pensée pour le terrain, pas pour un bureau climatisé.", icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" },
+              { title: "Simplicite", desc: "Pas besoin d'être un expert en informatique. Kessel est conçu pour etre intuitif et accessible a tous, du promoteur débutant au technicien expérimenté.", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
+              { title: "Accessibilité", desc: "Application gratuite, mode hors-ligne, interface en français et anglais. Nous supprimons les barrières à l'entrée pour que chacun puisse en bénéficier.", icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" },
             ].map((value, i) => (
               <div key={i} className={`reveal reveal-delay-${i + 1} text-center`}>
                 <div className="w-16 h-16 bg-forest-light rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -106,8 +106,8 @@ export default function AProposPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { value: "5", label: "zones agro-ecologiques" },
-              { value: "60+", label: "speculations" },
+              { value: "5", label: "zones agro-écologiques" },
+              { value: "60+", label: "spéculations" },
               { value: "78", label: "fiches ITK" },
               { value: "2", label: "langues" },
             ].map((stat, i) => (
@@ -124,14 +124,14 @@ export default function AProposPage() {
       <section className="py-24 bg-neutral">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="reveal text-3xl md:text-4xl font-bold text-forest-dark mb-6" style={{ fontFamily: "var(--serif)" }}>
-            Rejoignez l aventure<br /><em>Kessel.</em>
+            Rejoignez l'aventure<br /><em>Kessel.</em>
           </h2>
           <p className="reveal reveal-delay-1 text-lg text-ink-mid mb-10">
-            Telechargez l application gratuitement et commencez a gerer vos projets agricoles comme un professionnel.
+            Téléchargez l'application gratuitement et commencez a gérer vos projets agricoles comme un professionnel.
           </p>
           <div className="reveal reveal-delay-2 flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/#telecharger" className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-8 py-4 rounded-xl transition-all hover:-translate-y-0.5">
-              Telecharger l app
+              Télécharger l app
             </Link>
             <Link href="/contact" className="inline-flex items-center justify-center gap-2 border-2 border-forest text-forest hover:bg-forest-light font-semibold px-8 py-4 rounded-xl transition-colors">
               Nous contacter
