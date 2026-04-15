@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import Link from "next/link";
