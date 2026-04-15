@@ -70,9 +70,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const navLinks = [
-    { href: "/organisations", label: "Organisations" },
-  ];
+  const navLinks = [];
 
   const resourceLinks = [
     { href: "/guide", label: "Guide d'utilisation" },

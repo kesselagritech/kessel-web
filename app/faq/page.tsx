@@ -15,7 +15,6 @@ const faqs = [
   { q: "Puis-je inviter mon technicien agricole ?", a: "Oui, vous pouvez inviter vos techniciens a rejoindre vos projets. Ils pourront soumettre des rapports de visite et des observations directement depuis leur telephone." },
   { q: "Comment sont calculés les prix des marches ?", a: "Les prix des marches sont collectés et mis a jour regulierement a partir de sources fiables sur les principaux marches camerounais comme le Marche Mokolo a Yaounde." },
   { q: "Mes données sont-elles sécurisées ?", a: "Oui, vos données sont stockées de manière sécurisée sur des serveurs protégés. Nous ne partageons jamais vos informations personnelles avec des tiers." },
-  { q: "L offre Organisations, c est quoi ?", a: "L offre Organisations est destinée aux ONGs, coopératives et programmes de développement qui souhaitent suivre leurs bénéficiaires et generer des rapports pour leurs bailleurs de fonds." },
   { q: "Comment contacter le support ?", a: "Vous pouvez nous joindre par WhatsApp au +237 659 374 501 ou par email a contact@kesselagritech.com. Nous repondons généralement sous 24h." },
 ];
 
