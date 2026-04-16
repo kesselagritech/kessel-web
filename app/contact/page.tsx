@@ -3,6 +3,7 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AgriPatterns from "@/components/AgriPatterns";
 
 export default function ContactPage() {
   useScrollReveal();
@@ -12,7 +13,8 @@ export default function ContactPage() {
       <Navbar />
 
       {/* HERO */}
-      <section className="bg-forest-dark pt-28 pb-20">
+      <section className="bg-forest-dark pt-28 pb-20 relative">
+        <AgriPatterns />
         <div className="max-w-6xl mx-auto px-6 text-center">
           <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Contact</p>
           <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
