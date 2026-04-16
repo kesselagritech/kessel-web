@@ -138,7 +138,7 @@ export default function Navbar() {
             <Link
               href="https://expo.dev/@kessel/kessel"
               target="_blank"
-              className="bg-forest-700 hover:bg-forest-800 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+              className="bg-amber hover:bg-amber-dark text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
             >
               Telecharger
             </Link>
