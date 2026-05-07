@@ -31,7 +31,7 @@ export default function HomePage() {
           <div>
             <div className="reveal inline-flex items-center gap-2 bg-amber/15 border border-amber/30 rounded-full px-4 py-1.5 mb-6">
               <span className="w-2 h-2 bg-amber rounded-full animate-pulse" />
-              <span className="text-amber-light text-sm font-medium">Application 100% gratuite</span>
+              <span className="text-amber-light text-sm font-medium">Téléchargement libre</span>
             </div>
 
             <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6" style={{ fontFamily: "var(--serif)" }}>
@@ -297,7 +297,7 @@ export default function HomePage() {
             Commencez à piloter<br />vos projets <em className="text-amber-light">dès aujourd'hui.</em>
           </h2>
           <p className="reveal reveal-delay-1 text-lg text-white/70 mb-10">
-            Application 100% gratuite. Aucune carte bancaire requise. Téléchargez et commencez à gérer vos projets agricoles immédiatement.
+            Téléchargez l'application et commencez immédiatement à gérer vos projets agricoles. Aucun paiement à l'entrée, sans engagement.
           </p>
           <div className="reveal reveal-delay-2 flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="#" className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-8 py-4 rounded-xl transition-all hover:-translate-y-0.5">

@@ -109,63 +109,12 @@ export default function TermsEnPage() {
               </div>
 
               <div className="reveal reveal-delay-4">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Plans, subscription and payment</h2>
-
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.1 Available plans</h3>
+                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Pricing</h2>
                 <p className="text-ink-mid leading-relaxed mb-4">
-                  Kessel offers two formulas: a free individual formula and a paid collective formula ("Kessel Team").
-                </p>
-                <div className="overflow-x-auto mb-6">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-forest-dark text-white">
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Plan</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Price</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Audience & included</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-neutral-mid">
-                        <td className="p-3 font-medium">Kessel</td>
-                        <td className="p-3 text-ink-mid">Free (0 FCFA)</td>
-                        <td className="p-3 text-ink-mid">Individual farmer · 1 invited technician · market prices for <strong>one region</strong> only · core features (projects, tasks, finances, field reports, notifications)</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3 font-medium">Kessel Team</td>
-                        <td className="p-3 text-ink-mid">10,000 FCFA / month<br />or 100,000 FCFA / year<br /><span className="text-xs text-amber">(2 months free on yearly)</span></td>
-                        <td className="p-3 text-ink-mid">Multiple registered collaborators · multiple invited technicians · market prices for <strong>all regions</strong> of Cameroon · access to technician catalog</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.2 Payment methods (Kessel Team)</h3>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  Kessel Team subscription can be paid via two methods:
-                </p>
-                <ul className="space-y-2 mb-4">
-                  <li className="flex items-start gap-2 text-ink-mid">
-                    <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-                    <span><strong>CamPay</strong>: mobile money (Orange Money or MTN Mobile Money), in-app.</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-ink-mid">
-                    <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-                    <span><strong>Bank transfer</strong>: on request to <a href="mailto:contact@kesselagritech.com" className="text-amber hover:underline">contact@kesselagritech.com</a> (banking details and invoices provided).</span>
-                  </li>
-                </ul>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  No credit cards are currently accepted. Any fees charged by your mobile operator or bank are at your expense.
-                </p>
-
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.3 Subscription cycle and renewal</h3>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  Kessel Team subscription is offered as <strong>monthly</strong> (10,000 FCFA for 30 days) or <strong>yearly</strong> (100,000 FCFA for 365 days, i.e. 2 months free compared to monthly billing).
-                </p>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  The subscription is <strong>not auto-renewed</strong>. Upon expiration of the paid period, your account automatically returns to the free Kessel plan. To keep Team features, you must manually reactivate via the application or by bank transfer.
+                  The Service is currently provided <strong>free of charge</strong> to all users (farmers, technicians, partners). No bank card or payment method is required to use the Application or any of its features.
                 </p>
                 <p className="text-ink-mid leading-relaxed mb-8">
-                  No charge is made without explicit new action on your part. No prorated refund is issued for periods already paid, except in exceptional cases assessed individually.
+                  Paid plans intended for agricultural businesses and cooperatives may be introduced in future versions of the Service. Their terms, prices and conditions will be communicated to concerned users in advance, and subscription will remain optional. No charge can be made without explicit action on your part.
                 </p>
               </div>
 

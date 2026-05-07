@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import AgriPatterns from "@/components/AgriPatterns";
 
 const faqs = [
-  { q: "Kessel est-il vraiment gratuit ?", a: "Oui, l'application Kessel est 100% gratuite pour les promoteurs individuels. Vous pouvez gérer vos projets, suivre vos finances et acceder aux prix des marches sans aucun frais." },
+  { q: "Kessel est-il payant ?", a: "Non, aucun paiement n'est requis pour utiliser Kessel aujourd'hui. Des formules payantes destinées aux entreprises agricoles et coopératives pourront être introduites dans les versions futures du Service, mais leur souscription restera optionnelle et toujours soumise à votre accord explicite." },
   { q: "L application fonctionne-t-elle sans internet ?", a: "Oui, Kessel est conçu pour fonctionner hors-ligne. Vous pouvez saisir vos données même sans connexion. Elles seront synchronisées automatiquement dès que vous retrouverez internet." },
   { q: "Dans quelles langues l'application est-elle disponible ?", a: "Kessel est disponible en français et en anglais. Vous pouvez changer là langue dans les paramètres de l'application." },
   { q: "Quelles cultures sont supportees ?", a: "Kessel couvre plus de 60 spéculations réparties sur les 5 zones agro-écologiques du Cameroun : cultures vivrières, maraîchage, cultures de rente, élevage, et plus encore." },

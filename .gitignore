@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Legal pages backups (local only)
 .kessel-legal-backup-*/
+
+kessel-web-cleanup.ps1
+kessel-web-structure.txt

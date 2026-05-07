@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import Link from "next/link";
@@ -80,7 +80,7 @@ export default function AProposPage() {
             {[
               { title: "Proximité terrain", desc: "Nous connaissons les réalités des agriculteurs camerounais. Chaque fonctionnalite est pensée pour le terrain, pas pour un bureau climatisé.", icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" },
               { title: "Simplicite", desc: "Pas besoin d'être un expert en informatique. Kessel est conçu pour etre intuitif et accessible a tous, du promoteur débutant au technicien expérimenté.", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
-              { title: "Accessibilité", desc: "Application gratuite, mode hors-ligne, interface en français et anglais. Nous supprimons les barrières à l'entrée pour que chacun puisse en bénéficier.", icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" },
+              { title: "Accessibilité", desc: "Mode hors-ligne, interface en français et anglais, accès libre. Nous supprimons les barrières à l'entrée pour que chacun puisse en bénéficier.", icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" },
             ].map((value, i) => (
               <div key={i} className={`reveal reveal-delay-${i + 1} text-center`}>
                 <div className="w-16 h-16 bg-forest-light rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -129,7 +129,7 @@ export default function AProposPage() {
             Rejoignez l'aventure<br /><em>Kessel.</em>
           </h2>
           <p className="reveal reveal-delay-1 text-lg text-ink-mid mb-10">
-            Téléchargez l'application gratuitement et commencez a gérer vos projets agricoles comme un professionnel.
+            Téléchargez l'application et commencez à gérer vos projets agricoles comme un professionnel.
           </p>
           <div className="reveal reveal-delay-2 flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/#telecharger" className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-8 py-4 rounded-xl transition-all hover:-translate-y-0.5">

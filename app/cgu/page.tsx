@@ -111,63 +111,12 @@ export default function CGUPage() {
               </div>
 
               <div className="reveal reveal-delay-4">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Plans, abonnement et paiement</h2>
-
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.1 Plans disponibles</h3>
+                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Tarification</h2>
                 <p className="text-ink-mid leading-relaxed mb-4">
-                  Kessel propose deux formules : une formule individuelle gratuite et une formule collective payante (« Kessel Team »).
-                </p>
-                <div className="overflow-x-auto mb-6">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-forest-dark text-white">
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Plan</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Tarif</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Public & inclus</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-neutral-mid">
-                        <td className="p-3 font-medium text-forest-dark">Kessel</td>
-                        <td className="p-3 text-ink-mid">Gratuit (0 FCFA)</td>
-                        <td className="p-3 text-ink-mid">Promoteur individuel · 1 technicien invité · prix marché d'<strong>une seule région</strong> · fonctionnalités essentielles (projets, tâches, finances, rapports terrain, notifications)</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3 font-medium text-forest-dark">Kessel Team</td>
-                        <td className="p-3 text-ink-mid">10 000 FCFA / mois<br />ou 100 000 FCFA / an<br /><span className="text-xs text-amber">(2 mois offerts sur l'annuel)</span></td>
-                        <td className="p-3 text-ink-mid">Plusieurs collaborateurs enregistrés · plusieurs techniciens invités · prix marché de <strong>toutes les régions</strong> du Cameroun · accès au catalogue de techniciens</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.2 Modes de paiement (Kessel Team)</h3>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  L'abonnement Kessel Team peut être réglé selon deux modes au choix :
-                </p>
-                <ul className="space-y-2 mb-4">
-                  <li className="flex items-start gap-2 text-ink-mid">
-                    <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-                    <span><strong>CamPay</strong> : mobile money (Orange Money ou MTN Mobile Money), depuis l'application.</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-ink-mid">
-                    <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-                    <span><strong>Virement bancaire</strong> : sur demande à <a href="mailto:contact@kesselagritech.com" className="text-amber hover:underline">contact@kesselagritech.com</a> (toutes coordonnées et factures fournies).</span>
-                  </li>
-                </ul>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  Aucune carte bancaire n'est acceptée à ce jour. Les frais éventuels facturés par votre opérateur mobile ou votre banque sont à votre charge.
-                </p>
-
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.3 Cycle d'abonnement et reconduction</h3>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  L'abonnement Kessel Team est proposé au choix en <strong>mensuel</strong> (10 000 FCFA pour 30 jours) ou <strong>annuel</strong> (100 000 FCFA pour 365 jours, soit 2 mois offerts par rapport au tarif mensuel).
-                </p>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  L'abonnement est <strong>non reconduit automatiquement</strong>. À l'expiration de la période payée, votre compte bascule automatiquement sur la formule gratuite Kessel. Pour conserver les fonctionnalités Team, vous devez procéder à une réactivation manuelle via l'application ou par virement.
+                  Le Service est actuellement proposé <strong>gratuitement</strong> à l'ensemble des utilisateurs (promoteurs, techniciens, partenaires). Aucune carte bancaire ni moyen de paiement n'est requis pour utiliser l'Application ou ses fonctionnalités.
                 </p>
                 <p className="text-ink-mid leading-relaxed mb-8">
-                  Aucun prélèvement n'est effectué sans une nouvelle action explicite de votre part. Aucun remboursement prorata temporis n'est effectué pour les périodes déjà payées, sauf cas exceptionnels appréciés au cas par cas.
+                  Des formules payantes destinées aux entreprises agricoles et coopératives pourront être introduites dans des versions ultérieures du Service. Leurs modalités, tarifs et conditions seront communiqués aux utilisateurs concernés en amont, et la souscription restera optionnelle. Aucun prélèvement ne pourra être effectué sans action explicite de votre part.
                 </p>
               </div>
 
