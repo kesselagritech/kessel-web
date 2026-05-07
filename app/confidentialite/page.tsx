@@ -89,11 +89,6 @@ export default function ConfidentialitePage() {
                         <td className="p-3 text-ink-mid">Fourniture du service de gestion agricole</td>
                       </tr>
                       <tr className="border-b border-neutral-mid">
-                        <td className="p-3 font-medium text-forest-dark">Paiement</td>
-                        <td className="p-3 text-ink-mid">Numéro mobile money (Orange Money, MTN MoMo) ou coordonnées de virement bancaire (sur demande Kessel Team)</td>
-                        <td className="p-3 text-ink-mid">Traitement via CamPay ou virement (aucune donnée de carte bancaire stockée)</td>
-                      </tr>
-                      <tr className="border-b border-neutral-mid">
                         <td className="p-3 font-medium text-forest-dark">Technique</td>
                         <td className="p-3 text-ink-mid">Jeton de notification push, identifiants de session, modèle d'appareil</td>
                         <td className="p-3 text-ink-mid">Notifications, sécurité, support</td>
@@ -114,7 +109,7 @@ export default function ConfidentialitePage() {
                     "Historique de navigation hors de l'application",
                     "Photos ou fichiers stockés sur le téléphone (autres que celles capturées via Kessel)",
                     "Données biométriques",
-                    "Numéros de carte bancaire (paiement uniquement par mobile money via CamPay ou par virement bancaire pour Kessel Team)",
+                    "Numéros de carte bancaire ou autres données de paiement (aucun paiement n'est requis pour utiliser le Service)",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-ink-mid">
                       <svg className="w-5 h-5 text-brick shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -134,7 +129,7 @@ export default function ConfidentialitePage() {
                 </p>
                 <ul className="space-y-2 mb-8">
                   {[
-                    "Exécution du contrat (compte, projets, rapports, paiements).",
+                    "Exécution du contrat (compte, projets, rapports).",
                     "Consentement explicite (localisation GPS, accès à la caméra).",
                     "Intérêt légitime (sécurité, diagnostic technique).",
                     "Obligation légale (opérations financières, lutte contre la fraude).",
@@ -192,7 +187,6 @@ export default function ConfidentialitePage() {
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Supabase Inc.</td><td className="p-3 text-ink-mid">Base de données, auth, stockage fichiers</td><td className="p-3 text-ink-mid">États-Unis (us-west-2, Oregon)</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Expo (EAS)</td><td className="p-3 text-ink-mid">Distribution notifications push</td><td className="p-3 text-ink-mid">États-Unis</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Vercel Inc.</td><td className="p-3 text-ink-mid">Site web et outils d'administration</td><td className="p-3 text-ink-mid">États-Unis / UE (CDN global)</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">CamPay</td><td className="p-3 text-ink-mid">Paiements mobile money</td><td className="p-3 text-ink-mid">Cameroun</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Sentry</td><td className="p-3 text-ink-mid">Diagnostic des pannes</td><td className="p-3 text-ink-mid">Union européenne</td></tr>
                       <tr><td className="p-3 font-medium">Google FCM</td><td className="p-3 text-ink-mid">Distribution technique des notifs</td><td className="p-3 text-ink-mid">États-Unis</td></tr>
                     </tbody>
@@ -219,8 +213,7 @@ export default function ConfidentialitePage() {
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Compte (actif)</td><td className="p-3 text-ink-mid">Tant que le compte est actif</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Compte (après suppression)</td><td className="p-3 text-ink-mid">30 jours (réversibilité), puis effacement définitif</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Photos et rapports</td><td className="p-3 text-ink-mid">Tant que le projet est actif, ou jusqu'à suppression manuelle</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Logs techniques</td><td className="p-3 text-ink-mid">90 jours maximum</td></tr>
-                      <tr><td className="p-3 font-medium">Données de paiement</td><td className="p-3 text-ink-mid">10 ans (obligation comptable)</td></tr>
+                      <tr><td className="p-3 font-medium">Logs techniques</td><td className="p-3 text-ink-mid">90 jours maximum</td></tr>
                     </tbody>
                   </table>
                 </div>
