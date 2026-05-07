@@ -69,7 +69,6 @@ export default function PrivacyEnPage() {
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Location</td><td className="p-3 text-ink-mid">GPS coordinates when capturing field photos</td><td className="p-3 text-ink-mid">Geolocate agricultural reports</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Photos</td><td className="p-3 text-ink-mid">Images captured via camera (field evidence)</td><td className="p-3 text-ink-mid">Document project reports</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Business</td><td className="p-3 text-ink-mid">Projects, tasks, expenses, revenues, reports</td><td className="p-3 text-ink-mid">Agricultural management service</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Payment</td><td className="p-3 text-ink-mid">Mobile money number (Orange Money, MTN MoMo) or bank transfer details (on request, Kessel Team)</td><td className="p-3 text-ink-mid">Processing via CamPay or bank transfer (no card data stored)</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Technical</td><td className="p-3 text-ink-mid">Push notification token, session IDs, device model</td><td className="p-3 text-ink-mid">Notifications, security, support</td></tr>
                       <tr><td className="p-3 font-medium">Logs</td><td className="p-3 text-ink-mid">Crashes, anonymized technical IDs</td><td className="p-3 text-ink-mid">Diagnostics via Sentry</td></tr>
                     </tbody>
@@ -83,7 +82,7 @@ export default function PrivacyEnPage() {
                     "Browsing history outside the application",
                     "Photos or files on your phone (other than those captured via Kessel)",
                     "Biometric data",
-                    "Credit card numbers (mobile money via CamPay or bank transfer for Kessel Team only)",
+                    "Credit card numbers or other payment data (no payment is required to use the Service)",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-ink-mid">
                       <svg className="w-5 h-5 text-brick shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -103,7 +102,7 @@ export default function PrivacyEnPage() {
                 </p>
                 <ul className="space-y-2 mb-8">
                   {[
-                    "Performance of contract (account, projects, reports, payments).",
+                    "Performance of contract (account, projects, reports).",
                     "Explicit consent (GPS location, camera access).",
                     "Legitimate interest (security, technical diagnostics).",
                     "Legal obligation (financial operations, fraud prevention).",
@@ -158,7 +157,6 @@ export default function PrivacyEnPage() {
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Supabase Inc.</td><td className="p-3 text-ink-mid">Database, auth, file storage</td><td className="p-3 text-ink-mid">United States (us-west-2, Oregon)</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Expo (EAS)</td><td className="p-3 text-ink-mid">Push notifications</td><td className="p-3 text-ink-mid">United States</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Vercel Inc.</td><td className="p-3 text-ink-mid">Website and admin tools</td><td className="p-3 text-ink-mid">United States / EU (global CDN)</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">CamPay</td><td className="p-3 text-ink-mid">Mobile money payments</td><td className="p-3 text-ink-mid">Cameroon</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Sentry</td><td className="p-3 text-ink-mid">Crash diagnostics</td><td className="p-3 text-ink-mid">European Union</td></tr>
                       <tr><td className="p-3 font-medium">Google FCM</td><td className="p-3 text-ink-mid">Notification delivery</td><td className="p-3 text-ink-mid">United States</td></tr>
                     </tbody>
@@ -183,8 +181,7 @@ export default function PrivacyEnPage() {
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Account (active)</td><td className="p-3 text-ink-mid">As long as the account is active</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Account (after deletion)</td><td className="p-3 text-ink-mid">30 days (reversibility), then permanent erasure</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Photos and reports</td><td className="p-3 text-ink-mid">As long as the project is active, or until manual deletion</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Technical logs</td><td className="p-3 text-ink-mid">90 days maximum</td></tr>
-                      <tr><td className="p-3 font-medium">Payment records</td><td className="p-3 text-ink-mid">10 years (accounting obligation)</td></tr>
+                      <tr><td className="p-3 font-medium">Technical logs</td><td className="p-3 text-ink-mid">90 days maximum</td></tr>
                     </tbody>
                   </table>
                 </div>
