@@ -211,7 +211,7 @@ export default function ConfidentialitePage() {
                     </thead>
                     <tbody>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Compte (actif)</td><td className="p-3 text-ink-mid">Tant que le compte est actif</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Compte (après suppression)</td><td className="p-3 text-ink-mid">30 jours (réversibilité), puis effacement définitif</td></tr>
+                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Compte (après suppression)</td><td className="p-3 text-ink-mid">Effacement immédiat et définitif</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Photos et rapports</td><td className="p-3 text-ink-mid">Tant que le projet est actif, ou jusqu'à suppression manuelle</td></tr>
                       <tr><td className="p-3 font-medium">Logs techniques</td><td className="p-3 text-ink-mid">90 jours maximum</td></tr>
                     </tbody>

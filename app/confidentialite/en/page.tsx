@@ -179,7 +179,7 @@ export default function PrivacyEnPage() {
                     </thead>
                     <tbody>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Account (active)</td><td className="p-3 text-ink-mid">As long as the account is active</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Account (after deletion)</td><td className="p-3 text-ink-mid">30 days (reversibility), then permanent erasure</td></tr>
+                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Account (after deletion)</td><td className="p-3 text-ink-mid">Immediate and permanent erasure</td></tr>
                       <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Photos and reports</td><td className="p-3 text-ink-mid">As long as the project is active, or until manual deletion</td></tr>
                       <tr><td className="p-3 font-medium">Technical logs</td><td className="p-3 text-ink-mid">90 days maximum</td></tr>
                     </tbody>
