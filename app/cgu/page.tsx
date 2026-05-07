@@ -111,12 +111,16 @@ export default function CGUPage() {
               </div>
 
               <div className="reveal reveal-delay-4">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Tarification</h2>
+                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Tarification et formules envisagées</h2>
+
+                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.1 Formule actuelle</h3>
                 <p className="text-ink-mid leading-relaxed mb-4">
                   Le Service est actuellement proposé <strong>gratuitement</strong> à l'ensemble des utilisateurs (promoteurs, techniciens, partenaires). Aucune carte bancaire ni moyen de paiement n'est requis pour utiliser l'Application ou ses fonctionnalités.
                 </p>
+
+                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.2 Formule étendue à l'étude (« Kessel Team »)</h3>
                 <p className="text-ink-mid leading-relaxed mb-8">
-                  Des formules payantes destinées aux entreprises agricoles et coopératives pourront être introduites dans des versions ultérieures du Service. Leurs modalités, tarifs et conditions seront communiqués aux utilisateurs concernés en amont, et la souscription restera optionnelle. Aucun prélèvement ne pourra être effectué sans action explicite de votre part.
+                  Une formule étendue, dénommée « Kessel Team », est à l'étude pour les organisations agricoles travaillant avec plusieurs collaborateurs et techniciens. Cette formule n'est pas active à ce jour. Ses modalités définitives (caractéristiques, tarif, mode de souscription, conditions) seront communiquées en amont aux utilisateurs intéressés. Aucun prélèvement ne pourra être effectué sans action explicite de votre part.
                 </p>
               </div>
 

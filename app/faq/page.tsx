@@ -9,6 +9,7 @@ import AgriPatterns from "@/components/AgriPatterns";
 
 const faqs = [
   { q: "Kessel est-il payant ?", a: "Non, aucun paiement n'est requis pour utiliser Kessel aujourd'hui. Des formules payantes destinées aux entreprises agricoles et coopératives pourront être introduites dans les versions futures du Service, mais leur souscription restera optionnelle et toujours soumise à votre accord explicite." },
+  { q: "Existe-t-il une formule pour les équipes ?", a: "Une formule étendue « Kessel Team » est à l'étude pour les organisations agricoles travaillant avec plusieurs collaborateurs et techniciens. Cette offre n'est pas encore active. Pour manifester votre intérêt, contactez-nous à contact@kesselagritech.com." },
   { q: "L application fonctionne-t-elle sans internet ?", a: "Oui, Kessel est conçu pour fonctionner hors-ligne. Vous pouvez saisir vos données même sans connexion. Elles seront synchronisées automatiquement dès que vous retrouverez internet." },
   { q: "Dans quelles langues l'application est-elle disponible ?", a: "Kessel est disponible en français et en anglais. Vous pouvez changer là langue dans les paramètres de l'application." },
   { q: "Quelles cultures sont supportees ?", a: "Kessel couvre plus de 60 spéculations réparties sur les 5 zones agro-écologiques du Cameroun : cultures vivrières, maraîchage, cultures de rente, élevage, et plus encore." },

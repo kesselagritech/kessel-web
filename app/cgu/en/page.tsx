@@ -109,12 +109,16 @@ export default function TermsEnPage() {
               </div>
 
               <div className="reveal reveal-delay-4">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Pricing</h2>
+                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Pricing and contemplated plans</h2>
+
+                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.1 Current plan</h3>
                 <p className="text-ink-mid leading-relaxed mb-4">
                   The Service is currently provided <strong>free of charge</strong> to all users (farmers, technicians, partners). No bank card or payment method is required to use the Application or any of its features.
                 </p>
+
+                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.2 Extended plan under consideration ("Kessel Team")</h3>
                 <p className="text-ink-mid leading-relaxed mb-8">
-                  Paid plans intended for agricultural businesses and cooperatives may be introduced in future versions of the Service. Their terms, prices and conditions will be communicated to concerned users in advance, and subscription will remain optional. No charge can be made without explicit action on your part.
+                  An extended plan, called "Kessel Team", is being considered for agricultural organizations working with multiple collaborators and technicians. This plan is not currently active. Its final terms (features, price, subscription mode, conditions) will be communicated in advance to interested users. No charge can be made without explicit action on your part.
                 </p>
               </div>
 
