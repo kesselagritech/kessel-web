@@ -47,3 +47,6 @@ next-env.d.ts
 
 kessel-web-cleanup.ps1
 kessel-web-structure.txt
+
+kessel-team-*.ps1
+kessel-web-cleanup.ps1
