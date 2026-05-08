@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 // @ts-nocheck
 
 import { useState } from "react";
@@ -62,7 +62,32 @@ const etapesPrealables = [
   },
 ];
 
-const steps = [
+type MockupItem =
+  | { type: "input"; label: string; value: string }
+  | { type: "select"; label: string; value: string }
+  | { type: "button"; label: string }
+  | { type: "badge"; label: string; color: string }
+  | { type: "text"; value: string }
+  | { type: "stat"; label: string; value: string; color?: string }
+  | { type: "progress"; label: string; value: number }
+  | { type: "list"; items: string[] }
+  | { type: "task"; label: string; status: string; date: string }
+  | { type: "price"; name: string; price: string; trend: string }
+  | { type: "code"; value: string }
+  | { type: "user"; name: string; role: string; status: string }
+  | { type: "report"; title: string; status: string };
+
+type Step = {
+  id: number;
+  title: string;
+  desc: string;
+  mockup: {
+    header: string;
+    content: MockupItem[];
+  };
+};
+
+const steps: Step[] = [
   {
     id: 1,
     title: "Créez votre compte",

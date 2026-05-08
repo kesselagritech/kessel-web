@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
@@ -70,7 +70,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const navLinks = [];
+  const navLinks: { href: string; label: string }[] = [];
 
   const resourceLinks = [
     { href: "/guide", label: "Guide d'utilisation" },

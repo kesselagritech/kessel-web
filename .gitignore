@@ -50,3 +50,11 @@ kessel-web-structure.txt
 
 kessel-team-*.ps1
 kessel-web-cleanup.ps1
+
+# Backups locaux
+*.bak
+*.bak.*
+
+# Scripts PowerShell locaux
+kessel-privacy-*.ps1
+fix-accents-*.ps1
