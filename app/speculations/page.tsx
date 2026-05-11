@@ -5,6 +5,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Image from "next/image";
 import AgriPatterns from "@/components/AgriPatterns";
 
 const categories = [
@@ -526,9 +527,11 @@ export default function SpeculationsPage() {
       <Navbar />
 
       {/* HERO */}
-      <section className="bg-forest-dark pt-28 pb-20 relative">
+      <section className="relative bg-forest-dark pt-28 pb-20 overflow-hidden">
+        <Image src="/images/speculations-hero.jpg" alt="" fill className="object-cover object-center" priority quality={85} />
+        <div className="absolute inset-0 bg-forest-dark/70" />
         <AgriPatterns />
-        <div className="max-w-6xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
           <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Catalogue</p>
           <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
             {speculations.length}+ speculations<br /><em className="text-amber-light">supportees.</em>
@@ -620,8 +623,10 @@ export default function SpeculationsPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 bg-forest-dark">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+      <section className="relative py-24 overflow-hidden">
+        <Image src="/images/cta-aerial.jpg" alt="" fill className="object-cover object-center" quality={85} />
+        <div className="absolute inset-0 bg-forest-dark/70" />
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
           <h2 className="reveal text-3xl md:text-4xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
             Votre culture n'est pas<br /><em className="text-amber-light">dans la liste ?</em>
           </h2>
