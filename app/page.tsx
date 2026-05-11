@@ -41,7 +41,7 @@ export default function HomePage() {
           </svg>
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto w-full grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-12 items-center">
+        <div className="relative z-10 max-w-3xl mx-auto w-full text-center">
           <div>
             <div className="reveal inline-flex items-center gap-2 bg-amber/15 border border-amber/30 rounded-full px-4 py-1.5 mb-6">
               <span className="w-2 h-2 bg-amber rounded-full animate-pulse" />
@@ -52,11 +52,11 @@ export default function HomePage() {
               Pilotez votre projet agricole, <em className="text-amber-light">même quand vous n&apos;êtes pas là.</em>
             </h1>
 
-            <p className="reveal reveal-delay-2 text-lg text-white/75 mb-8 max-w-lg leading-relaxed">
+            <p className="reveal reveal-delay-2 text-lg text-white/75 mb-8 max-w-xl mx-auto leading-relaxed">
               Kessel relie promoteurs et techniciens dans un seul outil mobile, pour suivre vos finances, vos tâches et le terrain en temps réel — gratuitement.
             </p>
 
-            <div className="reveal reveal-delay-3 flex flex-col sm:flex-row gap-4">
+            <div className="reveal reveal-delay-3 flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/installation-android" className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-7 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -73,7 +73,7 @@ export default function HomePage() {
               </a>
             </div>
 
-            <div className="reveal reveal-delay-4 grid grid-cols-3 gap-6 mt-10 max-w-sm">
+            <div className="reveal reveal-delay-4 grid grid-cols-3 gap-6 mt-10 max-w-sm mx-auto">
               <div className="text-center">
                 <div className="text-3xl font-bold text-white" style={{ fontFamily: "var(--serif)" }}>5</div>
                 <div className="text-white/50 text-sm">zones</div>
@@ -85,21 +85,6 @@ export default function HomePage() {
               <div className="text-center">
                 <div className="text-3xl font-bold text-white" style={{ fontFamily: "var(--serif)" }}>78</div>
                 <div className="text-white/50 text-sm">fiches ITK</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="reveal reveal-delay-2 flex justify-center">
-            <div className="relative w-[240px] sm:w-[260px] lg:w-[280px] aspect-[9/19.5] bg-[#0a0a0a] rounded-[2.5rem] p-2 shadow-2xl border border-white/10">
-              <div className="relative w-full h-full rounded-[2rem] overflow-hidden bg-white">
-                <Image
-                  src="/images/app-home.png"
-                  alt="Application Kessel — écran d'accueil"
-                  fill
-                  sizes="(max-width: 640px) 240px, (max-width: 1024px) 260px, 280px"
-                  className="object-cover object-top"
-                  priority
-                />
               </div>
             </div>
           </div>

@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Image from "next/image";
 import AgriPatterns from "@/components/AgriPatterns";
 
 const zones = [
@@ -13,6 +14,7 @@ const zones = [
     name: "Hauts Plateaux de l'Ouest",
     shortName: "Hauts Plateaux",
     color: "#3B6D11",
+    image: "/images/zone-1.jpg",
     regions: ["Ouest", "Nord-Ouest", "Partie de l'Adamaoua"],
     altitude: "1 000 – 2 500 m",
     pluvio: "1 500 – 2 500 mm/an",
@@ -34,6 +36,7 @@ const zones = [
     name: "Forêts Équatoriales Bimodales",
     shortName: "Forêts Bimodales",
     color: "#1A5D3A",
+    image: "/images/zone-2.jpg",
     regions: ["Centre", "Sud", "Est"],
     altitude: "400 – 1 000 m",
     pluvio: "1 500 – 2 000 mm/an",
@@ -57,6 +60,7 @@ const zones = [
     name: "Forêts Équatoriales Monomodales",
     shortName: "Forêts Monomodales",
     color: "#2D7A4E",
+    image: "/images/zone-3.jpg",
     regions: ["Littoral", "Sud-Ouest"],
     altitude: "0 – 500 m",
     pluvio: "2 500 – 4 000 mm/an",
@@ -78,6 +82,7 @@ const zones = [
     name: "Hautes Savanes Guinéennes",
     shortName: "Savanes Guinéennes",
     color: "#8B7355",
+    image: "/images/zone-4.jpg",
     regions: ["Adamaoua"],
     altitude: "900 – 1 500 m",
     pluvio: "1 400 – 1 800 mm/an",
@@ -99,6 +104,7 @@ const zones = [
     name: "Soudano-Sahélienne",
     shortName: "Soudano-Sahélienne",
     color: "#C4A35A",
+    image: "/images/zone-5.jpg",
     regions: ["Nord", "Extrême-Nord"],
     altitude: "200 – 500 m",
     pluvio: "400 – 1 200 mm/an",
@@ -125,21 +131,30 @@ export default function ZonesPage() {
     <>
       <Navbar />
 
-      {/* HERO */}
-      <section className="bg-forest-dark pt-28 pb-20 relative">
+      {/* ─── HERO avec image de fond ─── */}
+      <section className="relative bg-forest-dark pt-28 pb-20 overflow-hidden">
+        <Image
+          src="/images/zones-hero.jpg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+          quality={85}
+        />
+        <div className="absolute inset-0 bg-forest-dark/70" />
         <AgriPatterns />
-        <div className="max-w-6xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
           <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Agronomie</p>
           <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
             Les 5 zones agro-écologiques<br /><em className="text-amber-light">du Cameroun.</em>
           </h1>
           <p className="reveal reveal-delay-2 text-lg text-white/70 max-w-3xl mx-auto">
-            Le Cameroun est souvent appelé « l'Afrique en miniature » grâce à sa diversité climatique exceptionnelle. Kessel adapte ses recommandations à chaque zone pour des conseils vraiment pertinents.
+            Le Cameroun est souvent appelé « l&apos;Afrique en miniature » grâce à sa diversité climatique exceptionnelle. Kessel adapte ses recommandations à chaque zone pour des conseils vraiment pertinents.
           </p>
         </div>
       </section>
 
-      {/* POURQUOI C'EST IMPORTANT */}
+      {/* ─── POURQUOI C'EST IMPORTANT ─── */}
       <section className="py-16 bg-amber-light/30 border-y border-amber/20">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8">
@@ -162,11 +177,11 @@ export default function ZonesPage() {
         </div>
       </section>
 
-      {/* ZONES */}
+      {/* ─── ZONES ─── */}
       <section className="py-24 bg-neutral">
         <div className="max-w-6xl mx-auto px-6">
-          {/* Navigation */}
-          <div className="flex flex-wrap justify-center gap-3 mb-16">
+          {/* Tabs navigation */}
+          <div className="flex flex-wrap justify-center gap-3 mb-10">
             {zones.map((zone, i) => (
               <button
                 key={zone.id}
@@ -174,7 +189,7 @@ export default function ZonesPage() {
                 className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                   activeZone === i
                     ? "bg-forest text-white shadow-lg"
-                    : "bg-white text-forest-dark hover:bg-forest-light"
+                    : "bg-white text-forest-dark hover:bg-forest-light border border-forest-light"
                 }`}
               >
                 <span className="w-3 h-3 rounded-full" style={{ backgroundColor: zone.color }}></span>
@@ -183,93 +198,119 @@ export default function ZonesPage() {
             ))}
           </div>
 
-          {/* Détail zone */}
-          <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
-            <div className="p-2">
-              <div className="h-4 rounded-t-2xl" style={{ backgroundColor: zones[activeZone].color }}></div>
-            </div>
-            <div className="p-8 md:p-12">
-              <div className="grid lg:grid-cols-2 gap-12">
-                {/* Infos */}
-                <div>
-                  <h2 className="text-3xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>
-                    {zones[activeZone].name}
-                  </h2>
-                  <p className="text-ink-mid mb-6">{zones[activeZone].climat}</p>
-
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-forest-light rounded-lg flex items-center justify-center shrink-0">
-                        <svg className="w-5 h-5 text-forest" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                      </div>
-                      <div>
-                        <div className="text-sm text-ink-light">Régions</div>
-                        <div className="font-semibold text-forest-dark">{zones[activeZone].regions.join(", ")}</div>
-                      </div>
+              {/* Fiche zone */}
+              <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
+                {/* Image de zone */}
+                <div className="relative h-48 md:h-64">
+                  <Image
+                    src={zones[activeZone].image}
+                    alt={`Paysage de la zone ${zones[activeZone].name}`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 700px"
+                    className="object-cover"
+                    quality={85}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 left-6 right-6">
+                    <div
+                      className="inline-block px-3 py-1 rounded-full text-xs font-semibold text-white"
+                      style={{ backgroundColor: zones[activeZone].color }}
+                    >
+                      Zone {zones[activeZone].id}
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-forest-light rounded-lg flex items-center justify-center shrink-0">
-                        <svg className="w-5 h-5 text-forest" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
-                      </div>
-                      <div>
-                        <div className="text-sm text-ink-light">Pluviométrie</div>
-                        <div className="font-semibold text-forest-dark">{zones[activeZone].pluvio}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-forest-light rounded-lg flex items-center justify-center shrink-0">
-                        <svg className="w-5 h-5 text-forest" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                      </div>
-                      <div>
-                        <div className="text-sm text-ink-light">Altitude</div>
-                        <div className="font-semibold text-forest-dark">{zones[activeZone].altitude}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Saisons */}
-                  <h3 className="text-lg font-semibold text-forest-dark mb-3">Saisons</h3>
-                  <div className="space-y-2 mb-8">
-                    {zones[activeZone].saisons.map((s, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-forest-light/50 rounded-lg px-4 py-2">
-                        <div className={`w-2 h-2 rounded-full ${s.nom.includes("sèche") ? "bg-amber" : "bg-blue-500"}`}></div>
-                        <span className="font-medium text-forest-dark">{s.nom}</span>
-                        <span className="text-ink-light text-sm ml-auto">{s.mois}</span>
-                      </div>
-                    ))}
                   </div>
                 </div>
 
-                {/* Spéculations et spécificités */}
-                <div>
-                  <h3 className="text-lg font-semibold text-forest-dark mb-3">Spéculations adaptées</h3>
-                  <div className="flex flex-wrap gap-2 mb-8">
-                    {zones[activeZone].speculations.map((spec, i) => (
-                      <span key={i} className="bg-forest-light text-forest-dark px-3 py-1.5 rounded-full text-sm font-medium">
-                        {spec}
-                      </span>
-                    ))}
-                  </div>
+                <div className="p-8 md:p-10">
+                  <div className="grid lg:grid-cols-2 gap-10">
+                    {/* Colonne gauche — infos */}
+                    <div>
+                      <h2 className="text-2xl md:text-3xl font-bold text-forest-dark mb-3" style={{ fontFamily: "var(--serif)" }}>
+                        {zones[activeZone].name}
+                      </h2>
+                      <p className="text-ink-mid mb-6">{zones[activeZone].climat}</p>
 
-                  <h3 className="text-lg font-semibold text-forest-dark mb-3">Spécificités</h3>
-                  <ul className="space-y-3">
-                    {zones[activeZone].specificites.map((spec, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-amber shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-                        <span className="text-ink-mid">{spec}</span>
-                      </li>
-                    ))}
-                  </ul>
+                      <div className="space-y-4 mb-8">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-forest-light rounded-lg flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5 text-forest" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                          </div>
+                          <div>
+                            <div className="text-sm text-ink-light">Régions</div>
+                            <div className="font-semibold text-forest-dark">{zones[activeZone].regions.join(", ")}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-forest-light rounded-lg flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5 text-forest" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
+                          </div>
+                          <div>
+                            <div className="text-sm text-ink-light">Pluviométrie</div>
+                            <div className="font-semibold text-forest-dark">{zones[activeZone].pluvio}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-forest-light rounded-lg flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5 text-forest" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                          </div>
+                          <div>
+                            <div className="text-sm text-ink-light">Altitude</div>
+                            <div className="font-semibold text-forest-dark">{zones[activeZone].altitude}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Saisons */}
+                      <h3 className="text-lg font-semibold text-forest-dark mb-3">Saisons</h3>
+                      <div className="space-y-2">
+                        {zones[activeZone].saisons.map((s, i) => (
+                          <div key={i} className="flex items-center gap-3 bg-forest-light/50 rounded-lg px-4 py-2">
+                            <div className={`w-2 h-2 rounded-full ${s.nom.includes("sèche") ? "bg-amber" : "bg-blue-500"}`}></div>
+                            <span className="font-medium text-forest-dark">{s.nom}</span>
+                            <span className="text-ink-light text-sm ml-auto">{s.mois}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Colonne droite — spéculations + spécificités */}
+                    <div>
+                      <h3 className="text-lg font-semibold text-forest-dark mb-3">Spéculations adaptées</h3>
+                      <div className="flex flex-wrap gap-2 mb-8">
+                        {zones[activeZone].speculations.map((spec, i) => (
+                          <span key={i} className="bg-forest-light text-forest-dark px-3 py-1.5 rounded-full text-sm font-medium">
+                            {spec}
+                          </span>
+                        ))}
+                      </div>
+
+                      <h3 className="text-lg font-semibold text-forest-dark mb-3">Spécificités</h3>
+                      <ul className="space-y-3">
+                        {zones[activeZone].specificites.map((spec, i) => (
+                          <li key={i} className="flex items-start gap-3">
+                            <svg className="w-5 h-5 text-amber shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span className="text-ink-mid">{spec}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 bg-forest-dark">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+      {/* ─── CTA avec image aérienne ─── */}
+      <section className="relative py-24 overflow-hidden">
+        <Image
+          src="/images/cta-aerial.jpg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          quality={85}
+        />
+        <div className="absolute inset-0 bg-forest-dark/70" />
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
           <h2 className="reveal text-3xl md:text-4xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
             Des conseils adaptés<br /><em className="text-amber-light">à votre zone.</em>
           </h2>
