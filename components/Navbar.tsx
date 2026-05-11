@@ -134,14 +134,6 @@ export default function Navbar() {
             >
               Contact
             </Link>
-
-            <Link
-              href="https://expo.dev/@kessel/kessel"
-              target="_blank"
-              className="bg-amber hover:bg-amber-dark text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
-            >
-              Telecharger
-            </Link>
           </div>
 
           <button
@@ -189,15 +181,6 @@ export default function Navbar() {
               onClick={() => setIsOpen(false)}
             >
               Contact
-            </Link>
-
-            <Link
-              href="https://expo.dev/@kessel/kessel"
-              target="_blank"
-              className="block mt-4 bg-forest-700 hover:bg-forest-800 text-white text-center px-5 py-3 rounded-lg font-medium"
-              onClick={() => setIsOpen(false)}
-            >
-              Telecharger l'app
             </Link>
           </div>
         </div>
