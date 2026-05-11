@@ -14,8 +14,23 @@ export default function HomePage() {
     <>
       <Navbar />
 
-      {/* HERO - sans photo en background */}
-      <section className="relative min-h-screen bg-forest-dark overflow-hidden flex items-center px-[5vw] pt-32 pb-16 lg:py-24 grain-overlay hero-gradient">
+      {/* ─────────────────────────────────────────────
+          HERO — photo plantation en background
+      ───────────────────────────────────────────── */}
+      <section className="relative min-h-screen overflow-hidden flex items-center px-[5vw] pt-32 pb-16 lg:py-24 grain-overlay hero-gradient">
+        {/* Photo background */}
+        <Image
+          src="/images/hero-bg.jpg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+          quality={85}
+        />
+        {/* Overlay sombre pour lisibilité */}
+        <div className="absolute inset-0 bg-forest-dark/72" />
+
+        {/* Hexagones décoratifs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <svg className="absolute -right-[8%] -top-[10%] w-[55%] opacity-[0.05]" viewBox="0 0 600 600">
             <polygon points="300,20 560,150 560,450 300,580 40,450 40,150" stroke="white" strokeWidth="2" fill="none" />
@@ -91,12 +106,27 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SECTION NARRATIVE — promoteur / technicien */}
+      {/* SECTION NARRATIVE — promoteur / technicien (2 images IA) */}
       <NarrativeSection />
 
-      {/* FONCTIONNALITES */}
+      {/* ─────────────────────────────────────────────
+          FONCTIONNALITÉS — flatlay + grille
+      ───────────────────────────────────────────── */}
       <section id="fonctionnalites" className="py-24 bg-neutral">
         <div className="max-w-6xl mx-auto px-6">
+          {/* Image d'ambiance — flatlay desk */}
+          <div className="reveal relative w-full max-w-4xl mx-auto aspect-[16/9] rounded-2xl overflow-hidden mb-16 shadow-lg">
+            <Image
+              src="/images/desk-flatlay.jpg"
+              alt="Outil de gestion agricole Kessel sur un bureau"
+              fill
+              sizes="(max-width: 1024px) 100vw, 896px"
+              className="object-cover object-center"
+              quality={85}
+            />
+
+          </div>
+
           <div className="text-center mb-16">
             <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Fonctionnalités</p>
             <h2 className="reveal reveal-delay-1 text-3xl md:text-4xl font-bold text-forest-dark" style={{ fontFamily: "var(--serif)" }}>
@@ -127,7 +157,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TELECHARGEMENT LIBRE - 2 puces seulement */}
+      {/* TELECHARGEMENT LIBRE */}
       <section className="py-24 bg-forest-light relative">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Accès</p>
@@ -165,12 +195,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA FINAL */}
-      <section id="telecharger" className="relative py-24 bg-forest-dark overflow-hidden">
-        <svg className="absolute -right-[5%] -bottom-[10%] w-[40%] opacity-[0.08]" viewBox="0 0 400 400">
+      {/* ─────────────────────────────────────────────
+          CTA FINAL — vue aérienne plantation
+      ───────────────────────────────────────────── */}
+      <section id="telecharger" className="relative py-24 overflow-hidden">
+        {/* Photo aérienne background */}
+        <Image
+          src="/images/cta-aerial.jpg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          quality={85}
+        />
+        {/* Overlay sombre */}
+        <div className="absolute inset-0 bg-forest-dark/70" />
+
+        {/* Hexagones décoratifs */}
+        <svg className="absolute -right-[5%] -bottom-[10%] w-[40%] opacity-[0.08] pointer-events-none" viewBox="0 0 400 400">
           <polygon points="200,10 370,105 370,295 200,390 30,295 30,105" stroke="white" strokeWidth="1.5" fill="none" />
         </svg>
-        <svg className="absolute -left-[8%] -top-[15%] w-[35%] opacity-[0.06]" viewBox="0 0 300 300">
+        <svg className="absolute -left-[8%] -top-[15%] w-[35%] opacity-[0.06] pointer-events-none" viewBox="0 0 300 300">
           <polygon points="150,8 278,79 278,221 150,292 22,221 22,79" stroke="white" strokeWidth="1" fill="none" />
         </svg>
 

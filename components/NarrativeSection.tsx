@@ -39,7 +39,9 @@ export default function NarrativeSection() {
     };
   }, [isDesktop]);
 
-  // MOBILE / SSR : 2 sections empilées avec photo entière
+  // ═══════════════════════════════════════
+  // MOBILE / SSR — 2 blocs empilés
+  // ═══════════════════════════════════════
   if (isDesktop === null || !isDesktop) {
     return (
       <section className="relative bg-forest-dark py-16 px-6 overflow-hidden">
@@ -56,19 +58,19 @@ export default function NarrativeSection() {
         </svg>
 
         <div className="relative max-w-2xl mx-auto">
-          {/* Photo entière mobile - 16/10 */}
-          <div className="reveal relative aspect-[16/10] rounded-2xl overflow-hidden mb-12 shadow-2xl ring-1 ring-white/10">
-            <Image
-              src="/images/hero-bg.png"
-              alt="Promoteur agricole et techniciens"
-              fill
-              sizes="(max-width: 768px) 100vw, 700px"
-              className="object-cover"
-              quality={90}
-            />
-          </div>
-
+          {/* ── Bloc promoteur ── */}
           <div className="mb-12 pb-12 border-b border-white/10">
+            <div className="reveal relative aspect-[16/10] rounded-2xl overflow-hidden mb-8 shadow-2xl ring-1 ring-white/10">
+              <Image
+                src="/images/narrative-promoteur.jpg"
+                alt="Promoteur pilotant son exploitation à distance"
+                fill
+                sizes="(max-width: 768px) 100vw, 700px"
+                className="object-cover"
+                quality={90}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+            </div>
             <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">
               Pour vous
             </p>
@@ -83,7 +85,19 @@ export default function NarrativeSection() {
             </p>
           </div>
 
+          {/* ── Bloc technicien ── */}
           <div>
+            <div className="reveal relative aspect-[16/10] rounded-2xl overflow-hidden mb-8 shadow-2xl ring-1 ring-white/10">
+              <Image
+                src="/images/narrative-technicien.jpg"
+                alt="Technicien agricole sur le terrain avec smartphone"
+                fill
+                sizes="(max-width: 768px) 100vw, 700px"
+                className="object-cover"
+                quality={90}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+            </div>
             <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">
               Pour vos techniciens
             </p>
@@ -102,16 +116,25 @@ export default function NarrativeSection() {
     );
   }
 
-  // DESKTOP — cadre quasi-carré qui révèle moitié de la photo selon scroll
+  // ═══════════════════════════════════════
+  // DESKTOP — cadre parallaxe + crossfade entre 2 images
+  // ═══════════════════════════════════════
+
+  // Texte promoteur visible 0→40%, technicien 60→100%
   const opacity1 = Math.max(0, Math.min(1, (0.4 - progress) * 5));
   const opacity2 = Math.max(0, Math.min(1, (progress - 0.6) * 5));
-  const photoOffset = (0.5 - progress) * 50; // +25vw (droite) à -25vw (gauche)
-  const objectPosX = progress * 100; // 0% (gauche photo) à 100% (droite photo)
+
+  // Cadre photo glisse de droite (+25vw) à gauche (-25vw)
+  const photoOffset = (0.5 - progress) * 50;
+
+  // Crossfade images : promoteur visible 0→40%, transition 40→60%, technicien 60→100%
+  const imgOpacity1 = progress < 0.35 ? 1 : progress > 0.65 ? 0 : 1 - (progress - 0.35) / 0.3;
+  const imgOpacity2 = progress < 0.35 ? 0 : progress > 0.65 ? 1 : (progress - 0.35) / 0.3;
 
   return (
     <section ref={containerRef} className="relative h-[200vh] bg-forest-dark">
       <div className="sticky top-0 h-screen w-screen overflow-hidden">
-        {/* Hexagones décoratifs subtils */}
+        {/* Hexagones décoratifs */}
         <svg
           className="absolute -right-[6%] -top-[8%] w-[40%] opacity-[0.04] pointer-events-none"
           viewBox="0 0 600 600"
@@ -135,7 +158,7 @@ export default function NarrativeSection() {
           />
         </svg>
 
-        {/* CADRE PHOTO ratio 8/9 — révèle ~50% de la photo */}
+        {/* ── CADRE PHOTO — glisse + crossfade ── */}
         <div
           className="absolute top-1/2 left-1/2 will-change-transform"
           style={{
@@ -145,24 +168,33 @@ export default function NarrativeSection() {
           }}
         >
           <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/15">
+            {/* Image 1 — promoteur (bureau, smartphone, vue exploitation) */}
             <Image
-              src="/images/hero-bg.png"
-              alt="Promoteur agricole et techniciens"
+              src="/images/narrative-promoteur.jpg"
+              alt="Promoteur pilotant son exploitation à distance"
               fill
               sizes="50vh"
               priority
               quality={95}
-              style={{
-                objectFit: "cover",
-                objectPosition: `${objectPosX}% center`,
-              }}
+              className="object-cover transition-opacity duration-300"
+              style={{ opacity: imgOpacity1 }}
             />
-            {/* Léger gradient pour profondeur */}
+            {/* Image 2 — technicien (terrain, champs, action) */}
+            <Image
+              src="/images/narrative-technicien.jpg"
+              alt="Technicien agricole sur le terrain"
+              fill
+              sizes="50vh"
+              quality={95}
+              className="object-cover transition-opacity duration-300"
+              style={{ opacity: imgOpacity2 }}
+            />
+            {/* Gradient de profondeur */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
           </div>
         </div>
 
-        {/* TEXTE PROMOTEUR — gauche, visible 0-40% */}
+        {/* ── TEXTE PROMOTEUR — gauche ── */}
         <div
           className="absolute top-1/2 -translate-y-1/2 left-[6vw] max-w-md transition-opacity duration-300"
           style={{ opacity: opacity1, pointerEvents: opacity1 > 0.5 ? "auto" : "none" }}
@@ -181,7 +213,7 @@ export default function NarrativeSection() {
           </p>
         </div>
 
-        {/* TEXTE TECHNICIEN — droite, visible 60-100% */}
+        {/* ── TEXTE TECHNICIEN — droite ── */}
         <div
           className="absolute top-1/2 -translate-y-1/2 right-[6vw] max-w-md transition-opacity duration-300"
           style={{ opacity: opacity2, pointerEvents: opacity2 > 0.5 ? "auto" : "none" }}
@@ -200,7 +232,7 @@ export default function NarrativeSection() {
           </p>
         </div>
 
-        {/* INDICATEUR PROGRESSION */}
+        {/* ── INDICATEUR PROGRESSION ── */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">
           <div
             className={`h-1 rounded-full transition-all duration-500 ${
