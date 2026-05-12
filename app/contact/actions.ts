@@ -38,7 +38,7 @@ export async function sendContactMessage(formData: FormData) {
 
   try {
     const { error } = await resend.emails.send({
-      from: "Site Kessel <onboarding@resend.dev>",
+      from: "Kessel <contact@kesselagritech.com>",
       to: "contact@kesselagritech.com",
       replyTo: email,
       subject: `[Site Kessel] ${sujet} - ${nom}`,
