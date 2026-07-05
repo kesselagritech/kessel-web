@@ -158,16 +158,16 @@ export default function HomePage() {
             <div className="lg:order-2">
               <div className="inline-flex items-center gap-2 bg-amber-light rounded-full px-4 py-1.5 mb-4">
                 <BookOpen size={16} className="text-amber" />
-                <span className="text-amber-dark text-sm font-medium" style={{ color: "#854F0B" }}>1 000 FCFA / document</span>
+                <span className="text-amber-dark text-sm font-medium" style={{ color: "#854F0B" }}>À partir de 1 000 FCFA</span>
               </div>
               <h3 className="text-2xl md:text-3xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>
                 Bibliothèque professionnelle
               </h3>
               <p className="text-ink-light leading-relaxed mb-4">
-                Fiches techniques, guides de pédologie, physiologie végétale simplifiée, gestion intégrée et préservation de l&apos;environnement, processus de formalisation de votre exploitation.
+                Guides éducatifs (1 000 FCFA), fiches techniques détaillées (2 000 FCFA), et business plans complets par spéculation (5 500 FCFA) — pédologie, physiologie végétale, gestion intégrée, formalisation, chaîne de valeur.
               </p>
               <p className="text-ink-light leading-relaxed mb-4">
-                Business plans standards pour chaque spéculation, avec tous les détails financiers — basés sur des données recoupées. Pour des projections adaptées à votre situation précise, nos équipes proposent des consultations sur devis.
+                Chaque document est conçu comme un outil de compréhension autonome, basé sur des données recoupées du secteur camerounais. Pour des projections adaptées à votre situation, nos équipes proposent des consultations sur devis.
               </p>
               <Link href="/bibliotheque" className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-7 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
                 <FileText size={20} />
