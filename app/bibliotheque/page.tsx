@@ -6,7 +6,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
-import { BookOpen, FileText, GraduationCap, Search } from "lucide-react";
+import { BookOpen, FileText, GraduationCap, Search, ChevronDown } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,58 +30,85 @@ interface Document {
   document_categories: { name: string }[] | null;
 }
 
-const TYPE_CONFIG: Record<string, { label: string; icon: typeof BookOpen; accent: string; accentLight: string; coverBg: string }> = {
-  business_plan:   { label: "Business Plan",   icon: FileText,      accent: "#BA7517", accentLight: "#FAEEDA", coverBg: "#1A3D25" },
-  fiche_technique: { label: "Fiche Technique", icon: BookOpen,      accent: "#2D4A35", accentLight: "#EBF2EC", coverBg: "#2D4A35" },
-  guide:           { label: "Guide Éducatif",  icon: GraduationCap, accent: "#185FA5", accentLight: "#E6F1FB", coverBg: "#1A3050" },
+const TYPE_CONFIG: Record<string, { label: string; icon: typeof BookOpen; accent: string }> = {
+  business_plan:   { label: "Business Plan",   icon: FileText,      accent: "#BA7517" },
+  fiche_technique: { label: "Fiche Technique", icon: BookOpen,      accent: "#2D4A35" },
+  guide:           { label: "Guide Éducatif",  icon: GraduationCap, accent: "#185FA5" },
 };
 
-// ─── Couverture auto-générée ──────────────────────────────────────────────────
+// ─── Vignette imagée ──────────────────────────────────────────────────────────
+// Cherche une image dans /public/images/bibliotheque/{speculation}.jpg
+// Sinon, fallback sur une image générique par type
+function getCoverImage(doc: Document): string {
+  if (doc.speculation) {
+    const slug = doc.speculation.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
+    return `/images/bibliotheque/${slug}.jpg`;
+  }
+  return `/images/bibliotheque/cover-${doc.type}.jpg`;
+}
 
 function DocCover({ doc }: { doc: Document }) {
   const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
   const Icon = config.icon;
+  const coverUrl = getCoverImage(doc);
 
   return (
-    <div
-      className="relative w-full aspect-[3/4] rounded-t-2xl overflow-hidden flex flex-col justify-between p-5"
-      style={{ background: `linear-gradient(135deg, ${config.coverBg} 0%, ${config.coverBg}dd 50%, ${config.coverBg}bb 100%)` }}
-    >
-      {/* Hexagone décoratif */}
-      <svg className="absolute -right-6 -top-6 w-28 opacity-[0.08]" viewBox="0 0 200 200">
-        <polygon points="100,10 185,55 185,145 100,190 15,145 15,55" stroke="white" strokeWidth="2" fill="none" />
-      </svg>
-      <svg className="absolute -left-4 -bottom-4 w-20 opacity-[0.06]" viewBox="0 0 200 200">
-        <polygon points="100,10 185,55 185,145 100,190 15,145 15,55" stroke="white" strokeWidth="1.5" fill="none" />
-      </svg>
+    <div className="relative w-full aspect-[4/3] overflow-hidden bg-forest-dark">
+      {/* Image de fond */}
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+        style={{
+          backgroundImage: `url(${coverUrl}), url(/images/hero-home.jpg)`,
+          backgroundColor: "#1A3D25",
+        }}
+      />
+      {/* Voile dégradé pour lisibilité du badge */}
+      <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/70 via-transparent to-forest-dark/40" />
 
       {/* Badge type */}
-      <div>
+      <div className="absolute top-4 left-4">
         <span
-          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full"
-          style={{ background: `${config.accent}33`, color: config.accent === "#2D4A35" ? "#B5CCBA" : config.accentLight }}
+          className="inline-flex items-center gap-1.5 bg-white/95 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm"
+          style={{ color: config.accent }}
         >
-          <Icon size={12} />
+          <Icon size={13} />
           {config.label}
         </span>
       </div>
 
-      {/* Titre + spéculation */}
-      <div>
-        {doc.speculation && (
-          <p className="text-white/50 text-xs uppercase tracking-wider mb-1">{doc.speculation}</p>
-        )}
-        <h3
-          className="text-white text-xl font-bold leading-tight"
-          style={{ fontFamily: "var(--serif)" }}
-        >
-          {doc.title}
-        </h3>
-        <div className="flex items-center gap-2 mt-3">
-          <div className="w-5 h-[2px] rounded-full" style={{ background: config.accent }} />
-          <p className="text-white/40 text-[10px] uppercase tracking-widest">Kessel Agritech</p>
+      {/* Spéculation en bas */}
+      {doc.speculation && (
+        <div className="absolute bottom-4 left-4">
+          <span className="text-white text-sm font-semibold" style={{ fontFamily: "var(--serif)" }}>
+            {doc.speculation}
+          </span>
         </div>
-      </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Sélecteur custom (flèche bien positionnée) ───────────────────────────────
+function FilterSelect({
+  value, onChange, children,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative flex-1 min-w-[160px] max-w-[240px]">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none pl-4 pr-10 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors cursor-pointer"
+      >
+        {children}
+      </select>
+      <ChevronDown
+        size={16}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-light pointer-events-none"
+      />
     </div>
   );
 }
@@ -156,7 +183,7 @@ export default function BibliothequePage() {
         <div className="max-w-6xl mx-auto px-6">
 
           {/* Filtres */}
-          <div className="reveal flex flex-col gap-4 mb-10">
+          <div className="flex flex-col gap-4 mb-10">
             <div className="relative w-full max-w-lg">
               <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-light" />
               <input
@@ -168,27 +195,19 @@ export default function BibliothequePage() {
               />
             </div>
             <div className="flex flex-wrap gap-3">
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="flex-1 min-w-[160px] max-w-[220px] px-4 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors cursor-pointer"
-              >
+              <FilterSelect value={filterType} onChange={setFilterType}>
                 <option value="all">Tous les types</option>
                 <option value="business_plan">Business Plans</option>
                 <option value="fiche_technique">Fiches Techniques</option>
                 <option value="guide">Guides Éducatifs</option>
-              </select>
+              </FilterSelect>
               {usedCategories.length > 0 && (
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="flex-1 min-w-[160px] max-w-[220px] px-4 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors cursor-pointer"
-                >
+                <FilterSelect value={filterCategory} onChange={setFilterCategory}>
                   <option value="all">Toutes les catégories</option>
                   {usedCategories.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
-                </select>
+                </FilterSelect>
               )}
             </div>
           </div>
@@ -198,13 +217,14 @@ export default function BibliothequePage() {
             {loading ? "Chargement…" : `${filtered.length} document${filtered.length > 1 ? "s" : ""} disponible${filtered.length > 1 ? "s" : ""}`}
           </p>
 
-          {/* Grille de documents */}
+          {/* Grille */}
           {loading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-white rounded-2xl overflow-hidden animate-pulse">
-                  <div className="aspect-[3/4] bg-neutral-mid" />
+                  <div className="aspect-[4/3] bg-neutral-mid" />
                   <div className="p-5">
+                    <div className="h-5 bg-neutral-mid rounded w-3/4 mb-3" />
                     <div className="h-4 bg-neutral-mid rounded w-full mb-2" />
                     <div className="h-4 bg-neutral-mid rounded w-2/3" />
                   </div>
@@ -221,37 +241,44 @@ export default function BibliothequePage() {
               </p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((doc) => {
                 const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
-
                 return (
                   <div
                     key={doc.id}
-                    className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
+                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
                   >
-                    {/* Couverture */}
                     <DocCover doc={doc} />
 
-                    {/* Infos sous la couverture */}
                     <div className="p-5 flex flex-col flex-1">
+                      {/* Titre */}
+                      <h3 className="text-lg font-bold text-forest-dark mb-2 leading-tight" style={{ fontFamily: "var(--serif)" }}>
+                        {doc.title}
+                      </h3>
+
+                      {/* Description */}
                       {doc.description && (
-                        <p className="text-ink-light text-sm leading-relaxed mb-4 flex-1">
+                        <p className="text-ink-light text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
                           {doc.description}
                         </p>
                       )}
 
+                      {/* Catégorie */}
                       {doc.document_categories?.[0]?.name && (
-                        <p className="text-xs text-ink-light mb-3">
+                        <p className="text-xs text-ink-light mb-3 uppercase tracking-wide">
                           {doc.document_categories[0].name}
                         </p>
                       )}
 
                       {/* Prix + CTA */}
-                      <div className="flex items-center justify-between pt-3 border-t border-neutral-mid mt-auto">
-                        <span className="text-lg font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
-                          {doc.price.toLocaleString("fr-FR")} <span className="text-xs font-normal text-ink-light">FCFA</span>
-                        </span>
+                      <div className="flex items-center justify-between pt-4 border-t border-neutral-mid mt-auto">
+                        <div>
+                          <span className="text-xl font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
+                            {doc.price.toLocaleString("fr-FR")}
+                          </span>
+                          <span className="text-xs text-ink-light ml-1">FCFA</span>
+                        </div>
                         <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors cursor-pointer">
                           Bientôt
                         </span>
