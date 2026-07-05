@@ -37,14 +37,9 @@ const TYPE_CONFIG: Record<string, { label: string; icon: typeof BookOpen; accent
 };
 
 // ─── Vignette imagée ──────────────────────────────────────────────────────────
-// Cherche une image dans /public/images/bibliotheque/{speculation}.jpg
-// Sinon, fallback sur une image générique par type
+// Cherche /public/images/bibliotheque/{slug-du-document}.jpg
 function getCoverImage(doc: Document): string {
-  if (doc.speculation) {
-    const slug = doc.speculation.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
-    return `/images/bibliotheque/${slug}.jpg`;
-  }
-  return `/images/bibliotheque/cover-${doc.type}.jpg`;
+  return `/images/bibliotheque/${doc.slug}.jpg`;
 }
 
 function DocCover({ doc }: { doc: Document }) {
