@@ -209,7 +209,7 @@ export default function HomePage() {
             </div>
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg bg-forest-light">
               <Image
-                src="/images/app-preview.jpg"
+                src="/images/mockup-app.png"
                 alt="Application mobile Kessel sur smartphone"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"

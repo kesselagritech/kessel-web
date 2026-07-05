@@ -3,6 +3,7 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
@@ -158,6 +159,15 @@ export default function BibliothequePage() {
 
       {/* HERO COURT */}
       <section className="relative bg-forest-dark pt-28 pb-16 overflow-hidden">
+        <Image
+          src="/images/bibliotheque-hero.jpg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+          quality={85}
+        />
+        <div className="absolute inset-0 bg-forest-dark/70" />
         <svg className="absolute -right-[8%] -top-[20%] w-[45%] opacity-[0.05] pointer-events-none" viewBox="0 0 600 600">
           <polygon points="300,20 560,150 560,450 300,580 40,450 40,150" stroke="white" strokeWidth="2" fill="none" />
         </svg>
