@@ -58,3 +58,4 @@ kessel-web-cleanup.ps1
 # Scripts PowerShell locaux
 kessel-privacy-*.ps1
 fix-accents-*.ps1
+.env*.local
