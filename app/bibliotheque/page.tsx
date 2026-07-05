@@ -124,7 +124,7 @@ export default function BibliothequePage() {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="px-4 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors"
+                className="px-4 pr-10 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors cursor-pointer"
               >
                 <option value="all">Tous les types</option>
                 <option value="business_plan">Business Plans</option>
@@ -135,7 +135,7 @@ export default function BibliothequePage() {
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-4 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors"
+                  className="px-4 pr-10 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors cursor-pointer"
                 >
                   <option value="all">Toutes les catégories</option>
                   {usedCategories.map((c) => (
@@ -181,7 +181,7 @@ export default function BibliothequePage() {
                 return (
                   <div
                     key={doc.id}
-                    className={`reveal reveal-delay-${(i % 3) + 1} bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col`}
+                    className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"
                   >
                     {/* Badge type */}
                     <div className="flex items-center justify-between mb-4">
