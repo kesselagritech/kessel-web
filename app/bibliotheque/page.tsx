@@ -30,11 +30,61 @@ interface Document {
   document_categories: { name: string }[] | null;
 }
 
-const TYPE_CONFIG: Record<string, { label: string; icon: typeof BookOpen; color: string; bg: string }> = {
-  business_plan:   { label: "Business Plan",   icon: FileText,      color: "text-amber",  bg: "bg-amber-light" },
-  fiche_technique: { label: "Fiche Technique", icon: BookOpen,      color: "text-forest",  bg: "bg-forest-light" },
-  guide:           { label: "Guide Éducatif",  icon: GraduationCap, color: "text-[#185FA5]", bg: "bg-[#E6F1FB]" },
+const TYPE_CONFIG: Record<string, { label: string; icon: typeof BookOpen; accent: string; accentLight: string; coverBg: string }> = {
+  business_plan:   { label: "Business Plan",   icon: FileText,      accent: "#BA7517", accentLight: "#FAEEDA", coverBg: "#1A3D25" },
+  fiche_technique: { label: "Fiche Technique", icon: BookOpen,      accent: "#2D4A35", accentLight: "#EBF2EC", coverBg: "#2D4A35" },
+  guide:           { label: "Guide Éducatif",  icon: GraduationCap, accent: "#185FA5", accentLight: "#E6F1FB", coverBg: "#1A3050" },
 };
+
+// ─── Couverture auto-générée ──────────────────────────────────────────────────
+
+function DocCover({ doc }: { doc: Document }) {
+  const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
+  const Icon = config.icon;
+
+  return (
+    <div
+      className="relative w-full aspect-[3/4] rounded-t-2xl overflow-hidden flex flex-col justify-between p-5"
+      style={{ background: `linear-gradient(135deg, ${config.coverBg} 0%, ${config.coverBg}dd 50%, ${config.coverBg}bb 100%)` }}
+    >
+      {/* Hexagone décoratif */}
+      <svg className="absolute -right-6 -top-6 w-28 opacity-[0.08]" viewBox="0 0 200 200">
+        <polygon points="100,10 185,55 185,145 100,190 15,145 15,55" stroke="white" strokeWidth="2" fill="none" />
+      </svg>
+      <svg className="absolute -left-4 -bottom-4 w-20 opacity-[0.06]" viewBox="0 0 200 200">
+        <polygon points="100,10 185,55 185,145 100,190 15,145 15,55" stroke="white" strokeWidth="1.5" fill="none" />
+      </svg>
+
+      {/* Badge type */}
+      <div>
+        <span
+          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full"
+          style={{ background: `${config.accent}33`, color: config.accent === "#2D4A35" ? "#B5CCBA" : config.accentLight }}
+        >
+          <Icon size={12} />
+          {config.label}
+        </span>
+      </div>
+
+      {/* Titre + spéculation */}
+      <div>
+        {doc.speculation && (
+          <p className="text-white/50 text-xs uppercase tracking-wider mb-1">{doc.speculation}</p>
+        )}
+        <h3
+          className="text-white text-xl font-bold leading-tight"
+          style={{ fontFamily: "var(--serif)" }}
+        >
+          {doc.title}
+        </h3>
+        <div className="flex items-center gap-2 mt-3">
+          <div className="w-5 h-[2px] rounded-full" style={{ background: config.accent }} />
+          <p className="text-white/40 text-[10px] uppercase tracking-widest">Kessel Agritech</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
@@ -68,7 +118,6 @@ export default function BibliothequePage() {
     load();
   }, []);
 
-  // Filtrage
   const filtered = documents.filter((d) => {
     if (filterType !== "all" && d.type !== filterType) return false;
     if (filterCategory !== "all" && d.category_id !== filterCategory) return false;
@@ -86,12 +135,10 @@ export default function BibliothequePage() {
       <Navbar />
 
       {/* HERO COURT */}
-      <section className="bg-forest-dark pt-28 pb-16">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <svg className="absolute -right-[8%] -top-[20%] w-[45%] opacity-[0.05]" viewBox="0 0 600 600">
-            <polygon points="300,20 560,150 560,450 300,580 40,450 40,150" stroke="white" strokeWidth="2" fill="none" />
-          </svg>
-        </div>
+      <section className="relative bg-forest-dark pt-28 pb-16 overflow-hidden">
+        <svg className="absolute -right-[8%] -top-[20%] w-[45%] opacity-[0.05] pointer-events-none" viewBox="0 0 600 600">
+          <polygon points="300,20 560,150 560,450 300,580 40,450 40,150" stroke="white" strokeWidth="2" fill="none" />
+        </svg>
 
         <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
           <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Bibliothèque</p>
@@ -109,8 +156,8 @@ export default function BibliothequePage() {
         <div className="max-w-6xl mx-auto px-6">
 
           {/* Filtres */}
-          <div className="reveal flex flex-col md:flex-row gap-4 mb-10">
-            <div className="relative flex-1 max-w-md">
+          <div className="reveal flex flex-col gap-4 mb-10">
+            <div className="relative w-full max-w-lg">
               <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-light" />
               <input
                 type="text"
@@ -120,11 +167,11 @@ export default function BibliothequePage() {
                 className="w-full pl-11 pr-4 py-3 rounded-xl bg-white border border-neutral-mid text-ink focus:outline-none focus:border-forest transition-colors"
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="px-4 pr-10 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors cursor-pointer"
+                className="flex-1 min-w-[160px] max-w-[220px] px-4 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors cursor-pointer"
               >
                 <option value="all">Tous les types</option>
                 <option value="business_plan">Business Plans</option>
@@ -135,7 +182,7 @@ export default function BibliothequePage() {
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-4 pr-10 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors cursor-pointer"
+                  className="flex-1 min-w-[160px] max-w-[220px] px-4 py-3 rounded-xl bg-white border border-neutral-mid text-ink-mid text-sm focus:outline-none focus:border-forest transition-colors cursor-pointer"
                 >
                   <option value="all">Toutes les catégories</option>
                   {usedCategories.map((c) => (
@@ -147,19 +194,20 @@ export default function BibliothequePage() {
           </div>
 
           {/* Compteur */}
-          <p className="reveal text-ink-light text-sm mb-6">
+          <p className="text-ink-light text-sm mb-6">
             {loading ? "Chargement…" : `${filtered.length} document${filtered.length > 1 ? "s" : ""} disponible${filtered.length > 1 ? "s" : ""}`}
           </p>
 
           {/* Grille de documents */}
           {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-2xl p-6 animate-pulse">
-                  <div className="h-4 bg-neutral-mid rounded w-1/3 mb-4" />
-                  <div className="h-6 bg-neutral-mid rounded w-3/4 mb-3" />
-                  <div className="h-4 bg-neutral-mid rounded w-full mb-2" />
-                  <div className="h-4 bg-neutral-mid rounded w-2/3" />
+                <div key={i} className="bg-white rounded-2xl overflow-hidden animate-pulse">
+                  <div className="aspect-[3/4] bg-neutral-mid" />
+                  <div className="p-5">
+                    <div className="h-4 bg-neutral-mid rounded w-full mb-2" />
+                    <div className="h-4 bg-neutral-mid rounded w-2/3" />
+                  </div>
                 </div>
               ))}
             </div>
@@ -173,56 +221,41 @@ export default function BibliothequePage() {
               </p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((doc, i) => {
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filtered.map((doc) => {
                 const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
-                const Icon = config.icon;
 
                 return (
                   <div
                     key={doc.id}
-                    className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
                   >
-                    {/* Badge type */}
-                    <div className="flex items-center justify-between mb-4">
-                      <span className={`inline-flex items-center gap-1.5 ${config.bg} ${config.color} text-xs font-medium px-3 py-1 rounded-full`}>
-                        <Icon size={14} />
-                        {config.label}
-                      </span>
-                      {doc.speculation && (
-                        <span className="text-xs text-ink-light bg-neutral rounded-full px-3 py-1">
-                          {doc.speculation}
-                        </span>
+                    {/* Couverture */}
+                    <DocCover doc={doc} />
+
+                    {/* Infos sous la couverture */}
+                    <div className="p-5 flex flex-col flex-1">
+                      {doc.description && (
+                        <p className="text-ink-light text-sm leading-relaxed mb-4 flex-1">
+                          {doc.description}
+                        </p>
                       )}
-                    </div>
 
-                    {/* Titre */}
-                    <h3 className="text-lg font-semibold text-forest-dark mb-2" style={{ fontFamily: "var(--serif)" }}>
-                      {doc.title}
-                    </h3>
+                      {doc.document_categories?.[0]?.name && (
+                        <p className="text-xs text-ink-light mb-3">
+                          {doc.document_categories[0].name}
+                        </p>
+                      )}
 
-                    {/* Description */}
-                    {doc.description && (
-                      <p className="text-ink-light text-sm leading-relaxed mb-4 flex-1">
-                        {doc.description}
-                      </p>
-                    )}
-
-                    {/* Catégorie */}
-                    {doc.document_categories?.[0]?.name && (
-                      <p className="text-xs text-ink-light mb-4">
-                        {doc.document_categories[0].name}
-                      </p>
-                    )}
-
-                    {/* Prix + CTA */}
-                    <div className="flex items-center justify-between pt-4 border-t border-neutral-mid mt-auto">
-                      <span className="text-lg font-bold text-amber" style={{ fontFamily: "var(--mono)" }}>
-                        {doc.price.toLocaleString("fr-FR")} FCFA
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors cursor-pointer">
-                        Bientôt
-                      </span>
+                      {/* Prix + CTA */}
+                      <div className="flex items-center justify-between pt-3 border-t border-neutral-mid mt-auto">
+                        <span className="text-lg font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
+                          {doc.price.toLocaleString("fr-FR")} <span className="text-xs font-normal text-ink-light">FCFA</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors cursor-pointer">
+                          Bientôt
+                        </span>
+                      </div>
                     </div>
                   </div>
                 );
