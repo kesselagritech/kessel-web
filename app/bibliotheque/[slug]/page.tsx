@@ -97,7 +97,8 @@ export default function DocumentPage() {
         .eq("payment_status", "completed")
         .limit(1);
 
-      const purchased = (purchases || []).length > 0;
+      const isFondateur = session.user.email?.toLowerCase() === "philatine04@gmail.com";
+      const purchased = isFondateur || (purchases || []).length > 0;
       setHasPurchased(purchased);
 
       // Charger le contenu via RPC sécurisée
