@@ -250,8 +250,9 @@ export default function BibliothequePage() {
               {filtered.map((doc) => {
                 const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
                 return (
-                  <div
+                  <Link
                     key={doc.id}
+                    href={`/bibliotheque/${doc.slug}`}
                     className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
                   >
                     <DocCover doc={doc} />
@@ -284,12 +285,12 @@ export default function BibliothequePage() {
                           </span>
                           <span className="text-xs text-ink-light ml-1">FCFA</span>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors cursor-pointer">
-                          Bientôt
+                        <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors ">
+                          Consulter
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

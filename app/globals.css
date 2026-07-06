@@ -114,3 +114,26 @@ body {
 .font-mono {
   font-family: var(--mono);
 }
+/* Prose Kessel — Rendu Markdown documents */
+.prose-kessel { font-family: var(--sans); color: #1A2E1D; line-height: 1.75; font-size: 1rem; }
+.prose-kessel h1 { font-family: var(--serif); font-size: 2rem; font-weight: 700; color: #1A3D25; margin: 2.5rem 0 1rem; }
+.prose-kessel h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: #1A3D25; margin: 2rem 0 .75rem; padding-bottom: .5rem; border-bottom: 2px solid #E0E0DC; }
+.prose-kessel h3 { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; color: #2D4A35; margin: 1.75rem 0 .5rem; }
+.prose-kessel h4 { font-family: var(--sans); font-size: 1.1rem; font-weight: 600; color: #2D4A35; margin: 1.5rem 0 .5rem; }
+.prose-kessel p { margin: .75rem 0; }
+.prose-kessel strong { color: #1A3D25; font-weight: 600; }
+.prose-kessel a { color: #2D4A35; text-decoration: underline; }
+.prose-kessel a:hover { color: #BA7517; }
+.prose-kessel ul, .prose-kessel ol { margin: .75rem 0; padding-left: 1.5rem; }
+.prose-kessel li { margin: .35rem 0; }
+.prose-kessel li::marker { color: #6B7F6D; }
+.prose-kessel blockquote { border-left: 4px solid #BA7517; padding: .75rem 1rem; margin: 1.25rem 0; background: #FDF6EB; color: #3D5240; font-style: italic; border-radius: 0 8px 8px 0; }
+.prose-kessel hr { border: none; border-top: 2px solid #E0E0DC; margin: 2rem 0; }
+.prose-kessel table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: .9rem; display: block; overflow-x: auto; }
+.prose-kessel th { background: #EBF2EC; color: #1A3D25; font-weight: 600; text-align: left; padding: .75rem; border: 1px solid #D5E5D8; white-space: nowrap; }
+.prose-kessel td { padding: .75rem; border: 1px solid #E0E0DC; color: #3D5240; }
+.prose-kessel tr:nth-child(even) { background: #F4F4F0; }
+.prose-kessel code { font-family: var(--mono); background: #F4F4F0; padding: .15rem .4rem; border-radius: 4px; font-size: .88em; color: #993C1D; }
+.prose-kessel pre { background: #1A3D25; color: #D5E5D8; padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; margin: 1.25rem 0; }
+.prose-kessel pre code { background: none; padding: 0; color: inherit; }
+.prose-kessel > :first-child { margin-top: 0; }
