@@ -147,7 +147,7 @@ export default function HomePage() {
                 alt="Aperçu du comparateur de projets agricoles Kessel"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+                className="object-cover object-top"
                 quality={85}
               />
             </div>
