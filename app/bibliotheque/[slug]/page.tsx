@@ -203,7 +203,7 @@ export default function DocumentPage() {
 
           ) : hasPurchased && content ? (
             /* ── CONTENU COMPLET (acheté) ────────────── */
-            <article className="bg-white rounded-2xl shadow-sm p-6 md:p-10 prose-kessel">
+            <article className="bg-white rounded-2xl shadow-sm p-6 md:p-10 prose-kessel" onContextMenu={(e) => e.preventDefault()}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {content.replace(/^#\s+.+\n*/m, '')}
               </ReactMarkdown>
