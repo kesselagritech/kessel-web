@@ -1,5 +1,6 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "Kessel - Gestion de projets agricoles | Cameroun",
@@ -45,7 +46,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-white antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

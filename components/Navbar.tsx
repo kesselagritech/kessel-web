@@ -3,16 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn, Home } from "lucide-react";
+import { Menu, X, LogIn, LogOut, Home } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ========================================
 // NAVBAR — coquille unique, logo unique
+// + état de connexion (comptes web)
 // ========================================
 export default function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, loading: authLoading, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -20,19 +23,28 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-
   const mainLinks = [
     { href: "/application", label: "Application" },
     { href: "/bibliotheque", label: "Bibliothèque" },
     { href: "/comparateur", label: "Comparateur" },
   ];
 
+  const handleSignOut = async () => {
+    await signOut();
+    setIsOpen(false);
+    window.location.href = "/connexion?deconnecte=1";
+  };
+
+  // Initiale de l'utilisateur pour l'avatar
+  const userInitial = user?.email?.[0]?.toUpperCase() ?? "U";
 
   return (
     <nav
       className={
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 " +
-        (scrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent")
+        (scrolled
+          ? "bg-white/90 backdrop-blur-md shadow-sm"
+          : "bg-transparent")
       }
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -75,13 +87,34 @@ export default function Navbar() {
               Contact
             </Link>
 
-            <Link
-              href="/connexion"
-              className="inline-flex items-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
-            >
-              <LogIn size={18} />
-              Connexion
-            </Link>
+            {/* Auth — Desktop */}
+            {!authLoading &&
+              (user ? (
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                    style={{ backgroundColor: "#2D4A35" }}
+                    title={user.email ?? ""}
+                  >
+                    {userInitial}
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-1.5 text-forest-700 hover:text-forest-900 font-medium transition-colors text-sm"
+                  >
+                    <LogOut size={16} />
+                    Déconnexion
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/connexion"
+                  className="inline-flex items-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
+                >
+                  <LogIn size={18} />
+                  Connexion
+                </Link>
+              ))}
           </div>
 
           {/* Mobile toggle */}
@@ -128,15 +161,40 @@ export default function Navbar() {
               Contact
             </Link>
 
+            {/* Auth — Mobile */}
             <div className="pt-3 border-t border-forest-100">
-              <Link
-                href="/connexion"
-                className="flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold py-3 rounded-xl transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                <LogIn size={18} />
-                Connexion
-              </Link>
+              {!authLoading &&
+                (user ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 py-2">
+                      <div
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                        style={{ backgroundColor: "#2D4A35" }}
+                      >
+                        {userInitial}
+                      </div>
+                      <span className="text-sm text-gray-600 truncate">
+                        {user.email}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="flex items-center justify-center gap-2 w-full text-forest-700 hover:text-forest-900 font-semibold py-3 rounded-xl border border-forest-200 transition-colors"
+                    >
+                      <LogOut size={18} />
+                      Déconnexion
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/connexion"
+                    className="flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold py-3 rounded-xl transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <LogIn size={18} />
+                    Connexion
+                  </Link>
+                ))}
             </div>
           </div>
         </div>
@@ -144,3 +202,4 @@ export default function Navbar() {
     </nav>
   );
 }
+
