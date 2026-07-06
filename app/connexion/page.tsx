@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { Mail, Lock, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
@@ -17,11 +17,17 @@ export default function ConnexionPage() {
   const [success, setSuccess] = useState("");
   const { user, loading, signIn, signUp } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // Déjà connecté → bibliothèque
+  // Redirect cible : paramètre ?redirect= ou /bibliotheque par défaut
+  // Sécurité : uniquement les chemins internes (commence par /)
+  const rawRedirect = searchParams.get("redirect");
+  const redirectTo = rawRedirect?.startsWith("/") ? rawRedirect : "/bibliotheque";
+
+  // Déjà connecté → redirection
   useEffect(() => {
-    if (user && !loading) router.replace("/bibliotheque");
-  }, [user, loading, router]);
+    if (user && !loading) router.replace(redirectTo);
+  }, [user, loading, router, redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +44,7 @@ export default function ConnexionPage() {
             : err.message
         );
       } else {
-        router.push("/bibliotheque");
+        router.push(redirectTo);
       }
     } else {
       if (password.length < 6) {
@@ -60,7 +66,7 @@ export default function ConnexionPage() {
             ". Vérifie ta boîte de réception (et les spams)."
         );
       } else {
-        router.push("/bibliotheque");
+        router.push(redirectTo);
       }
     }
     setBusy(false);
@@ -244,4 +250,3 @@ export default function ConnexionPage() {
     </>
   );
 }
-

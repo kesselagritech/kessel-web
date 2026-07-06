@@ -1,8 +1,8 @@
 "use client";
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -10,7 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowLeft, Lock, LogIn, FileText, BookOpen, GraduationCap } from "lucide-react";
+import { ArrowLeft, Lock, LogIn, FileText, BookOpen, GraduationCap, CreditCard, RefreshCw } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -40,6 +40,7 @@ export default function DocumentPage() {
   useScrollReveal();
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { session } = useAuth();
 
   const [doc, setDoc] = useState<DocumentDetail | null>(null);
@@ -48,7 +49,14 @@ export default function DocumentPage() {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [checkingPurchase, setCheckingPurchase] = useState(true);
 
+  // États paiement CamPay
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+
   const slug = params.slug as string;
+  const paiement = searchParams.get("paiement");
+  const purchaseRef = searchParams.get("ref");
 
   // 1. Charger les métadonnées du document (sans le contenu)
   useEffect(() => {
@@ -102,6 +110,89 @@ export default function DocumentPage() {
       setCheckingPurchase(false);
     }
     checkAndFetch();
+  }, [session, doc]);
+
+  // 3. Polling post-paiement — quand le visiteur revient de CamPay
+  useEffect(() => {
+    if (paiement !== "succes" || !purchaseRef || !session?.access_token || hasPurchased) return;
+
+    setVerifying(true);
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    async function pollStatus() {
+      while (!cancelled && attempts < maxAttempts) {
+        attempts++;
+        try {
+          const res = await fetch(`/api/campay/status?purchaseId=${purchaseRef}`, {
+            headers: { Authorization: `Bearer ${session!.access_token}` },
+          });
+          const data = await res.json();
+
+          if (data.status === "completed") {
+            // Recharger proprement sans les query params
+            window.location.href = `/bibliotheque/${slug}`;
+            return;
+          }
+          if (data.status === "failed") {
+            setPaymentError("Le paiement a échoué. Réessaie ou contacte-nous.");
+            setVerifying(false);
+            return;
+          }
+        } catch {
+          // Erreur réseau, on continue de poller
+        }
+
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+
+      if (!cancelled && attempts >= maxAttempts) {
+        setPaymentError("La vérification prend du temps. Rafraîchis la page dans quelques instants.");
+        setVerifying(false);
+      }
+    }
+
+    pollStatus();
+    return () => { cancelled = true; };
+  }, [paiement, purchaseRef, session, slug, hasPurchased]);
+
+  // ─── Lancer le paiement CamPay ──────────────────────────
+  const handlePurchase = useCallback(async () => {
+    if (!session?.access_token || !doc) return;
+
+    setPaymentLoading(true);
+    setPaymentError(null);
+
+    try {
+      const res = await fetch("/api/campay/initiate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ documentId: doc.id }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 409) {
+          // Déjà acheté — recharger pour afficher le contenu
+          window.location.reload();
+          return;
+        }
+        setPaymentError(data.error || "Erreur lors du paiement");
+        setPaymentLoading(false);
+        return;
+      }
+
+      // Rediriger vers la page de paiement CamPay
+      window.location.href = data.paymentUrl;
+    } catch {
+      setPaymentError("Erreur de connexion. Vérifie ton accès internet.");
+      setPaymentLoading(false);
+    }
   }, [session, doc]);
 
   // ─── LOADING ────────────────────────────────────────────
@@ -209,6 +300,47 @@ export default function DocumentPage() {
               </ReactMarkdown>
             </article>
 
+          ) : verifying ? (
+            /* ── VÉRIFICATION POST-PAIEMENT ──────────── */
+            <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
+              <div className="w-16 h-16 bg-amber-light rounded-full flex items-center justify-center mx-auto mb-6">
+                <RefreshCw size={28} className="text-amber animate-spin" />
+              </div>
+              <h2
+                className="text-2xl font-bold text-forest-dark mb-3"
+                style={{ fontFamily: "var(--serif)" }}
+              >
+                Vérification du paiement…
+              </h2>
+              <p className="text-ink-light max-w-md mx-auto">
+                Nous confirmons ton paiement auprès de ton opérateur. Cela peut prendre quelques secondes.
+              </p>
+            </div>
+
+          ) : paiement === "echec" ? (
+            /* ── ÉCHEC PAIEMENT ──────────────────────── */
+            <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Lock size={28} className="text-red-500" />
+              </div>
+              <h2
+                className="text-2xl font-bold text-forest-dark mb-3"
+                style={{ fontFamily: "var(--serif)" }}
+              >
+                Paiement non abouti
+              </h2>
+              <p className="text-ink-light mb-6 max-w-md mx-auto">
+                Le paiement n'a pas été confirmé. Aucun montant n'a été prélevé. Tu peux réessayer.
+              </p>
+              <button
+                onClick={() => window.location.href = `/bibliotheque/${slug}`}
+                className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5"
+              >
+                <RefreshCw size={18} />
+                Réessayer
+              </button>
+            </div>
+
           ) : (
             /* ── PAYWALL ─────────────────────────────── */
             <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
@@ -239,7 +371,7 @@ export default function DocumentPage() {
                 /* Pas connecté */
                 <div className="space-y-4">
                   <Link
-                    href="/connexion"
+                    href={`/connexion?redirect=/bibliotheque/${slug}`}
                     className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5"
                   >
                     <LogIn size={18} />
@@ -252,19 +384,27 @@ export default function DocumentPage() {
               ) : (
                 /* Connecté mais pas acheté */
                 <div className="space-y-4">
-                  <a
-                    href={`https://wa.me/237659374501?text=${encodeURIComponent(`Bonjour, je souhaite acheter le document "${doc.title}" (${doc.price.toLocaleString("fr-FR")} FCFA).`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5"
+                  {paymentError && (
+                    <p className="text-red-600 text-sm bg-red-50 rounded-lg px-4 py-2 mb-2">
+                      {paymentError}
+                    </p>
+                  )}
+                  <button
+                    onClick={handlePurchase}
+                    disabled={paymentLoading}
+                    className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.2-.7.2-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6 0-.3-.1-1.2-.4-2.3-1.4-.8-.7-1.4-1.6-1.6-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.3 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.3 5.2 4.6 2.6 1 3.1.8 3.7.8.6 0 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.2-.3-.2-.6-.4M12 21.8c-1.7 0-3.3-.4-4.7-1.3l-3.3.9.9-3.2c-1-1.4-1.5-3.1-1.5-4.8C3.4 8.7 7.2 4.9 12 4.9c4.8 0 8.6 3.8 8.6 8.6.1 4.7-3.8 8.3-8.6 8.3M12 3C7.2 3 3 7.2 3 12c0 1.8.5 3.6 1.5 5.1L3 22l5-1.3c1.4.8 3 1.2 4.7 1.2h.3c5 0 9-4.1 9-9.1 0-2.4-1-4.7-2.7-6.4S14.4 3 12 3" />
-                    </svg>
-                    Acheter via WhatsApp
-                  </a>
+                    {paymentLoading ? (
+                      <span className="animate-pulse">Redirection vers le paiement…</span>
+                    ) : (
+                      <>
+                        <CreditCard size={18} />
+                        {`Acheter — ${doc.price.toLocaleString("fr-FR")} FCFA`}
+                      </>
+                    )}
+                  </button>
                   <p className="text-sm text-ink-light">
-                    Le paiement en ligne arrive bientôt. En attendant, contacte-nous par WhatsApp.
+                    Paiement sécurisé par Mobile Money (MTN / Orange)
                   </p>
                 </div>
               )}
