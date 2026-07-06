@@ -40,8 +40,7 @@ export async function GET(request: NextRequest) {
           await supabase
             .from('document_purchases')
             .update({
-              payment_status: 'completed',
-              updated_at: new Date().toISOString(),
+              payment_status: 'completed'
             })
             .eq('id', purchaseId)
 
@@ -52,8 +51,7 @@ export async function GET(request: NextRequest) {
           await supabase
             .from('document_purchases')
             .update({
-              payment_status: 'failed',
-              updated_at: new Date().toISOString(),
+              payment_status: 'failed'
             })
             .eq('id', purchaseId)
 

@@ -70,8 +70,7 @@ async function handleWebhook(request: NextRequest) {
       .from('document_purchases')
       .update({
         payment_status: newStatus,
-        payment_ref: reference || undefined,
-        updated_at: new Date().toISOString(),
+        payment_ref: reference || undefined
       })
       .eq('id', externalReference)
       .eq('payment_status', 'pending') // Idempotent : ne touche pas si déjà traité
