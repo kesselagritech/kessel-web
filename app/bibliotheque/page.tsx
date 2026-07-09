@@ -1,13 +1,21 @@
 "use client";
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
-import { BookOpen, FileText, GraduationCap, Search, ChevronDown } from "lucide-react";
+import {
+  BookOpen,
+  FileText,
+  GraduationCap,
+  Search,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -36,6 +44,16 @@ const TYPE_CONFIG: Record<string, { label: string; icon: typeof BookOpen; accent
   fiche_technique: { label: "Fiche Technique", icon: BookOpen,      accent: "#2D4A35" },
   guide:           { label: "Guide Éducatif",  icon: GraduationCap, accent: "#185FA5" },
 };
+
+// Ordre stable des types pour le tri
+const TYPE_ORDER: Record<string, number> = {
+  business_plan: 1,
+  fiche_technique: 2,
+  guide: 3,
+};
+
+// Pagination
+const PAGE_SIZE = 15;
 
 // ─── Vignette imagée ──────────────────────────────────────────────────────────
 // Cherche /public/images/bibliotheque/{slug-du-document}.jpg
@@ -120,6 +138,7 @@ export default function BibliothequePage() {
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [pageIndex, setPageIndex] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -127,8 +146,7 @@ export default function BibliothequePage() {
         supabase
           .from("documents")
           .select("id, title, slug, type, category_id, speculation, price, description, status, published_at, document_categories(name)")
-          .eq("status", "published")
-          .order("published_at", { ascending: false }),
+          .eq("status", "published"),
         supabase
           .from("document_categories")
           .select("id, name, slug")
@@ -141,15 +159,40 @@ export default function BibliothequePage() {
     load();
   }, []);
 
-  const filtered = documents.filter((d) => {
-    if (filterType !== "all" && d.type !== filterType) return false;
-    if (filterCategory !== "all" && d.category_id !== filterCategory) return false;
-    if (searchTerm) {
-      const s = searchTerm.toLowerCase();
-      if (!d.title.toLowerCase().includes(s) && !(d.speculation || "").toLowerCase().includes(s) && !(d.description || "").toLowerCase().includes(s)) return false;
-    }
-    return true;
-  });
+  // Filtrage + tri (type puis alpha)
+  const sorted = useMemo(() => {
+    const filtered = documents.filter((d) => {
+      if (filterType !== "all" && d.type !== filterType) return false;
+      if (filterCategory !== "all" && d.category_id !== filterCategory) return false;
+      if (searchTerm) {
+        const s = searchTerm.toLowerCase();
+        if (
+          !d.title.toLowerCase().includes(s) &&
+          !(d.speculation || "").toLowerCase().includes(s) &&
+          !(d.description || "").toLowerCase().includes(s)
+        ) return false;
+      }
+      return true;
+    });
+
+    return [...filtered].sort((a, b) => {
+      const typeCompare = (TYPE_ORDER[a.type] ?? 99) - (TYPE_ORDER[b.type] ?? 99);
+      if (typeCompare !== 0) return typeCompare;
+      return a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
+    });
+  }, [documents, filterType, filterCategory, searchTerm]);
+
+  // Reset pagination quand filtres/recherche changent
+  useEffect(() => {
+    setPageIndex(0);
+  }, [filterType, filterCategory, searchTerm]);
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const safePageIndex = Math.min(pageIndex, totalPages - 1);
+  const paginated = sorted.slice(safePageIndex * PAGE_SIZE, (safePageIndex + 1) * PAGE_SIZE);
+  const startIdx = sorted.length === 0 ? 0 : safePageIndex * PAGE_SIZE + 1;
+  const endIdx = Math.min((safePageIndex + 1) * PAGE_SIZE, sorted.length);
 
   const usedCategories = categories.filter((c) => documents.some((d) => d.category_id === c.id));
 
@@ -219,7 +262,11 @@ export default function BibliothequePage() {
 
           {/* Compteur */}
           <p className="text-ink-light text-sm mb-6">
-            {loading ? "Chargement…" : `${filtered.length} document${filtered.length > 1 ? "s" : ""} disponible${filtered.length > 1 ? "s" : ""}`}
+            {loading
+              ? "Chargement…"
+              : sorted.length === 0
+              ? "0 document"
+              : `${sorted.length} document${sorted.length > 1 ? "s" : ""} · Affichage ${startIdx}–${endIdx}`}
           </p>
 
           {/* Grille */}
@@ -236,7 +283,7 @@ export default function BibliothequePage() {
                 </div>
               ))}
             </div>
-          ) : filtered.length === 0 ? (
+          ) : sorted.length === 0 ? (
             <div className="text-center py-16">
               <BookOpen size={48} className="mx-auto text-neutral-mid mb-4" />
               <p className="text-ink-light text-lg">
@@ -246,54 +293,87 @@ export default function BibliothequePage() {
               </p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((doc) => {
-                const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
-                return (
-                  <Link
-                    key={doc.id}
-                    href={`/bibliotheque/${doc.slug}`}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
-                  >
-                    <DocCover doc={doc} />
+            <>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginated.map((doc) => {
+                  const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
+                  return (
+                    <Link
+                      key={doc.id}
+                      href={`/bibliotheque/${doc.slug}`}
+                      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
+                    >
+                      <DocCover doc={doc} />
 
-                    <div className="p-5 flex flex-col flex-1">
-                      {/* Titre */}
-                      <h3 className="text-lg font-bold text-forest-dark mb-2 leading-tight" style={{ fontFamily: "var(--serif)" }}>
-                        {doc.title}
-                      </h3>
+                      <div className="p-5 flex flex-col flex-1">
+                        {/* Titre */}
+                        <h3 className="text-lg font-bold text-forest-dark mb-2 leading-tight" style={{ fontFamily: "var(--serif)" }}>
+                          {doc.title}
+                        </h3>
 
-                      {/* Description */}
-                      {doc.description && (
-                        <p className="text-ink-light text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
-                          {doc.description}
-                        </p>
-                      )}
+                        {/* Description */}
+                        {doc.description && (
+                          <p className="text-ink-light text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
+                            {doc.description}
+                          </p>
+                        )}
 
-                      {/* Catégorie */}
-                      {doc.document_categories?.[0]?.name && (
-                        <p className="text-xs text-ink-light mb-3 uppercase tracking-wide">
-                          {doc.document_categories[0].name}
-                        </p>
-                      )}
+                        {/* Catégorie */}
+                        {doc.document_categories?.[0]?.name && (
+                          <p className="text-xs text-ink-light mb-3 uppercase tracking-wide">
+                            {doc.document_categories[0].name}
+                          </p>
+                        )}
 
-                      {/* Prix + CTA */}
-                      <div className="flex items-center justify-between pt-4 border-t border-neutral-mid mt-auto">
-                        <div>
-                          <span className="text-xl font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
-                            {doc.price.toLocaleString("fr-FR")}
+                        {/* Prix + CTA */}
+                        <div className="flex items-center justify-between pt-4 border-t border-neutral-mid mt-auto">
+                          <div>
+                            <span className="text-xl font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
+                              {doc.price.toLocaleString("fr-FR")}
+                            </span>
+                            <span className="text-xs text-ink-light ml-1">FCFA</span>
+                          </div>
+                          <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors ">
+                            Consulter
                           </span>
-                          <span className="text-xs text-ink-light ml-1">FCFA</span>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors ">
-                          Consulter
-                        </span>
                       </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-6 mt-12">
+                  <button
+                    type="button"
+                    onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
+                    disabled={safePageIndex === 0}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-neutral-mid text-forest-dark font-medium text-sm hover:border-forest hover:bg-forest-light disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-neutral-mid transition-colors"
+                    aria-label="Page précédente"
+                  >
+                    <ChevronLeft size={16} />
+                    Précédent
+                  </button>
+
+                  <span className="text-sm text-ink-mid font-medium" style={{ fontFamily: "var(--mono)" }}>
+                    Page {safePageIndex + 1} sur {totalPages}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => setPageIndex((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={safePageIndex === totalPages - 1}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-neutral-mid text-forest-dark font-medium text-sm hover:border-forest hover:bg-forest-light disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-neutral-mid transition-colors"
+                    aria-label="Page suivante"
+                  >
+                    Suivant
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

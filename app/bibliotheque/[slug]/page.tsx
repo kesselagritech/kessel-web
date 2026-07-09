@@ -10,7 +10,18 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowLeft, Lock, LogIn, FileText, BookOpen, GraduationCap, CreditCard, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Lock,
+  LogIn,
+  FileText,
+  BookOpen,
+  GraduationCap,
+  CreditCard,
+  RefreshCw,
+  Clock,
+} from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -34,6 +45,16 @@ interface DocumentDetail {
   document_categories: { name: string }[] | null;
 }
 
+interface RelatedDoc {
+  id: string;
+  title: string;
+  slug: string;
+  type: "business_plan" | "fiche_technique" | "guide";
+  speculation: string | null;
+  description: string | null;
+  price: number;
+}
+
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export default function DocumentPage() {
@@ -53,6 +74,11 @@ export default function DocumentPage() {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
+
+  // Ressources liées
+  const [relatedDoc, setRelatedDoc] = useState<RelatedDoc | null>(null);
+  const [relatedGuides, setRelatedGuides] = useState<RelatedDoc[]>([]);
+  const [relatedLoading, setRelatedLoading] = useState(true);
 
   const slug = params.slug as string;
   const paiement = searchParams.get("paiement");
@@ -158,6 +184,72 @@ export default function DocumentPage() {
     return () => { cancelled = true; };
   }, [paiement, purchaseRef, session, slug, hasPurchased]);
 
+  // 4. Charger les ressources liées (contrepartie BP↔ITK ou suggestions guides)
+  useEffect(() => {
+    async function loadRelated() {
+      if (!doc) return;
+      setRelatedLoading(true);
+      setRelatedDoc(null);
+      setRelatedGuides([]);
+
+      try {
+        if (doc.type === "guide") {
+          // Suggestions : d'autres guides publiés
+          const { data } = await supabase
+            .from("documents")
+            .select("id, title, slug, type, speculation, description, price")
+            .eq("type", "guide")
+            .eq("status", "published")
+            .neq("id", doc.id);
+
+          if (data && data.length > 0) {
+            const shuffled = [...data].sort(() => Math.random() - 0.5);
+            setRelatedGuides(shuffled.slice(0, 3) as RelatedDoc[]);
+          }
+        } else {
+          // Contrepartie : BP → ITK ou ITK → BP
+          const targetType = doc.type === "business_plan" ? "fiche_technique" : "business_plan";
+          const speculationKey = (doc.speculation || "").toLowerCase().trim();
+
+          let found: RelatedDoc | null = null;
+
+          // Tentative 1 : match par colonne speculation (méthode principale)
+          if (speculationKey) {
+            const { data } = await supabase
+              .from("documents")
+              .select("id, title, slug, type, speculation, description, price")
+              .eq("type", targetType)
+              .eq("status", "published")
+              .ilike("speculation", speculationKey)
+              .limit(1);
+            if (data && data.length > 0) found = data[0] as RelatedDoc;
+          }
+
+          // Tentative 2 : fallback slug construit
+          if (!found) {
+            const targetSlug =
+              doc.type === "business_plan"
+                ? `itk-${doc.slug}`
+                : doc.slug.replace(/^itk-/, "");
+            const { data } = await supabase
+              .from("documents")
+              .select("id, title, slug, type, speculation, description, price")
+              .eq("type", targetType)
+              .eq("status", "published")
+              .eq("slug", targetSlug)
+              .maybeSingle();
+            if (data) found = data as RelatedDoc;
+          }
+
+          setRelatedDoc(found);
+        }
+      } finally {
+        setRelatedLoading(false);
+      }
+    }
+    loadRelated();
+  }, [doc]);
+
   // ─── Lancer le paiement CamPay ──────────────────────────
   const handlePurchase = useCallback(async () => {
     if (!session?.access_token || !doc) return;
@@ -215,6 +307,7 @@ export default function DocumentPage() {
   const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
   const Icon = config.icon;
   const coverUrl = `/images/bibliotheque/${doc.slug}.jpg`;
+  const showRelated = hasPurchased && content && !relatedLoading;
 
   return (
     <>
@@ -411,25 +504,199 @@ export default function DocumentPage() {
               )}
             </div>
           )}
+
+          {/* ─── RESSOURCES LIÉES ──────────────────────────────── */}
+          {showRelated && (doc.type !== "guide") && (
+            <div className="mt-14 pt-12 border-t border-neutral-mid">
+              <p className="text-amber font-semibold text-xs uppercase tracking-wider mb-2">
+                Aller plus loin
+              </p>
+              <h3
+                className="text-2xl font-bold text-forest-dark mb-6"
+                style={{ fontFamily: "var(--serif)" }}
+              >
+                {doc.type === "business_plan"
+                  ? "La fiche technique de la même spéculation"
+                  : "Le business plan de la même spéculation"}
+              </h3>
+
+              {relatedDoc ? (
+                /* Contrepartie disponible → carte cliquable */
+                <Link
+                  href={`/bibliotheque/${relatedDoc.slug}`}
+                  className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1"
+                >
+                  <div className="flex flex-col sm:flex-row">
+                    {/* Vignette */}
+                    <div
+                      className="sm:w-52 aspect-[4/3] sm:aspect-auto bg-cover bg-center bg-forest-dark relative overflow-hidden"
+                      style={{
+                        backgroundImage: `url(/images/bibliotheque/${relatedDoc.slug}.jpg), url(/images/hero-home.jpg)`,
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/60 via-transparent to-transparent" />
+                      <div className="absolute top-3 left-3">
+                        <span
+                          className="inline-flex items-center gap-1.5 bg-white/95 text-xs font-semibold px-2.5 py-1 rounded-full"
+                          style={{ color: TYPE_CONFIG[relatedDoc.type].accent }}
+                        >
+                          {TYPE_CONFIG[relatedDoc.type].label}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Détails */}
+                    <div className="p-5 md:p-6 flex-1 flex flex-col">
+                      <h4
+                        className="text-lg font-bold text-forest-dark mb-2 leading-tight group-hover:text-forest transition-colors"
+                        style={{ fontFamily: "var(--serif)" }}
+                      >
+                        {relatedDoc.title}
+                      </h4>
+                      {relatedDoc.description && (
+                        <p className="text-ink-light text-sm leading-relaxed mb-4 line-clamp-2">
+                          {relatedDoc.description}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between mt-auto pt-3 border-t border-neutral-mid">
+                        <div>
+                          <span
+                            className="text-lg font-bold"
+                            style={{
+                              fontFamily: "var(--mono)",
+                              color: TYPE_CONFIG[relatedDoc.type].accent,
+                            }}
+                          >
+                            {relatedDoc.price.toLocaleString("fr-FR")}
+                          </span>
+                          <span className="text-xs text-ink-light ml-1">FCFA</span>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 text-forest font-medium text-sm group-hover:gap-2 transition-all">
+                          Consulter
+                          <ArrowRight size={16} />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                /* Contrepartie manquante → bloc grisé "Bientôt disponible" */
+                <div className="bg-white/60 border border-dashed border-neutral-mid rounded-2xl p-6 md:p-8 flex items-center gap-4 opacity-80">
+                  <div className="w-12 h-12 rounded-full bg-neutral-mid/40 flex items-center justify-center flex-shrink-0">
+                    <Clock size={22} className="text-ink-light" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-forest-dark mb-1">
+                      Bientôt disponible
+                    </p>
+                    <p className="text-sm text-ink-light">
+                      {doc.type === "business_plan"
+                        ? `La fiche technique ITK ${doc.speculation ? `« ${doc.speculation} »` : "de cette spéculation"} est en cours de rédaction.`
+                        : `Le business plan ${doc.speculation ? `« ${doc.speculation} »` : "de cette spéculation"} est en cours de rédaction.`}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ─── SUGGESTIONS GUIDES ───────────────────────────── */}
+          {showRelated && doc.type === "guide" && (
+            <div className="mt-14 pt-12 border-t border-neutral-mid">
+              <p className="text-amber font-semibold text-xs uppercase tracking-wider mb-2">
+                Continuer à apprendre
+              </p>
+              <h3
+                className="text-2xl font-bold text-forest-dark mb-6"
+                style={{ fontFamily: "var(--serif)" }}
+              >
+                D&apos;autres guides à découvrir
+              </h3>
+
+              {relatedGuides.length > 0 ? (
+                <div className={`grid gap-4 ${relatedGuides.length === 1 ? "sm:grid-cols-1" : relatedGuides.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
+                  {relatedGuides.map((g) => (
+                    <Link
+                      key={g.id}
+                      href={`/bibliotheque/${g.slug}`}
+                      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
+                    >
+                      <div
+                        className="aspect-[4/3] bg-cover bg-center bg-forest-dark relative overflow-hidden"
+                        style={{
+                          backgroundImage: `url(/images/bibliotheque/${g.slug}.jpg), url(/images/hero-home.jpg)`,
+                        }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/60 via-transparent to-transparent" />
+                        <div className="absolute top-3 left-3">
+                          <span
+                            className="inline-flex items-center gap-1.5 bg-white/95 text-xs font-semibold px-2.5 py-1 rounded-full"
+                            style={{ color: TYPE_CONFIG.guide.accent }}
+                          >
+                            <GraduationCap size={12} />
+                            Guide
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-4 flex flex-col flex-1">
+                        <h4
+                          className="text-base font-bold text-forest-dark leading-tight mb-2 line-clamp-2 group-hover:text-forest transition-colors"
+                          style={{ fontFamily: "var(--serif)" }}
+                        >
+                          {g.title}
+                        </h4>
+                        <div className="flex items-center justify-between mt-auto pt-3 border-t border-neutral-mid">
+                          <span
+                            className="text-sm font-bold"
+                            style={{ fontFamily: "var(--mono)", color: TYPE_CONFIG.guide.accent }}
+                          >
+                            {g.price.toLocaleString("fr-FR")}
+                            <span className="text-xs text-ink-light ml-1">FCFA</span>
+                          </span>
+                          <ArrowRight size={14} className="text-forest group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                /* Aucun autre guide → CTA vers la bibliothèque */
+                <Link
+                  href="/bibliotheque"
+                  className="group flex items-center justify-between bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all hover:-translate-y-0.5"
+                >
+                  <div>
+                    <p className="font-semibold text-forest-dark mb-1">
+                      Explorer toute la bibliothèque
+                    </p>
+                    <p className="text-sm text-ink-light">
+                      Business plans, fiches techniques et guides éducatifs
+                    </p>
+                  </div>
+                  <ArrowRight size={20} className="text-forest group-hover:translate-x-1 transition-transform" />
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
       {/* ─── CTA CONSULTATION ───────────────────────────────── */}
       <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">
+          <p className="text-amber font-semibold text-sm uppercase tracking-wider mb-3">
             {`Besoin d'un accompagnement sur mesure ?`}
           </p>
           <h2
-            className="reveal reveal-delay-1 text-3xl md:text-4xl font-bold text-forest-dark mb-6"
+            className="text-3xl md:text-4xl font-bold text-forest-dark mb-6"
             style={{ fontFamily: "var(--serif)" }}
           >
             Ce document est un <em>outil de compréhension.</em>
           </h2>
-          <p className="reveal reveal-delay-2 text-ink-light leading-relaxed mb-8 max-w-xl mx-auto">
+          <p className="text-ink-light leading-relaxed mb-8 max-w-xl mx-auto">
             {`Pour un accompagnement adapté à ta parcelle et à tes objectifs, nos équipes réalisent des études personnalisées sur devis.`}
           </p>
-          <div className="reveal reveal-delay-3 flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="https://wa.me/237659374501"
               target="_blank"
