@@ -68,13 +68,14 @@ function DocCover({ doc }: { doc: Document }) {
 
   return (
     <div className="relative w-full aspect-[4/3] overflow-hidden bg-forest-dark">
-      {/* Image de fond */}
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-        style={{
-          backgroundImage: `url(${coverUrl}), url(/images/hero-home.jpg)`,
-          backgroundColor: "#1A3D25",
-        }}
+      {/* Miniature optimisée : next/image gère AVIF/WebP + resize CDN Vercel + lazy loading */}
+      <Image
+        src={coverUrl}
+        alt={doc.title}
+        fill
+        sizes="(min-width: 1024px) 384px, (min-width: 640px) 50vw, 100vw"
+        className="object-cover transition-transform duration-500 group-hover:scale-105"
+        quality={80}
       />
       {/* Voile dégradé pour lisibilité du badge */}
       <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/70 via-transparent to-forest-dark/40" />
