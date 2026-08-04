@@ -27,6 +27,7 @@ export default function Navbar() {
     { href: "/application", label: "Application" },
     { href: "/bibliotheque", label: "Bibliothèque" },
     { href: "/comparateur", label: "Comparateur" },
+    { href: "/collaborateurs", label: "Collaborateurs" },
   ];
 
   const handleSignOut = async () => {
