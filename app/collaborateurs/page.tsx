@@ -20,11 +20,14 @@ import {
   Receipt,
   ArrowDownToLine,
   FileText,
-  Camera,
   RotateCcw,
   Building2,
   ChevronRight,
+  Users,
+  ImageOff,
+  X,
 } from "lucide-react";
+import { createPortal } from "react-dom";
 
 /* ────────────────────────────────────────────
    Types du bundle renvoye par get_shared_project
@@ -43,6 +46,9 @@ interface Task {
   quantite_recoltee: number | null;
   unite_recoltee: string | null;
   nb_travailleurs: number | null;
+  description: string | null;
+  note: string | null;
+  duree_heures: number | null;
 }
 interface Expense {
   id: string;
@@ -146,12 +152,12 @@ const POSTE_LABELS: Record<string, string> = {
   semences: "Semences",
   engrais: "Engrais",
   pesticides: "Pesticides",
-  main_oeuvre: "Main d'\u0153uvre",
-  materiel: "Mat\u00e9riel",
+  main_oeuvre: "Main d'œuvre",
+  materiel: "Matériel",
   transport: "Transport",
   irrigation: "Irrigation",
   alimentation_animaux: "Alimentation animaux",
-  veterinaire: "V\u00e9t\u00e9rinaire",
+  veterinaire: "Vétérinaire",
   emballage: "Emballage",
   divers: "Divers",
   loyer: "Loyer",
@@ -168,8 +174,8 @@ const fmt = (n: number | null | undefined) =>
   (n ?? 0).toLocaleString("fr-FR");
 const monthKey = (d: string | null) => (d ? d.slice(0, 7) : null);
 const MONTHS = [
-  "janv.", "f\u00e9vr.", "mars", "avr.", "mai", "juin",
-  "juil.", "ao\u00fbt", "sept.", "oct.", "nov.", "d\u00e9c.",
+  "janv.", "févr.", "mars", "avr.", "mai", "juin",
+  "juil.", "août", "sept.", "oct.", "nov.", "déc.",
 ];
 const monthLabel = (ym: string) => {
   const [y, m] = ym.split("-");
@@ -187,7 +193,612 @@ function isLate(t: Task): boolean {
   return !t.date_cloture_reelle && !!t.date_fin && t.date_fin < todayISO;
 }
 const dateFR = (d: string | null) =>
-  d ? new Date(d).toLocaleDateString("fr-FR") : "\u2014";
+  d ? new Date(d).toLocaleDateString("fr-FR") : "—";
+
+const PRIORITE_LABELS: Record<string, string> = {
+  haute: "Haute",
+  moyenne: "Moyenne",
+  basse: "Basse",
+  urgente: "Urgente",
+  normale: "Normale",
+  faible: "Faible",
+};
+const prioriteLabel = (p: string | null) =>
+  (p && PRIORITE_LABELS[p]) || p || null;
+
+/* ════════════════════════════════════════════
+   Modale de détail (lecture seule, réutilisable)
+════════════════════════════════════════════ */
+
+type Field = { label: string; value: React.ReactNode };
+
+/* Ferme sur Échap + bloque le défilement de la page tant que la modale est ouverte */
+function useModalDismiss(open: boolean, onClose: () => void) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+}
+
+/* Monté côté client (le portail a besoin de document) */
+function useMounted() {
+  const [m, setM] = useState(false);
+  useEffect(() => setM(true), []);
+  return m;
+}
+
+/* Media query réactive (mobile → feuille par le bas ; desktop → dialogue centré) */
+function useMediaQuery(query: string) {
+  const [match, setMatch] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const on = () => setMatch(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, [query]);
+  return match;
+}
+
+/* Image d'un bucket privé : demande une URL signée temporaire (1 h) */
+function StorageImage({
+  bucket,
+  path,
+  alt,
+  linkable,
+}: {
+  bucket: string;
+  path: string;
+  alt: string;
+  linkable?: boolean;
+}) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setUrl(null);
+    setFailed(false);
+    supabase.storage
+      .from(bucket)
+      .createSignedUrl(path, 3600)
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error || !data?.signedUrl) setFailed(true);
+        else setUrl(data.signedUrl);
+      });
+    return () => {
+      active = false;
+    };
+  }, [bucket, path]);
+
+  const fill: React.CSSProperties = {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  };
+  const box: React.CSSProperties = {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#F1F1EC",
+    color: C.inkLight,
+  };
+
+  if (failed)
+    return (
+      <div style={box} title="Image indisponible">
+        <ImageOff size={18} />
+      </div>
+    );
+  if (!url) return <div style={box} />;
+
+  const img = (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={url} alt={alt} style={fill} onError={() => setFailed(true)} />
+  );
+  if (linkable)
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={fill}
+        title="Ouvrir en grand"
+      >
+        {img}
+      </a>
+    );
+  return img;
+}
+
+function DetailModal({
+  open,
+  onClose,
+  title,
+  icon: Icon,
+  accent,
+  headline,
+  badge,
+  fields,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  icon?: React.ComponentType<{ size?: number; color?: string; className?: string }>;
+  accent?: string;
+  headline?: React.ReactNode;
+  badge?: React.ReactNode;
+  fields: Field[];
+  children?: React.ReactNode;
+}) {
+  const mounted = useMounted();
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const [visible, setVisible] = useState(false);
+  useModalDismiss(open, onClose);
+  useEffect(() => {
+    if (!open) {
+      setVisible(false);
+      return;
+    }
+    const id = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(id);
+  }, [open]);
+
+  if (!open || !mounted) return null;
+
+  const accentColor = accent || C.forest;
+  const shown = fields.filter(
+    (f) => f.value !== null && f.value !== undefined && f.value !== "",
+  );
+
+  const node = (
+    <div
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: isMobile ? "flex-end" : "center",
+        justifyContent: "center",
+        padding: isMobile ? 0 : 24,
+        background: "rgba(15,40,24,0.55)",
+        backdropFilter: "blur(3px)",
+        WebkitBackdropFilter: "blur(3px)",
+        opacity: visible ? 1 : 0,
+        transition: "opacity 180ms ease",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "100%",
+          maxWidth: isMobile ? "100%" : 540,
+          background: "#FFFFFF",
+          borderRadius: isMobile ? "20px 20px 0 0" : 20,
+          boxShadow: "0 24px 60px rgba(0,0,0,0.28)",
+          maxHeight: isMobile ? "90vh" : "86vh",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          transform: visible
+            ? "translateY(0) scale(1)"
+            : isMobile
+              ? "translateY(28px)"
+              : "translateY(10px) scale(0.985)",
+          opacity: visible ? 1 : 0,
+          transition:
+            "transform 240ms cubic-bezier(.16,1,.3,1), opacity 180ms ease",
+        }}
+      >
+        {isMobile && (
+          <div
+            style={{
+              width: 40,
+              height: 4,
+              borderRadius: 999,
+              background: C.neutralMid,
+              margin: "10px auto 2px",
+            }}
+          />
+        )}
+
+        {/* En-tête */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 12,
+            padding: "20px 22px",
+            borderBottom: `1px solid ${C.neutralMid}`,
+          }}
+        >
+          {Icon && (
+            <div
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: 12,
+                flexShrink: 0,
+                background: accentColor + "1A",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Icon size={20} color={accentColor} />
+            </div>
+          )}
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h3
+              style={{
+                fontFamily: "var(--serif)",
+                fontWeight: 700,
+                fontSize: 19,
+                lineHeight: 1.25,
+                color: C.forestDark,
+                overflowWrap: "anywhere",
+              }}
+            >
+              {title}
+            </h3>
+            {headline && (
+              <div
+                style={{
+                  marginTop: 4,
+                  fontFamily: "var(--mono)",
+                  fontWeight: 700,
+                  fontSize: 22,
+                  color: accentColor,
+                }}
+              >
+                {headline}
+              </div>
+            )}
+            {badge && <div style={{ marginTop: 8 }}>{badge}</div>}
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Fermer"
+            style={{
+              flexShrink: 0,
+              width: 34,
+              height: 34,
+              borderRadius: 999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: C.inkLight,
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#F4F4F0";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Corps */}
+        <div style={{ padding: "16px 22px 22px", overflowY: "auto" }}>
+          {shown.length > 0 && (
+            <div>
+              {shown.map((f, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "baseline",
+                    gap: 16,
+                    padding: "11px 0",
+                    borderBottom:
+                      i < shown.length - 1 ? "1px solid #F0F0EC" : "none",
+                  }}
+                >
+                  <span style={{ color: C.inkLight, fontSize: 14, flexShrink: 0 }}>
+                    {f.label}
+                  </span>
+                  <span
+                    style={{
+                      color: C.forestDark,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      textAlign: "right",
+                      overflowWrap: "anywhere",
+                    }}
+                  >
+                    {f.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+
+  return createPortal(node, document.body);
+}
+
+/* Badge d'état d'une tâche (dérivé des dates, comme le reste de la page) */
+function TaskStateBadge({ t }: { t: Task }) {
+  const s = taskState(t);
+  const map = {
+    termine: { label: "Terminée", color: C.forest, bg: "#EBF2EC" },
+    en_cours: { label: "En cours", color: C.amberDark, bg: "#FAEEDA" },
+    a_faire: { label: "À faire", color: C.inkLight, bg: "#F4F4F0" },
+  } as const;
+  const b = map[s];
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span
+        className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium"
+        style={{ color: b.color, background: b.bg }}
+      >
+        {b.label}
+      </span>
+      {isLate(t) && (
+        <span className="text-xs text-brick font-medium">en retard</span>
+      )}
+    </span>
+  );
+}
+
+/* Modale détaillée d'une tâche + ses preuves liées */
+function TaskModal({
+  task,
+  evidence,
+  projectUnit,
+  onClose,
+}: {
+  task: Task | null;
+  evidence: Evidence[];
+  projectUnit: string | null;
+  onClose: () => void;
+}) {
+  const linked = useMemo(
+    () =>
+      task
+        ? evidence.filter((e) => e.task_id === task.id && !!e.photo_url)
+        : [],
+    [task, evidence],
+  );
+  if (!task) return null;
+
+  const unit = (task.unite_recoltee || projectUnit || "").trim();
+  const recolte =
+    task.quantite_recoltee && task.quantite_recoltee > 0
+      ? `${task.quantite_recoltee.toLocaleString("fr-FR")} ${unit}`.trim()
+      : null;
+  const prevu =
+    task.date_debut || task.date_fin
+      ? `${dateFR(task.date_debut)} → ${dateFR(task.date_fin)}`
+      : null;
+  const demarre = task.date_demarrage_reelle
+    ? dateFR(task.date_demarrage_reelle)
+    : null;
+  const cloture = task.date_cloture_reelle
+    ? dateFR(task.date_cloture_reelle)
+    : null;
+
+  const stateAccent = {
+    termine: C.forest,
+    en_cours: C.amber,
+    a_faire: C.inkLight,
+  }[taskState(task)];
+
+  const fields: Field[] = [
+    { label: "Catégorie", value: task.categorie },
+    { label: "Priorité", value: prioriteLabel(task.priorite) },
+    {
+      label: "Durée",
+      value: task.duree_heures ? `${task.duree_heures} h` : null,
+    },
+  ];
+
+  const sectionLabel: React.CSSProperties = {
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+    color: C.inkLight,
+    marginBottom: 10,
+  };
+  const timelineRow = (label: string, value: string, dot: string) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <span
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: 999,
+          background: dot,
+          flexShrink: 0,
+        }}
+      />
+      <span style={{ color: C.inkLight, fontSize: 14 }}>{label}</span>
+      <span
+        style={{
+          marginLeft: "auto",
+          color: C.forestDark,
+          fontSize: 14,
+          fontWeight: 500,
+        }}
+      >
+        {value}
+      </span>
+    </div>
+  );
+
+  return (
+    <DetailModal
+      open={!!task}
+      onClose={onClose}
+      title={task.name || "Tâche"}
+      icon={ListChecks}
+      accent={stateAccent}
+      badge={<TaskStateBadge t={task} />}
+      fields={fields}
+    >
+      {task.description && task.description.trim() !== "" && (
+        <div style={{ marginTop: 18 }}>
+          <p style={sectionLabel}>Description</p>
+          <p
+            style={{
+              fontSize: 14,
+              lineHeight: 1.65,
+              color: C.forestDark,
+              whiteSpace: "pre-line",
+            }}
+          >
+            {task.description}
+          </p>
+        </div>
+      )}
+
+      {task.note && task.note.trim() !== "" && (
+        <div style={{ marginTop: 18 }}>
+          <p style={sectionLabel}>Note</p>
+          <p
+            style={{
+              fontSize: 14,
+              lineHeight: 1.65,
+              color: C.forestDark,
+              whiteSpace: "pre-line",
+            }}
+          >
+            {task.note}
+          </p>
+        </div>
+      )}
+
+      {(prevu || demarre || cloture) && (
+        <div style={{ marginTop: 18 }}>
+          <p style={sectionLabel}>Suivi</p>
+          <div style={{ display: "grid", gap: 11 }}>
+            {prevu && timelineRow("Prévu", prevu, C.inkLight)}
+            {demarre && timelineRow("Démarré le", demarre, C.amberDark)}
+            {cloture && timelineRow("Clôturé le", cloture, C.forest)}
+          </div>
+        </div>
+      )}
+
+      {recolte && (
+        <div
+          style={{
+            marginTop: 18,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "14px 16px",
+            borderRadius: 14,
+            background: C.forest + "12",
+          }}
+        >
+          <Wheat size={20} color={C.forest} />
+          <div>
+            <div
+              style={{
+                fontSize: 11,
+                letterSpacing: 0.4,
+                textTransform: "uppercase",
+                color: C.inkLight,
+              }}
+            >
+              Récolte
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--mono)",
+                fontWeight: 700,
+                fontSize: 18,
+                color: C.forestDark,
+              }}
+            >
+              {recolte}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {task.nb_travailleurs ? (
+        <div
+          style={{
+            marginTop: 14,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            color: C.forestDark,
+            fontSize: 14,
+          }}
+        >
+          <Users size={16} color={C.inkLight} />
+          <span>
+            {task.nb_travailleurs} travailleur
+            {task.nb_travailleurs > 1 ? "s" : ""}
+          </span>
+        </div>
+      ) : null}
+
+      {linked.length > 0 && (
+        <div style={{ marginTop: 18 }}>
+          <p style={sectionLabel}>Preuves ({linked.length})</p>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 8,
+            }}
+          >
+            {linked.map((ev) => (
+              <div
+                key={ev.id}
+                title={ev.notes || undefined}
+                style={{
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  border: `1px solid ${C.neutralMid}`,
+                  aspectRatio: "1 / 1",
+                }}
+              >
+                <StorageImage
+                  bucket="evidence"
+                  path={ev.photo_url!}
+                  alt={ev.notes || "Preuve"}
+                  linkable
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </DetailModal>
+  );
+}
 
 /* ════════════════════════════════════════════
    Petits composants graphiques (SVG / CSS purs)
@@ -230,7 +841,7 @@ function BudgetGauge({ total, budget }: { total: number; budget: number }) {
           className="text-2xl font-bold"
           style={{ fontFamily: "var(--mono)", color }}
         >
-          {budget > 0 ? Math.round(pct * 100) : "\u2014"}
+          {budget > 0 ? Math.round(pct * 100) : "—"}
           {budget > 0 && "%"}
         </span>
         <span className="text-sm text-ink-light">
@@ -245,7 +856,7 @@ function BudgetGauge({ total, budget }: { total: number; budget: number }) {
       </div>
       {pct > 1 && (
         <p className="text-xs text-brick font-medium mt-2">
-          Budget d\u00e9pass\u00e9 de {fmt(total - budget)} FCFA.
+          Budget dépassé de {fmt(total - budget)} FCFA.
         </p>
       )}
     </div>
@@ -271,7 +882,7 @@ function ExpensesByPoste({ expenses }: { expenses: Expense[] }) {
   }, [expenses]);
 
   if (!rows.length)
-    return <p className="text-sm text-ink-light">Aucune d\u00e9pense enregistr\u00e9e.</p>;
+    return <p className="text-sm text-ink-light">Aucune dépense enregistrée.</p>;
   const max = Math.max(...rows.map((r) => r.total), 1);
 
   return (
@@ -335,8 +946,11 @@ function CashFlowChart({
     return { months, per, treso };
   }, [expenses, revenues, deposits]);
 
+  // Colonne survolée (desktop) ou tapée (mobile) pour l'info-bulle
+  const [hover, setHover] = useState<number | null>(null);
+
   if (data.months.length === 0)
-    return <p className="text-sm text-ink-light">Aucun mouvement dat\u00e9 \u00e0 afficher.</p>;
+    return <p className="text-sm text-ink-light">Aucun mouvement daté à afficher.</p>;
 
   const { per, treso } = data;
   const vals = per.flatMap((p) => [p.entrees, p.sorties]).concat(treso).concat([0]);
@@ -358,23 +972,34 @@ function CashFlowChart({
     <div>
       <div className="flex flex-wrap gap-4 mb-3 text-xs">
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm" style={{ background: C.forestMid }} /> Entr\u00e9es
+          <span className="w-3 h-3 rounded-sm" style={{ background: C.forestMid }} /> Entrées
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-sm" style={{ background: C.brick }} /> Sorties
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-0.5" style={{ background: C.amberDark }} /> Tr\u00e9sorerie
+          <span className="w-3 h-0.5" style={{ background: C.amberDark }} /> Trésorerie
         </span>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto relative">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           width={W}
           height={H}
           role="img"
-          aria-label="Entr\u00e9es, sorties et tr\u00e9sorerie par mois"
+          aria-label="Entrées, sorties et trésorerie par mois"
         >
+          {hover !== null && (
+            <rect
+              x={hover * slot}
+              y={0}
+              width={slot}
+              height={H}
+              fill={C.forest}
+              opacity={0.06}
+              pointerEvents="none"
+            />
+          )}
           <line x1={0} y1={y0} x2={W} y2={y0} stroke={C.neutralMid} strokeWidth={1} />
           {per.map((p, i) => {
             const cx = i * slot + slot / 2;
@@ -425,10 +1050,61 @@ function CashFlowChart({
               fill={C.amberDark}
             />
           ))}
+          {/* Zones transparentes au-dessus, pour capter survol (desktop) et tap (mobile) */}
+          {per.map((p, i) => (
+            <rect
+              key={`hit-${p.m}`}
+              x={i * slot}
+              y={0}
+              width={slot}
+              height={H}
+              fill="transparent"
+              style={{ cursor: "pointer" }}
+              onMouseEnter={() => setHover(i)}
+              onMouseLeave={() => setHover((h) => (h === i ? null : h))}
+              onClick={() => setHover((h) => (h === i ? null : i))}
+            />
+          ))}
         </svg>
+        {hover !== null &&
+          (() => {
+            const cx = hover * slot + slot / 2;
+            const tw = 168;
+            const left = Math.min(Math.max(cx, tw / 2 + 4), W - tw / 2 - 4);
+            const p = per[hover];
+            return (
+              <div
+                className="pointer-events-none absolute -translate-x-1/2 z-10 rounded-lg bg-forest-dark text-white shadow-lg px-3 py-2 text-xs"
+                style={{ left, top: 4, width: tw }}
+              >
+                <div className="font-semibold mb-1.5">{monthLabel(p.m)}</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-sm shrink-0" style={{ background: C.forestMid }} />
+                  <span>Entrées</span>
+                  <span className="ml-auto font-semibold" style={{ fontFamily: "var(--mono)" }}>
+                    {fmt(p.entrees)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="w-2 h-2 rounded-sm shrink-0" style={{ background: C.brick }} />
+                  <span>Sorties</span>
+                  <span className="ml-auto font-semibold" style={{ fontFamily: "var(--mono)" }}>
+                    {fmt(p.sorties)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="w-3 h-0.5 shrink-0" style={{ background: C.amber }} />
+                  <span>Trésorerie</span>
+                  <span className="ml-auto font-semibold" style={{ fontFamily: "var(--mono)" }}>
+                    {fmt(treso[hover])}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
       </div>
       <p className="text-sm text-ink-mid mt-3">
-        Tr\u00e9sorerie actuelle :{" "}
+        Trésorerie actuelle :{" "}
         <span
           className="font-bold"
           style={{ color: treso[treso.length - 1] < 0 ? C.brick : C.forest }}
@@ -455,12 +1131,12 @@ function TasksProgress({ tasks }: { tasks: Task[] }) {
   }, [tasks]);
 
   if (!total)
-    return <p className="text-sm text-ink-light">Aucune t\u00e2che enregistr\u00e9e.</p>;
+    return <p className="text-sm text-ink-light">Aucune tâche enregistrée.</p>;
 
   const seg = [
-    { n: termine, c: C.forest, label: "Termin\u00e9es" },
+    { n: termine, c: C.forest, label: "Terminées" },
     { n: enCours, c: C.amber, label: "En cours" },
-    { n: aFaire, c: C.neutralMid, label: "\u00c0 faire" },
+    { n: aFaire, c: C.neutralMid, label: "À faire" },
   ];
 
   return (
@@ -491,8 +1167,8 @@ function TasksProgress({ tasks }: { tasks: Task[] }) {
       </div>
       {late > 0 && (
         <p className="text-xs text-brick font-medium mt-3">
-          {late} t\u00e2che{late > 1 ? "s" : ""} en retard (\u00e9ch\u00e9ance
-          d\u00e9pass\u00e9e, non cl\u00f4tur\u00e9e{late > 1 ? "s" : ""}).
+          {late} tâche{late > 1 ? "s" : ""} en retard (échéance
+          dépassée, non clôturée{late > 1 ? "s" : ""}).
         </p>
       )}
     </div>
@@ -519,7 +1195,7 @@ function HarvestSummary({
   }, [tasks, projectUnit]);
 
   if (!perUnit.length)
-    return <p className="text-sm text-ink-light">Aucune r\u00e9colte enregistr\u00e9e.</p>;
+    return <p className="text-sm text-ink-light">Aucune récolte enregistrée.</p>;
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -575,8 +1251,17 @@ function ProjectView({
   const totalDepots = sum(deposits.map((d) => d.montant ?? 0));
   const treso = totalDepots + totalRev - totalDep;
 
+  // Tâche ouverte dans la modale de détail (lecture seule)
+  const [openTask, setOpenTask] = useState<Task | null>(null);
+
   return (
     <>
+      <TaskModal
+        task={openTask}
+        evidence={evidence}
+        projectUnit={project.unite_recolte}
+        onClose={() => setOpenTask(null)}
+      />
       {/* En-tete projet */}
       <section className="relative bg-forest-dark pt-28 pb-12">
         <div className="max-w-5xl mx-auto px-6">
@@ -587,7 +1272,7 @@ function ProjectView({
             <RotateCcw size={14} /> Tous les projets
           </button>
           <p className="text-amber-light text-sm font-semibold uppercase tracking-wider mb-2">
-            Projet partag\u00e9 \u00b7 lecture seule
+            Projet partagé · lecture seule
           </p>
           <h1
             className="text-3xl md:text-4xl font-bold text-white mb-3"
@@ -603,13 +1288,13 @@ function ProjectView({
               project.statut,
             ]
               .filter(Boolean)
-              .join(" \u00b7 ")}
+              .join(" · ")}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Stat label="Budget" value={`${fmt(project.budget)}`} />
-            <Stat label="D\u00e9penses" value={`${fmt(totalDep)}`} />
+            <Stat label="Dépenses" value={`${fmt(totalDep)}`} />
             <Stat label="Recettes" value={`${fmt(totalRev)}`} />
-            <Stat label="Tr\u00e9sorerie" value={`${fmt(treso)}`} />
+            <Stat label="Trésorerie" value={`${fmt(treso)}`} />
           </div>
         </div>
       </section>
@@ -617,20 +1302,20 @@ function ProjectView({
       {/* Graphiques */}
       <section className="py-12 bg-neutral">
         <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-5">
-          <Card icon={Wallet} title="Budget consomm\u00e9">
+          <Card icon={Wallet} title="Budget consommé">
             <BudgetGauge total={totalDep} budget={project.budget ?? 0} />
           </Card>
-          <Card icon={PieChart} title="O\u00f9 part l'argent">
+          <Card icon={PieChart} title="Où part l'argent">
             <ExpensesByPoste expenses={expenses} />
           </Card>
-          <Card icon={ListChecks} title="Avancement des t\u00e2ches">
+          <Card icon={ListChecks} title="Avancement des tâches">
             <TasksProgress tasks={tasks} />
           </Card>
-          <Card icon={Wheat} title="R\u00e9colte cumul\u00e9e">
+          <Card icon={Wheat} title="Récolte cumulée">
             <HarvestSummary tasks={tasks} projectUnit={project.unite_recolte} />
           </Card>
           <div className="md:col-span-2">
-            <Card icon={TrendingUp} title="Entr\u00e9es, sorties et tr\u00e9sorerie">
+            <Card icon={TrendingUp} title="Entrées, sorties et trésorerie">
               <CashFlowChart
                 expenses={expenses}
                 revenues={revenues}
@@ -650,17 +1335,17 @@ function ProjectView({
               className="text-xl font-bold text-forest-dark mb-4 flex items-center gap-2"
               style={{ fontFamily: "var(--serif)" }}
             >
-              <ListChecks size={18} className="text-forest" /> T\u00e2ches ({tasks.length})
+              <ListChecks size={18} className="text-forest" /> Tâches ({tasks.length})
             </h2>
             {tasks.length ? (
               <div className="overflow-x-auto rounded-xl border border-neutral-mid">
                 <table className="w-full text-sm">
                   <thead className="bg-neutral text-ink-mid">
                     <tr>
-                      <th className="text-left px-4 py-2.5 font-semibold">T\u00e2che</th>
-                      <th className="text-left px-4 py-2.5 font-semibold">\u00c9tat</th>
-                      <th className="text-left px-4 py-2.5 font-semibold">\u00c9ch\u00e9ance</th>
-                      <th className="text-right px-4 py-2.5 font-semibold">R\u00e9colte</th>
+                      <th className="text-left px-4 py-2.5 font-semibold">Tâche</th>
+                      <th className="text-left px-4 py-2.5 font-semibold">État</th>
+                      <th className="text-left px-4 py-2.5 font-semibold">Échéance</th>
+                      <th className="text-right px-4 py-2.5 font-semibold">Récolte</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -668,13 +1353,26 @@ function ProjectView({
                       const s = taskState(t);
                       const label =
                         s === "termine"
-                          ? "Termin\u00e9e"
+                          ? "Terminée"
                           : s === "en_cours"
                             ? "En cours"
-                            : "\u00c0 faire";
+                            : "À faire";
                       return (
-                        <tr key={t.id} className="border-t border-neutral-mid">
-                          <td className="px-4 py-2.5 text-ink">{t.name || "\u2014"}</td>
+                        <tr
+                          key={t.id}
+                          onClick={() => setOpenTask(t)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setOpenTask(t);
+                            }
+                          }}
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`Voir le détail : ${t.name || "tâche"}`}
+                          className="border-t border-neutral-mid cursor-pointer hover:bg-neutral/60 focus:bg-neutral/60 focus:outline-none transition-colors"
+                        >
+                          <td className="px-4 py-2.5 text-ink">{t.name || "—"}</td>
                           <td className="px-4 py-2.5">
                             <span
                               className="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
@@ -705,11 +1403,19 @@ function ProjectView({
                             {dateFR(t.date_fin)}
                           </td>
                           <td className="px-4 py-2.5 text-right text-ink">
-                            {t.quantite_recoltee
-                              ? `${t.quantite_recoltee.toLocaleString("fr-FR")} ${
-                                  t.unite_recoltee || ""
-                                }`
-                              : "\u2014"}
+                            <span className="inline-flex items-center justify-end gap-1.5">
+                              <span>
+                                {t.quantite_recoltee
+                                  ? `${t.quantite_recoltee.toLocaleString("fr-FR")} ${
+                                      t.unite_recoltee || ""
+                                    }`
+                                  : "—"}
+                              </span>
+                              <ChevronRight
+                                size={14}
+                                className="text-ink-light shrink-0"
+                              />
+                            </span>
                           </td>
                         </tr>
                       );
@@ -718,7 +1424,7 @@ function ProjectView({
                 </table>
               </div>
             ) : (
-              <p className="text-sm text-ink-light">Aucune t\u00e2che.</p>
+              <p className="text-sm text-ink-light">Aucune tâche.</p>
             )}
           </div>
 
@@ -726,13 +1432,19 @@ function ProjectView({
           <div className="grid lg:grid-cols-3 gap-6">
             <FinanceList
               icon={Receipt}
-              title={`D\u00e9penses (${expenses.length})`}
+              title={`Dépenses (${expenses.length})`}
               rows={expenses.map((e) => ({
                 id: e.id,
                 left: posteLabel(e.poste),
                 sub: e.description || dateFR(e.date),
                 amount: e.montant,
                 color: C.brick,
+                title: posteLabel(e.poste),
+                fields: [
+                  { label: "Poste", value: posteLabel(e.poste) },
+                  { label: "Date", value: dateFR(e.date) },
+                  { label: "Description", value: e.description },
+                ],
               }))}
             />
             <FinanceList
@@ -744,17 +1456,38 @@ function ProjectView({
                 sub: r.acheteur || dateFR(r.date),
                 amount: r.montant,
                 color: C.forest,
+                title: r.source || r.categorie || "Vente",
+                fields: [
+                  { label: "Catégorie", value: r.categorie },
+                  { label: "Date", value: dateFR(r.date) },
+                  { label: "Acheteur", value: r.acheteur },
+                  {
+                    label: "Quantité",
+                    value: r.quantite ? r.quantite.toLocaleString("fr-FR") : null,
+                  },
+                  {
+                    label: "Prix unitaire",
+                    value: r.prix_unitaire ? `${fmt(r.prix_unitaire)} FCFA` : null,
+                  },
+                  { label: "Description", value: r.description },
+                ],
               }))}
             />
             <FinanceList
               icon={ArrowDownToLine}
-              title={`D\u00e9p\u00f4ts (${deposits.length})`}
+              title={`Dépôts (${deposits.length})`}
               rows={deposits.map((d) => ({
                 id: d.id,
-                left: d.operateur || "D\u00e9p\u00f4t",
+                left: d.operateur || "Dépôt",
                 sub: d.note || dateFR(d.date_depot),
                 amount: d.montant,
                 color: C.forestMid,
+                title: d.operateur || "Dépôt",
+                fields: [
+                  { label: "Opérateur", value: d.operateur },
+                  { label: "Date", value: dateFR(d.date_depot) },
+                  { label: "Note", value: d.note },
+                ],
               }))}
             />
           </div>
@@ -790,7 +1523,7 @@ function ProjectView({
                     )}
                     {r.problemes_detectes && (
                       <p className="text-sm text-brick mb-1">
-                        <span className="font-semibold">Probl\u00e8mes : </span>
+                        <span className="font-semibold">Problèmes : </span>
                         {r.problemes_detectes}
                       </p>
                     )}
@@ -800,47 +1533,35 @@ function ProjectView({
                         {r.actions_recommandees}
                       </p>
                     )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Preuves / photos */}
-          {evidence.length > 0 && (
-            <div>
-              <h2
-                className="text-xl font-bold text-forest-dark mb-4 flex items-center gap-2"
-                style={{ fontFamily: "var(--serif)" }}
-              >
-                <Camera size={18} className="text-forest" /> Preuves ({evidence.length})
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {evidence.map((ev) => (
-                  <div
-                    key={ev.id}
-                    className="rounded-xl border border-neutral-mid overflow-hidden bg-neutral"
-                  >
-                    {ev.photo_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={ev.photo_url}
-                        alt={ev.notes || "Preuve"}
-                        className="w-full aspect-square object-cover"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).style.display =
-                            "none";
+                    {r.photos_urls && r.photos_urls.length > 0 && (
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(3, 1fr)",
+                          gap: 8,
+                          marginTop: 12,
                         }}
-                      />
-                    ) : null}
-                    <div className="px-3 py-2">
-                      <p className="text-xs text-ink-mid truncate">
-                        {ev.notes || ev.evidence_type || "Preuve"}
-                      </p>
-                      <p className="text-[11px] text-ink-light">
-                        {dateFR(ev.captured_at)}
-                      </p>
-                    </div>
+                      >
+                        {r.photos_urls.map((p, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              borderRadius: 10,
+                              overflow: "hidden",
+                              border: `1px solid ${C.neutralMid}`,
+                              aspectRatio: "1 / 1",
+                            }}
+                          >
+                            <StorageImage
+                              bucket="field-reports"
+                              path={p}
+                              alt={`Photo ${i + 1}`}
+                              linkable
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -852,6 +1573,16 @@ function ProjectView({
   );
 }
 
+type FinanceRow = {
+  id: string;
+  left: string;
+  sub: string;
+  amount: number | null;
+  color: string;
+  title: string;
+  fields: Field[];
+};
+
 function FinanceList({
   icon: Icon,
   title,
@@ -859,14 +1590,9 @@ function FinanceList({
 }: {
   icon: React.ComponentType<{ size?: number; className?: string }>;
   title: string;
-  rows: {
-    id: string;
-    left: string;
-    sub: string;
-    amount: number | null;
-    color: string;
-  }[];
+  rows: FinanceRow[];
 }) {
+  const [open, setOpen] = useState<FinanceRow | null>(null);
   return (
     <div className="rounded-xl border border-neutral-mid overflow-hidden flex flex-col">
       <div className="flex items-center gap-2 px-4 py-3 bg-neutral border-b border-neutral-mid">
@@ -876,23 +1602,41 @@ function FinanceList({
       {rows.length ? (
         <div className="divide-y divide-neutral-mid max-h-72 overflow-y-auto">
           {rows.map((r) => (
-            <div key={r.id} className="flex items-center justify-between px-4 py-2.5">
-              <div className="min-w-0 pr-2">
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => setOpen(r)}
+              className="w-full text-left flex items-center justify-between gap-2 px-4 py-2.5 hover:bg-neutral/60 focus:bg-neutral/60 focus:outline-none transition-colors"
+            >
+              <div className="min-w-0 pr-1">
                 <p className="text-sm text-ink truncate">{r.left}</p>
                 <p className="text-xs text-ink-light truncate">{r.sub}</p>
               </div>
-              <span
-                className="text-sm font-semibold whitespace-nowrap"
-                style={{ color: r.color }}
-              >
-                {fmt(r.amount)}
+              <span className="flex items-center gap-1.5 shrink-0">
+                <span
+                  className="text-sm font-semibold whitespace-nowrap"
+                  style={{ color: r.color }}
+                >
+                  {fmt(r.amount)}
+                </span>
+                <ChevronRight size={14} className="text-ink-light" />
               </span>
-            </div>
+            </button>
           ))}
         </div>
       ) : (
         <p className="text-sm text-ink-light px-4 py-4">Aucune ligne.</p>
       )}
+
+      <DetailModal
+        open={!!open}
+        onClose={() => setOpen(null)}
+        title={open?.title ?? ""}
+        icon={Icon}
+        accent={open?.color}
+        headline={open ? `${fmt(open.amount)} FCFA` : undefined}
+        fields={open?.fields ?? []}
+      />
     </div>
   );
 }
