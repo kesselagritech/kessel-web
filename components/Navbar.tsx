@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn, LogOut, Home, FileText } from "lucide-react";
+import { Menu, X, LogIn, LogOut, Home } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 // ========================================
@@ -88,16 +88,6 @@ export default function Navbar() {
               Contact
             </Link>
 
-            {!authLoading && user && (
-              <Link
-                href="/mes-documents"
-                className="flex items-center gap-1.5 text-forest-700 hover:text-forest-900 font-medium transition-colors"
-              >
-                <FileText size={18} />
-                Mes documents
-              </Link>
-            )}
-
             {/* Auth — Desktop */}
             {!authLoading &&
               (user ? (
@@ -171,17 +161,6 @@ export default function Navbar() {
             >
               Contact
             </Link>
-
-            {!authLoading && user && (
-              <Link
-                href="/mes-documents"
-                className="flex items-center gap-3 py-3 text-forest-700 hover:text-forest-900 font-medium border-t border-forest-100"
-                onClick={() => setIsOpen(false)}
-              >
-                <FileText size={20} className="text-forest-400" />
-                Mes documents
-              </Link>
-            )}
 
             {/* Auth — Mobile */}
             <div className="pt-3 border-t border-forest-100">

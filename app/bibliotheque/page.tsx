@@ -7,6 +7,7 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   BookOpen,
   FileText,
@@ -55,6 +56,20 @@ const TYPE_ORDER: Record<string, number> = {
 
 // Pagination
 const PAGE_SIZE = 15;
+
+function getPageNumbers(current: number, total: number): (number | "…")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const delta = 1;
+  const range: (number | "…")[] = [];
+  const left = Math.max(2, current - delta);
+  const right = Math.min(total - 1, current + delta);
+  range.push(1);
+  if (left > 2) range.push("…");
+  for (let i = left; i <= right; i++) range.push(i);
+  if (right < total - 1) range.push("…");
+  range.push(total);
+  return range;
+}
 
 // ─── Vignette imagée ──────────────────────────────────────────────────────────
 // Cherche /public/images/bibliotheque/{slug-du-document}.jpg
@@ -151,6 +166,7 @@ function FilterSelect({
 
 export default function BibliothequePage() {
   useScrollReveal();
+  const { user } = useAuth();
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -277,6 +293,16 @@ export default function BibliothequePage() {
                   ))}
                 </FilterSelect>
               )}
+
+              {user && (
+                <Link
+                  href="/mes-documents"
+                  className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-forest text-forest hover:bg-forest-light font-medium text-sm transition-colors sm:ml-auto"
+                >
+                  <BookOpen size={16} />
+                  Mes achats
+                </Link>
+              )}
             </div>
           </div>
 
@@ -365,30 +391,49 @@ export default function BibliothequePage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-6 mt-12">
+                <div className="flex items-center justify-center flex-wrap gap-2 mt-12">
                   <button
                     type="button"
                     onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
                     disabled={safePageIndex === 0}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-neutral-mid text-forest-dark font-medium text-sm hover:border-forest hover:bg-forest-light disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-neutral-mid transition-colors"
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-neutral-mid text-forest-dark hover:border-forest hover:bg-forest-light disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-neutral-mid transition-colors"
                     aria-label="Page précédente"
                   >
                     <ChevronLeft size={16} />
-                    Précédent
                   </button>
 
-                  <span className="text-sm text-ink-mid font-medium" style={{ fontFamily: "var(--mono)" }}>
-                    Page {safePageIndex + 1} sur {totalPages}
-                  </span>
+                  {getPageNumbers(safePageIndex + 1, totalPages).map((p, idx) =>
+                    p === "…" ? (
+                      <span key={`ellipsis-${idx}`} className="px-2 text-ink-light select-none">
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setPageIndex(p - 1)}
+                        aria-label={`Page ${p}`}
+                        aria-current={safePageIndex === p - 1 ? "page" : undefined}
+                        className={
+                          "min-w-[40px] h-10 px-3 rounded-xl font-medium text-sm transition-colors " +
+                          (safePageIndex === p - 1
+                            ? "bg-forest text-white"
+                            : "bg-white border border-neutral-mid text-forest-dark hover:border-forest hover:bg-forest-light")
+                        }
+                        style={{ fontFamily: "var(--mono)" }}
+                      >
+                        {p}
+                      </button>
+                    )
+                  )}
 
                   <button
                     type="button"
                     onClick={() => setPageIndex((p) => Math.min(totalPages - 1, p + 1))}
                     disabled={safePageIndex === totalPages - 1}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-neutral-mid text-forest-dark font-medium text-sm hover:border-forest hover:bg-forest-light disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-neutral-mid transition-colors"
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-neutral-mid text-forest-dark hover:border-forest hover:bg-forest-light disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-neutral-mid transition-colors"
                     aria-label="Page suivante"
                   >
-                    Suivant
                     <ChevronRight size={16} />
                   </button>
                 </div>
