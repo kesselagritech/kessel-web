@@ -42,6 +42,7 @@ interface DocumentDetail {
   description: string | null;
   status: string;
   published_at: string | null;
+  content_revised_at: string | null;
   document_categories: { name: string }[] | null;
 }
 
@@ -56,6 +57,12 @@ interface RelatedDoc {
 }
 
 // ─── Composant principal ──────────────────────────────────────────────────────
+
+function formatDateFr(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+}
 
 export default function DocumentPage() {
   useScrollReveal();
@@ -89,7 +96,7 @@ export default function DocumentPage() {
     async function loadDoc() {
       const { data, error } = await supabase
         .from("documents")
-        .select("id, title, slug, type, category_id, speculation, price, description, status, published_at, document_categories(name)")
+        .select("id, title, slug, type, category_id, speculation, price, description, status, published_at, content_revised_at, document_categories(name)")
         .eq("slug", slug)
         .eq("status", "published")
         .single();
@@ -364,6 +371,17 @@ export default function DocumentPage() {
             )}
             {doc.document_categories?.[0]?.name && (
               <span>{doc.document_categories[0].name}</span>
+            )}
+            {doc.content_revised_at && (
+              <>
+                {(doc.speculation || doc.document_categories?.[0]?.name) && (
+                  <span className="w-1 h-1 rounded-full bg-white/40" />
+                )}
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock size={13} />
+                  Mis à jour le {formatDateFr(doc.content_revised_at)}
+                </span>
+              </>
             )}
           </div>
         </div>

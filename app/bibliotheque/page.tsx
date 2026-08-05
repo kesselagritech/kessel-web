@@ -36,6 +36,7 @@ interface Document {
   description: string | null;
   status: string;
   published_at: string | null;
+  created_at: string | null;
   document_categories: { name: string }[] | null;
 }
 
@@ -57,6 +58,15 @@ const PAGE_SIZE = 15;
 
 // ─── Vignette imagée ──────────────────────────────────────────────────────────
 // Cherche /public/images/bibliotheque/{slug-du-document}.jpg
+const NEW_WINDOW_DAYS = 30;
+function isNew(doc: Document): boolean {
+  const ref = doc.published_at ?? doc.created_at;
+  if (!ref) return false;
+  const t = new Date(ref).getTime();
+  if (Number.isNaN(t)) return false;
+  return Date.now() - t < NEW_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+}
+
 function getCoverImage(doc: Document): string {
   return `/images/bibliotheque/${doc.slug}.jpg`;
 }
@@ -90,6 +100,15 @@ function DocCover({ doc }: { doc: Document }) {
           {config.label}
         </span>
       </div>
+
+      {/* Badge nouveauté */}
+      {isNew(doc) && (
+        <div className="absolute top-4 right-4">
+          <span className="inline-flex items-center bg-amber text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-sm">
+            Nouveau
+          </span>
+        </div>
+      )}
 
       {/* Spéculation en bas */}
       {doc.speculation && (
@@ -146,7 +165,7 @@ export default function BibliothequePage() {
       const [docsRes, catsRes] = await Promise.all([
         supabase
           .from("documents")
-          .select("id, title, slug, type, category_id, speculation, price, description, status, published_at, document_categories(name)")
+          .select("id, title, slug, type, category_id, speculation, price, description, status, published_at, created_at, document_categories(name)")
           .eq("status", "published"),
         supabase
           .from("document_categories")
