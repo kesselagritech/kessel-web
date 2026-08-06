@@ -111,6 +111,22 @@ export default function DocumentPage() {
     loadDoc();
   }, [slug, router]);
 
+  // 1-bis. Journaliser la consultation de la fiche (compteur bibliotheque)
+  useEffect(() => {
+    if (!doc) return;
+    let sid: string | null = null;
+    try {
+      sid = sessionStorage.getItem("kessel_sid");
+      if (!sid) {
+        sid = crypto.randomUUID();
+        sessionStorage.setItem("kessel_sid", sid);
+      }
+    } catch {
+      sid = null;
+    }
+    supabase.rpc("log_document_view_by_slug", { p_slug: doc.slug, p_session_id: sid });
+  }, [doc]);
+
   // 2. Vérifier l'achat + charger le contenu si acheté
   useEffect(() => {
     async function checkAndFetch() {
