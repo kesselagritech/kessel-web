@@ -124,7 +124,7 @@ export default function DocumentPage() {
     } catch {
       sid = null;
     }
-    supabase.rpc("log_document_view_by_slug", { p_slug: doc.slug, p_session_id: sid });
+    supabase.rpc("log_document_view_by_slug", { p_slug: doc.slug, p_session_id: sid }).then(({ error }) => { if (error) console.error("log_document_view_by_slug:", error); });
   }, [doc]);
 
   // 2. Vérifier l'achat + charger le contenu si acheté
