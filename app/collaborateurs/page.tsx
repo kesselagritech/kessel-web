@@ -1314,7 +1314,7 @@ function ProjectView({
           <Card icon={Wheat} title="Récolte cumulée">
             <HarvestSummary tasks={tasks} projectUnit={project.unite_recolte} />
           </Card>
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 min-w-0">
             <Card icon={TrendingUp} title="Entrées, sorties et trésorerie">
               <CashFlowChart
                 expenses={expenses}
