@@ -20,6 +20,7 @@ import {
   ChevronDown,
   Lightbulb,
   Check,
+  BookOpen,
 } from "lucide-react";
 
 /* ────────────────────────────────────────────
@@ -441,8 +442,16 @@ export default function ComparateurPage() {
               })}
             </div>
 
+            {/* Encart lecture BP complet (insere avant les CTA) */}
+            <div className="mt-12 flex items-start gap-3 px-5 py-4 rounded-xl bg-forest-xlight border border-neutral-mid">
+              <BookOpen className="w-5 h-5 text-amber flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-forest-dark leading-relaxed">
+                Ces chiffres offrent une première lecture, mais ils ne se comprennent pleinement qu&apos;à la lumière des business plans complets dont ils sont issus&nbsp;: hypothèses, conditions de réussite et méthode de calcul y sont détaillées.
+              </p>
+            </div>
+
             {/* CTA vers les deux BP */}
-            <div className="mt-12 grid sm:grid-cols-2 gap-4">
+            <div className="mt-4 grid sm:grid-cols-2 gap-4">
               <Link
                 href={`/bibliotheque/${specA!.slug}`}
                 className="flex items-center justify-between gap-2 px-6 py-4 rounded-xl bg-forest hover:bg-forest-dark text-white font-semibold transition-colors"
