@@ -1,7 +1,9 @@
-// app/api/campay/initiate/route.ts — Lancer un paiement CamPay
+// app/api/monetbil/initiate/route.ts — Lancer un paiement Monetbil — [monetbil-backend v1]
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient, getUserFromRequest } from '@/lib/supabase-server'
-import { createPaymentLink } from '@/lib/campay'
+import { createPayment, extractPaymentId } from '@/lib/monetbil'
+
+export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,46 +64,56 @@ export async function POST(request: NextRequest) {
         document_id: documentId,
         amount: doc.price,
         payment_status: 'pending',
-        payment_method: 'campay',
+        payment_method: 'monetbil',
       })
       .select('id')
       .single()
 
     if (purchErr || !purchase) {
-      console.error('[CAMPAY] Erreur INSERT purchase:', purchErr)
+      console.error('[MONETBIL] INSERT purchase:', purchErr)
       return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
     }
 
-    // 7. Créer le lien CamPay
+    // 7. Créer le lien Monetbil
     const siteUrl = process.env.SITE_URL || 'https://kesselagritech.com'
 
-    const campayResult = await createPaymentLink({
-      amount: doc.price,
-      description: `${doc.title} — Kessel Agritech`,
-      externalReference: purchase.id,
-      redirectUrl: `${siteUrl}/bibliotheque/${doc.slug}?paiement=succes&ref=${purchase.id}`,
-      failureRedirectUrl: `${siteUrl}/bibliotheque/${doc.slug}?paiement=echec`,
-    })
-
-    if (!campayResult.link) {
-      // Nettoyage si CamPay échoue
+    let result: { success: boolean; payment_url?: string }
+    try {
+      result = await createPayment({
+        amount: doc.price,
+        itemRef: doc.id,
+        // payment_ref = notre purchase.id : Monetbil le renverra dans la notification.
+        // C'est la clé de rapprochement (équivalent de external_reference chez CamPay).
+        paymentRef: purchase.id,
+        user: user.id,
+        returnUrl: `${siteUrl}/bibliotheque/${doc.slug}?paiement=retour&ref=${purchase.id}`,
+        notifyUrl: `${siteUrl}/api/monetbil/notify`,
+      })
+    } catch (e) {
       await supabase.from('document_purchases').delete().eq('id', purchase.id)
-      console.error('[CAMPAY] Pas de lien retourné:', campayResult)
+      console.error('[MONETBIL] createPayment:', e)
       return NextResponse.json({ error: 'Erreur paiement' }, { status: 502 })
     }
 
-    // 8. Stocker la référence CamPay
+    if (!result.success || !result.payment_url) {
+      await supabase.from('document_purchases').delete().eq('id', purchase.id)
+      console.error('[MONETBIL] Pas de payment_url:', result)
+      return NextResponse.json({ error: 'Erreur paiement' }, { status: 502 })
+    }
+
+    // 8. Stocker l'identifiant Monetbil (token du payment_url) pour le polling checkPayment
+    const paymentId = extractPaymentId(result.payment_url)
     await supabase
       .from('document_purchases')
-      .update({ payment_ref: campayResult.reference })
+      .update({ payment_ref: paymentId })
       .eq('id', purchase.id)
 
     return NextResponse.json({
-      paymentUrl: campayResult.link,
+      paymentUrl: result.payment_url,
       purchaseId: purchase.id,
     })
   } catch (err) {
-    console.error('[CAMPAY] Erreur initiate:', err)
+    console.error('[MONETBIL] initiate:', err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

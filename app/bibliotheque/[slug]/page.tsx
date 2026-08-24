@@ -77,7 +77,7 @@ export default function DocumentPage() {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [checkingPurchase, setCheckingPurchase] = useState(true);
 
-  // États paiement CamPay
+  // États paiement Monetbil
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
@@ -162,9 +162,9 @@ export default function DocumentPage() {
     checkAndFetch();
   }, [session, doc]);
 
-  // 3. Polling post-paiement — quand le visiteur revient de CamPay
+  // 3. Polling post-paiement — quand le visiteur revient de Monetbil
   useEffect(() => {
-    if (paiement !== "succes" || !purchaseRef || !session?.access_token || hasPurchased) return;
+    if (paiement !== "retour" || !purchaseRef || !session?.access_token || hasPurchased) return;
 
     setVerifying(true);
     let cancelled = false;
@@ -175,7 +175,7 @@ export default function DocumentPage() {
       while (!cancelled && attempts < maxAttempts) {
         attempts++;
         try {
-          const res = await fetch(`/api/campay/status?purchaseId=${purchaseRef}`, {
+          const res = await fetch(`/api/monetbil/status?purchaseId=${purchaseRef}`, {
             headers: { Authorization: `Bearer ${session!.access_token}` },
           });
           const data = await res.json();
@@ -273,7 +273,7 @@ export default function DocumentPage() {
     loadRelated();
   }, [doc]);
 
-  // ─── Lancer le paiement CamPay ──────────────────────────
+  // ─── Lancer le paiement Monetbil ──────────────────────────
   const handlePurchase = useCallback(async () => {
     if (!session?.access_token || !doc) return;
 
@@ -281,7 +281,7 @@ export default function DocumentPage() {
     setPaymentError(null);
 
     try {
-      const res = await fetch("/api/campay/initiate", {
+      const res = await fetch("/api/monetbil/initiate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -303,7 +303,7 @@ export default function DocumentPage() {
         return;
       }
 
-      // Rediriger vers la page de paiement CamPay
+      // Rediriger vers la page de paiement Monetbil
       window.location.href = data.paymentUrl;
     } catch {
       setPaymentError("Erreur de connexion. Vérifie ton accès internet.");

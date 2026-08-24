@@ -1,7 +1,9 @@
-// app/api/campay/status/route.ts — Vérifier le statut d'un achat (polling)
+// app/api/monetbil/status/route.ts — Vérifier le statut d'un achat (polling client) — [monetbil-backend v1]
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient, getUserFromRequest } from '@/lib/supabase-server'
-import { getTransactionStatus } from '@/lib/campay'
+import { checkPayment, isSuccessStatus, isFailedStatus } from '@/lib/monetbil'
+
+export const runtime = 'nodejs'
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,40 +33,41 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Achat introuvable' }, { status: 404 })
     }
 
-    // 4. Si encore pending et qu'on a une ref CamPay → vérifier en direct
-    if (purchase.payment_status === 'pending' && purchase.payment_ref) {
-      try {
-        const txStatus = await getTransactionStatus(purchase.payment_ref)
+    // 4. Déjà tranché (le webhook est passé) → on renvoie directement
+    if (purchase.payment_status !== 'pending') {
+      return NextResponse.json({ status: purchase.payment_status })
+    }
 
-        if (txStatus.status === 'SUCCESSFUL') {
+    // 5. Encore pending + on a l'identifiant Monetbil → double-check côté serveur
+    if (purchase.payment_ref) {
+      try {
+        const { status } = await checkPayment(purchase.payment_ref)
+
+        if (isSuccessStatus(status)) {
           await supabase
             .from('document_purchases')
-            .update({
-              payment_status: 'completed'
-            })
+            .update({ payment_status: 'completed' })
             .eq('id', purchaseId)
-
+            .eq('payment_status', 'pending')
           return NextResponse.json({ status: 'completed' })
         }
 
-        if (txStatus.status === 'FAILED') {
+        if (isFailedStatus(status)) {
           await supabase
             .from('document_purchases')
-            .update({
-              payment_status: 'failed'
-            })
+            .update({ payment_status: 'failed' })
             .eq('id', purchaseId)
-
+            .eq('payment_status', 'pending')
           return NextResponse.json({ status: 'failed' })
         }
-      } catch (err) {
-        console.warn('[STATUS] Vérification CamPay échouée:', err)
+      } catch (e) {
+        console.warn('[MONETBIL/status] checkPayment échoué:', e)
       }
     }
 
-    return NextResponse.json({ status: purchase.payment_status })
+    return NextResponse.json({ status: 'pending' })
   } catch (err) {
-    console.error('[STATUS] Erreur:', err)
+    console.error('[MONETBIL/status] Erreur:', err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
