@@ -86,7 +86,7 @@ function getCoverImage(doc: Document): string {
   return `/images/bibliotheque/${doc.slug}.jpg`;
 }
 
-function DocCover({ doc }: { doc: Document }) {
+function DocCover({ doc, priority = false }: { doc: Document; priority?: boolean }) {
   const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
   const Icon = config.icon;
   const coverUrl = getCoverImage(doc);
@@ -94,6 +94,7 @@ function DocCover({ doc }: { doc: Document }) {
   return (
     <div className="relative w-full aspect-[4/3] overflow-hidden bg-forest-dark">
       {/* Miniature optimisée : next/image gère AVIF/WebP + resize CDN Vercel + lazy loading */}
+      {/* priority=true sur les 6 premières cartes (above-the-fold) → gain LCP */}
       <Image
         src={coverUrl}
         alt={doc.title}
@@ -101,6 +102,7 @@ function DocCover({ doc }: { doc: Document }) {
         sizes="(min-width: 1024px) 384px, (min-width: 640px) 50vw, 100vw"
         className="object-cover transition-transform duration-500 group-hover:scale-105"
         quality={80}
+        priority={priority}
       />
       {/* Voile dégradé pour lisibilité du badge */}
       <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/70 via-transparent to-forest-dark/40" />
@@ -341,7 +343,7 @@ export default function BibliothequePage() {
           ) : (
             <>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paginated.map((doc) => {
+                {paginated.map((doc, idx) => {
                   const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
                   return (
                     <Link
@@ -349,7 +351,7 @@ export default function BibliothequePage() {
                       href={`/bibliotheque/${doc.slug}`}
                       className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
                     >
-                      <DocCover doc={doc} />
+                      <DocCover doc={doc} priority={idx < 6} />
 
                       <div className="p-5 flex flex-col flex-1">
                         {/* Titre */}
