@@ -3,12 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
-import { authHref } from "@/lib/authHref";
 import {
   FileText,
   BookOpen,
@@ -98,7 +96,6 @@ function DocCover({ doc }: { doc: MyDoc }) {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export default function MesAchatsPage() {
-  const pathname = usePathname();
   const { user, loading: authLoading } = useAuth();
   const [docs, setDocs] = useState<MyDoc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -190,7 +187,7 @@ export default function MesAchatsPage() {
                 Tes achats sont liés à ton compte. Connecte-toi pour y accéder à tout moment.
               </p>
               <Link
-                href={authHref(pathname)}
+                href="/connexion?redirect=/mes-documents"
                 className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5"
               >
                 <LogIn size={18} />

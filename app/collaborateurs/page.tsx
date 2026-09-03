@@ -31,6 +31,8 @@ import {
   X,
 } from "lucide-react";
 import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
+import { authHref } from "@/lib/authHref";
 
 /* ────────────────────────────────────────────
    Types du bundle renvoye par get_shared_project
@@ -2226,6 +2228,7 @@ function Dashboard({
 
 export default function CollaborateursPage() {
   useScrollReveal();
+  const pathname = usePathname();
   const { user, loading: authLoading } = useAuth();
 
   const [exploitations, setExploitations] = useState<Exploitation[] | null>(null);
@@ -2396,7 +2399,7 @@ export default function CollaborateursPage() {
                   exploitation partagée.
                 </p>
                 <Link
-                  href="/connexion"
+                  href={authHref(pathname)}
                   className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors w-full"
                 >
                   <LogIn size={18} /> Se connecter

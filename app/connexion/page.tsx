@@ -4,12 +4,19 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { sanitizeRedirect } from "@/lib/authHref";
 import { Mail, Lock, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 function ConnexionContent() {
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const searchParams = useSearchParams();
+
+  // Mode initial : ?mode=register ouvre directement l'onglet inscription
+  const initialMode: "login" | "register" =
+    searchParams.get("mode") === "register" ? "register" : "login";
+
+  const [mode, setMode] = useState<"login" | "register">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -17,14 +24,12 @@ function ConnexionContent() {
   const [success, setSuccess] = useState("");
   const { user, loading, signIn, signUp } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  // Redirect cible : paramètre ?redirect= ou /bibliotheque par défaut
-  // Sécurité : uniquement les chemins internes (commence par /)
-  const rawRedirect = searchParams.get("redirect");
-  const redirectTo = rawRedirect?.startsWith("/") ? rawRedirect : "/bibliotheque";
+  // Redirect cible : ?redirect= valide, ou "/" (home) par defaut.
+  // sanitizeRedirect refuse les URLs externes, protocol-relative, encodees.
+  const redirectTo = sanitizeRedirect(searchParams.get("redirect"), "/");
 
-  // Déjà connecté → redirection
+  // Deja connecte -> redirection directe
   useEffect(() => {
     if (user && !loading) router.replace(redirectTo);
   }, [user, loading, router, redirectTo]);
@@ -41,7 +46,7 @@ function ConnexionContent() {
         setError(
           err.message === "Invalid login credentials"
             ? "Email ou mot de passe incorrect."
-            : err.message
+            : err.message,
         );
       } else {
         router.push(redirectTo);
@@ -52,10 +57,18 @@ function ConnexionContent() {
         setBusy(false);
         return;
       }
-      const { error: err, needsConfirmation } = await signUp(email, password);
+      // On propage redirectTo pour que le lien recu par email pointe vers
+      // /auth/callback?redirect=... et ramene l'utilisateur sur sa page d'origine.
+      const { error: err, needsConfirmation } = await signUp(
+        email,
+        password,
+        redirectTo,
+      );
       if (err) {
         if (err.message?.includes("already registered")) {
-          setError("Cette adresse est déjà utilisée. Connecte-toi ou réinitialise ton mot de passe.");
+          setError(
+            "Cette adresse est déjà utilisée. Connecte-toi ou réinitialise ton mot de passe.",
+          );
         } else {
           setError(err.message);
         }
@@ -63,7 +76,7 @@ function ConnexionContent() {
         setSuccess(
           "Un email de confirmation a été envoyé à " +
             email +
-            ". Vérifie ta boîte de réception (et les spams)."
+            ". Vérifie ta boîte de réception (et les spams).",
         );
       } else {
         router.push(redirectTo);

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X, LogIn, LogOut, Home } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { authHref } from "@/lib/authHref";
 
 // ========================================
 // NAVBAR — coquille unique, logo unique
@@ -16,6 +17,9 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, loading: authLoading, signOut } = useAuth();
+
+  // Lien de connexion qui preserve la page actuelle pour y retomber apres auth
+  const loginHref = authHref(pathname);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -109,7 +113,7 @@ export default function Navbar() {
                 </div>
               ) : (
                 <Link
-                  href="/connexion"
+                  href={loginHref}
                   className="inline-flex items-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
                 >
                   <LogIn size={18} />
@@ -188,7 +192,7 @@ export default function Navbar() {
                   </div>
                 ) : (
                   <Link
-                    href="/connexion"
+                    href={loginHref}
                     className="flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold py-3 rounded-xl transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
@@ -203,4 +207,3 @@ export default function Navbar() {
     </nav>
   );
 }
-

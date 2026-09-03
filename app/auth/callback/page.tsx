@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { sanitizeRedirect } from "@/lib/authHref";
 import { CheckCircle, Lock, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [confirmed, setConfirmed] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+
+  // Cible finale : ?redirect= valide, ou "/" (home) par defaut.
+  const redirectTo = sanitizeRedirect(searchParams.get("redirect"), "/");
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -27,12 +32,12 @@ export default function AuthCallbackPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setConfirmed(true);
-        setTimeout(() => router.replace("/bibliotheque"), 2000);
+        setTimeout(() => router.replace(redirectTo), 2000);
       } else {
         router.replace("/connexion");
       }
     });
-  }, [router]);
+  }, [router, redirectTo]);
 
   const handleNewPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +52,7 @@ export default function AuthCallbackPage() {
       setError(err.message);
     } else {
       setDone(true);
-      setTimeout(() => router.replace("/bibliotheque"), 2000);
+      setTimeout(() => router.replace(redirectTo), 2000);
     }
     setBusy(false);
   };
@@ -147,7 +152,7 @@ export default function AuthCallbackPage() {
               Compte confirmé !
             </p>
             <p className="text-gray-500 text-sm mt-2">
-              Redirection vers la bibliothèque...
+              Redirection...
             </p>
           </>
         ) : (
@@ -158,5 +163,13 @@ export default function AuthCallbackPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }

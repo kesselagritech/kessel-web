@@ -11,13 +11,29 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (
     email: string,
-    password: string
+    password: string,
+    redirectAfter?: string,
   ) => Promise<{ error: Error | null; needsConfirmation: boolean }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Construit une URL /auth/callback en propageant un ?redirect= interne sur.
+// Refuse silencieusement les redirects externes ou protocol-relative.
+function buildCallbackUrl(redirectAfter?: string): string {
+  const url = new URL(`${window.location.origin}/auth/callback`);
+  if (
+    redirectAfter &&
+    redirectAfter.startsWith("/") &&
+    !redirectAfter.startsWith("//") &&
+    !redirectAfter.startsWith("/\\")
+  ) {
+    url.searchParams.set("redirect", redirectAfter);
+  }
+  return url.toString();
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -50,12 +66,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    redirectAfter?: string,
+  ) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: buildCallbackUrl(redirectAfter),
       },
     });
     const needsConfirmation = !error && !!data.user && !data.session;
