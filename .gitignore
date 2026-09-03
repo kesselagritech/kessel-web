@@ -62,3 +62,8 @@ fix-accents-*.ps1
 
 # Sauvegardes de patch
 *.bak_*
+
+# Artefacts de patch livres par Claude (extraits localement, jamais commites)
+auth-redirect-v*/
+biblio-perf-v*/
+collab-reports-v*/
