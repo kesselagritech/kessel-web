@@ -1,7 +1,7 @@
 "use client";
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -23,8 +23,11 @@ import {
   RotateCcw,
   Building2,
   ChevronRight,
+  ChevronLeft,
   Users,
   ImageOff,
+  Image as ImageIcon,
+  AlertTriangle,
   X,
 } from "lucide-react";
 import { createPortal } from "react-dom";
@@ -1238,6 +1241,520 @@ function Stat({ label, value }: { label: string; value: string }) {
    Vue projet (une fois le code valide)
 ════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════
+   Rapports de terrain — cartes compactes + modal swipeable + recherche
+════════════════════════════════════════════ */
+
+/* Recherche client-side sur les champs texte du rapport */
+function matchesReport(r: Report, q: string): boolean {
+  if (!q) return true;
+  const needle = q.toLowerCase();
+  return (
+    (r.titre || "").toLowerCase().includes(needle) ||
+    (r.observations || "").toLowerCase().includes(needle) ||
+    (r.problemes_detectes || "").toLowerCase().includes(needle) ||
+    (r.actions_recommandees || "").toLowerCase().includes(needle) ||
+    (r.statut_projet || "").toLowerCase().includes(needle) ||
+    (r.date_visite || "").includes(needle)
+  );
+}
+
+/* Barre de recherche discrète */
+function ReportSearch({
+  query,
+  onQuery,
+  filteredCount,
+  totalCount,
+}: {
+  query: string;
+  onQuery: (v: string) => void;
+  filteredCount: number;
+  totalCount: number;
+}) {
+  return (
+    <div className="mb-4">
+      <div className="relative max-w-md">
+        <Search
+          size={16}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-light pointer-events-none"
+        />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => onQuery(e.target.value)}
+          placeholder="Rechercher un mot-clé…"
+          className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-white border border-neutral-mid text-ink text-sm outline-none focus:border-forest transition-colors"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => onQuery("")}
+            aria-label="Effacer la recherche"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full text-ink-light hover:text-forest hover:bg-neutral transition-colors"
+          >
+            <X size={14} />
+          </button>
+        )}
+      </div>
+      {query && (
+        <p className="text-xs text-ink-light mt-2">
+          {filteredCount} sur {totalCount} rapport{totalCount > 1 ? "s" : ""}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* Carte compacte — clic ouvre le modal */
+function ReportCard({ r, onClick }: { r: Report; onClick: () => void }) {
+  const photoCount = r.photos_urls?.length ?? 0;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-left rounded-xl border border-neutral-mid p-4 bg-forest-xlight hover:border-forest hover:shadow-md hover:-translate-y-0.5 transition-all"
+    >
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <span className="font-semibold text-forest-dark leading-tight line-clamp-2">
+          {r.titre || "Rapport"}
+        </span>
+        <span className="text-xs text-ink-light shrink-0 whitespace-nowrap">
+          {dateFR(r.date_visite)}
+        </span>
+      </div>
+      {r.observations && (
+        <p className="text-sm text-ink-mid leading-relaxed line-clamp-2 mb-3">
+          {r.observations}
+        </p>
+      )}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {photoCount > 0 && (
+          <span className="inline-flex items-center gap-1 text-xs bg-white text-forest border border-neutral-mid px-2 py-0.5 rounded-full">
+            <ImageIcon size={11} /> {photoCount}
+          </span>
+        )}
+        {r.problemes_detectes && (
+          <span
+            className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
+            style={{ background: C.brick + "1A", color: C.brick }}
+          >
+            <AlertTriangle size={11} /> Problèmes
+          </span>
+        )}
+        {r.statut_projet && (
+          <span className="inline-flex items-center text-xs bg-neutral text-ink-mid px-2 py-0.5 rounded-full truncate max-w-[140px]">
+            {r.statut_projet}
+          </span>
+        )}
+      </div>
+    </button>
+  );
+}
+
+/* Modal — navigation prev/next + swipe tactile + touches ← → */
+function ReportsModal({
+  reports,
+  index,
+  onIndexChange,
+  onClose,
+}: {
+  reports: Report[];
+  index: number;
+  onIndexChange: (idx: number) => void;
+  onClose: () => void;
+}) {
+  const mounted = useMounted();
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const [visible, setVisible] = useState(false);
+  useModalDismiss(true, onClose);
+
+  const current = reports[index];
+  const hasPrev = index > 0;
+  const hasNext = index < reports.length - 1;
+
+  const go = useCallback(
+    (dir: -1 | 1) => {
+      const next = index + dir;
+      if (next < 0 || next >= reports.length) return;
+      onIndexChange(next);
+    },
+    [index, reports.length, onIndexChange],
+  );
+
+  // Raccourcis clavier ← → (Escape est déjà géré par useModalDismiss)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") go(-1);
+      else if (e.key === "ArrowRight") go(1);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [go]);
+
+  // Swipe tactile — seuil 50px, horizontal dominant pour éviter conflit scroll
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx > 0) go(-1);
+      else go(1);
+    }
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
+  // Animation d'entrée (fade + scale)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  if (!mounted) return null;
+
+  const sectionTitleStyle: React.CSSProperties = {
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    color: C.inkLight,
+    marginBottom: 6,
+    fontWeight: 600,
+  };
+
+  const paragraphStyle: React.CSSProperties = {
+    fontSize: 14,
+    color: C.forestDark,
+    lineHeight: 1.6,
+    whiteSpace: "pre-line",
+    margin: 0,
+  };
+
+  const navButtonStyle = (enabled: boolean): React.CSSProperties => ({
+    width: 36,
+    height: 36,
+    borderRadius: 999,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: enabled ? "#F4F4F0" : "transparent",
+    color: enabled ? C.forestDark : C.neutralMid,
+    border: "none",
+    cursor: enabled ? "pointer" : "not-allowed",
+    flexShrink: 0,
+    transition: "background 120ms ease",
+  });
+
+  const node = (
+    <div
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={current.titre || "Rapport"}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: isMobile ? "flex-end" : "center",
+        justifyContent: "center",
+        padding: isMobile ? 0 : 24,
+        background: "rgba(15,40,24,0.55)",
+        backdropFilter: "blur(3px)",
+        WebkitBackdropFilter: "blur(3px)",
+        opacity: visible ? 1 : 0,
+        transition: "opacity 180ms ease",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        style={{
+          width: "100%",
+          maxWidth: isMobile ? "100%" : 640,
+          background: "#FFFFFF",
+          borderRadius: isMobile ? "20px 20px 0 0" : 20,
+          boxShadow: "0 24px 60px rgba(0,0,0,0.28)",
+          maxHeight: isMobile ? "90vh" : "86vh",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          opacity: visible ? 1 : 0,
+          transform: visible
+            ? "translateY(0) scale(1)"
+            : isMobile
+              ? "translateY(28px)"
+              : "translateY(10px) scale(0.985)",
+          transition: "transform 240ms cubic-bezier(.16,1,.3,1), opacity 180ms ease",
+        }}
+      >
+        {isMobile && (
+          <div
+            style={{
+              width: 40,
+              height: 4,
+              borderRadius: 999,
+              background: C.neutralMid,
+              margin: "10px auto 2px",
+            }}
+          />
+        )}
+
+        {/* Header avec navigation + fermeture */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "14px 16px",
+            borderBottom: `1px solid ${C.neutralMid}`,
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            disabled={!hasPrev}
+            aria-label="Rapport précédent"
+            style={navButtonStyle(hasPrev)}
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <div style={{ flex: 1, textAlign: "center", minWidth: 0, padding: "0 6px" }}>
+            <div
+              style={{
+                fontFamily: "var(--serif)",
+                fontWeight: 700,
+                fontSize: 16,
+                color: C.forestDark,
+                lineHeight: 1.25,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {current.titre || "Rapport"}
+            </div>
+            <div style={{ fontSize: 12, color: C.inkLight, marginTop: 2 }}>
+              {dateFR(current.date_visite)}
+              {reports.length > 1 && ` · ${index + 1} / ${reports.length}`}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => go(1)}
+            disabled={!hasNext}
+            aria-label="Rapport suivant"
+            style={navButtonStyle(hasNext)}
+          >
+            <ChevronRight size={20} />
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer"
+            style={{
+              flexShrink: 0,
+              width: 34,
+              height: 34,
+              borderRadius: 999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: C.inkLight,
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              marginLeft: 4,
+            }}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Corps du rapport */}
+        <div style={{ padding: "18px 22px 22px", overflowY: "auto" }}>
+          {current.statut_projet && (
+            <div style={{ marginBottom: 14 }}>
+              <span
+                style={{
+                  display: "inline-block",
+                  fontSize: 12,
+                  padding: "4px 10px",
+                  borderRadius: 999,
+                  background: C.forestMid + "1A",
+                  color: C.forestDark,
+                  fontWeight: 500,
+                }}
+              >
+                {current.statut_projet}
+              </span>
+            </div>
+          )}
+
+          {current.observations && (
+            <section style={{ marginBottom: 16 }}>
+              <h4 style={sectionTitleStyle}>Observations</h4>
+              <p style={paragraphStyle}>{current.observations}</p>
+            </section>
+          )}
+
+          {current.problemes_detectes && (
+            <section
+              style={{
+                marginBottom: 16,
+                padding: 12,
+                background: C.brick + "0D",
+                borderLeft: `3px solid ${C.brick}`,
+                borderRadius: 6,
+              }}
+            >
+              <h4 style={{ ...sectionTitleStyle, color: C.brick }}>
+                Problèmes détectés
+              </h4>
+              <p style={paragraphStyle}>{current.problemes_detectes}</p>
+            </section>
+          )}
+
+          {current.actions_recommandees && (
+            <section
+              style={{
+                marginBottom: 16,
+                padding: 12,
+                background: C.forest + "0D",
+                borderLeft: `3px solid ${C.forest}`,
+                borderRadius: 6,
+              }}
+            >
+              <h4 style={{ ...sectionTitleStyle, color: C.forest }}>
+                Actions recommandées
+              </h4>
+              <p style={paragraphStyle}>{current.actions_recommandees}</p>
+            </section>
+          )}
+
+          {current.photos_urls && current.photos_urls.length > 0 && (
+            <section>
+              <h4 style={sectionTitleStyle}>
+                Photos ({current.photos_urls.length})
+              </h4>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 8,
+                }}
+              >
+                {current.photos_urls.map((p, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      borderRadius: 10,
+                      overflow: "hidden",
+                      border: `1px solid ${C.neutralMid}`,
+                      aspectRatio: "1 / 1",
+                    }}
+                  >
+                    <StorageImage
+                      bucket="field-reports"
+                      path={p}
+                      alt={`Photo ${i + 1}`}
+                      linkable
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* Hint navigation (mobile uniquement + si plusieurs rapports) */}
+        {isMobile && reports.length > 1 && (
+          <div
+            style={{
+              padding: "8px 22px 14px",
+              fontSize: 11,
+              color: C.inkLight,
+              textAlign: "center",
+              borderTop: `1px solid ${C.neutralMid}`,
+            }}
+          >
+            ← Balayez pour naviguer →
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  return createPortal(node, document.body);
+}
+
+/* Section rapports — état recherche + grille + modal */
+function ReportsSection({ reports }: { reports: Report[] }) {
+  const [query, setQuery] = useState("");
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  const filtered = useMemo(
+    () => reports.filter((r) => matchesReport(r, query)),
+    [reports, query],
+  );
+
+  // Si le rapport ouvert sort du filtre, refermer proprement
+  useEffect(() => {
+    if (openIdx !== null && openIdx >= filtered.length) {
+      setOpenIdx(null);
+    }
+  }, [filtered.length, openIdx]);
+
+  return (
+    <div>
+      <h2
+        className="text-xl font-bold text-forest-dark mb-4 flex items-center gap-2"
+        style={{ fontFamily: "var(--serif)" }}
+      >
+        <FileText size={18} className="text-forest" /> Rapports de terrain (
+        {reports.length})
+      </h2>
+
+      <ReportSearch
+        query={query}
+        onQuery={setQuery}
+        filteredCount={filtered.length}
+        totalCount={reports.length}
+      />
+
+      {filtered.length === 0 ? (
+        <div className="text-center py-8 text-ink-light text-sm bg-forest-xlight rounded-xl border border-neutral-mid">
+          Aucun rapport ne correspond à « {query} ».
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filtered.map((r, i) => (
+            <ReportCard key={r.id} r={r} onClick={() => setOpenIdx(i)} />
+          ))}
+        </div>
+      )}
+
+      {openIdx !== null && filtered[openIdx] && (
+        <ReportsModal
+          reports={filtered}
+          index={openIdx}
+          onIndexChange={setOpenIdx}
+          onClose={() => setOpenIdx(null)}
+        />
+      )}
+    </div>
+  );
+}
+
 function ProjectView({
   data,
   onReset,
@@ -1492,81 +2009,8 @@ function ProjectView({
             />
           </div>
 
-          {/* Rapports de terrain */}
-          {reports.length > 0 && (
-            <div>
-              <h2
-                className="text-xl font-bold text-forest-dark mb-4 flex items-center gap-2"
-                style={{ fontFamily: "var(--serif)" }}
-              >
-                <FileText size={18} className="text-forest" /> Rapports de terrain (
-                {reports.length})
-              </h2>
-              <div className="grid sm:grid-cols-2 gap-4">
-                {reports.map((r) => (
-                  <div
-                    key={r.id}
-                    className="rounded-xl border border-neutral-mid p-4 bg-forest-xlight"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-forest-dark">
-                        {r.titre || "Rapport"}
-                      </span>
-                      <span className="text-xs text-ink-light">
-                        {dateFR(r.date_visite)}
-                      </span>
-                    </div>
-                    {r.observations && (
-                      <p className="text-sm text-ink-mid leading-relaxed mb-2 whitespace-pre-line">
-                        {r.observations}
-                      </p>
-                    )}
-                    {r.problemes_detectes && (
-                      <p className="text-sm text-brick mb-1">
-                        <span className="font-semibold">Problèmes : </span>
-                        {r.problemes_detectes}
-                      </p>
-                    )}
-                    {r.actions_recommandees && (
-                      <p className="text-sm text-forest-dark">
-                        <span className="font-semibold">Actions : </span>
-                        {r.actions_recommandees}
-                      </p>
-                    )}
-                    {r.photos_urls && r.photos_urls.length > 0 && (
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(3, 1fr)",
-                          gap: 8,
-                          marginTop: 12,
-                        }}
-                      >
-                        {r.photos_urls.map((p, i) => (
-                          <div
-                            key={i}
-                            style={{
-                              borderRadius: 10,
-                              overflow: "hidden",
-                              border: `1px solid ${C.neutralMid}`,
-                              aspectRatio: "1 / 1",
-                            }}
-                          >
-                            <StorageImage
-                              bucket="field-reports"
-                              path={p}
-                              alt={`Photo ${i + 1}`}
-                              linkable
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Rapports de terrain — cartes compactes + modal swipeable + recherche */}
+          {reports.length > 0 && <ReportsSection reports={reports} />}
         </div>
       </section>
     </>
