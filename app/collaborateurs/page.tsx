@@ -1699,15 +1699,47 @@ function ReportsModal({
   return createPortal(node, document.body);
 }
 
-/* Section rapports — état recherche + grille + modal */
+/* Section rapports — recherche + tri desc + pagination 6/page + modal (v1) */
+const REPORTS_PAGE_SIZE = 6;
+
 function ReportsSection({ reports }: { reports: Report[] }) {
   const [query, setQuery] = useState("");
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isFirstPageEffectRef = useRef(true);
+
+  // Tri par date_visite decroissante (le plus recent en haut)
+  const sorted = useMemo(
+    () =>
+      [...reports].sort((a, b) => {
+        const da = a.date_visite || "";
+        const db = b.date_visite || "";
+        return db.localeCompare(da);
+      }),
+    [reports],
+  );
 
   const filtered = useMemo(
-    () => reports.filter((r) => matchesReport(r, query)),
-    [reports, query],
+    () => sorted.filter((r) => matchesReport(r, query)),
+    [sorted, query],
   );
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filtered.length / REPORTS_PAGE_SIZE),
+  );
+
+  // Reset page a 1 quand la recherche change
+  const handleQuery = useCallback((v: string) => {
+    setQuery(v);
+    setPage(1);
+  }, []);
+
+  // Clamp : si le nombre de resultats retrecit, ramener page dans les limites
+  useEffect(() => {
+    if (page > totalPages) setPage(1);
+  }, [totalPages, page]);
 
   // Si le rapport ouvert sort du filtre, refermer proprement
   useEffect(() => {
@@ -1716,8 +1748,25 @@ function ReportsSection({ reports }: { reports: Report[] }) {
     }
   }, [filtered.length, openIdx]);
 
+  // Scroll auto en haut de la section quand on change de page (pas au 1er render)
+  useEffect(() => {
+    if (isFirstPageEffectRef.current) {
+      isFirstPageEffectRef.current = false;
+      return;
+    }
+    sectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [page]);
+
+  const pageItems = filtered.slice(
+    (page - 1) * REPORTS_PAGE_SIZE,
+    page * REPORTS_PAGE_SIZE,
+  );
+
   return (
-    <div>
+    <div ref={sectionRef} style={{ scrollMarginTop: 80 }}>
       <h2
         className="text-xl font-bold text-forest-dark mb-4 flex items-center gap-2"
         style={{ fontFamily: "var(--serif)" }}
@@ -1728,7 +1777,7 @@ function ReportsSection({ reports }: { reports: Report[] }) {
 
       <ReportSearch
         query={query}
-        onQuery={setQuery}
+        onQuery={handleQuery}
         filteredCount={filtered.length}
         totalCount={reports.length}
       />
@@ -1738,11 +1787,46 @@ function ReportsSection({ reports }: { reports: Report[] }) {
           Aucun rapport ne correspond à « {query} ».
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filtered.map((r, i) => (
-            <ReportCard key={r.id} r={r} onClick={() => setOpenIdx(i)} />
-          ))}
-        </div>
+        <>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {pageItems.map((r, i) => {
+              const absoluteIdx = (page - 1) * REPORTS_PAGE_SIZE + i;
+              return (
+                <ReportCard
+                  key={r.id}
+                  r={r}
+                  onClick={() => setOpenIdx(absoluteIdx)}
+                />
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                aria-label="Page précédente"
+                className="w-10 h-10 flex items-center justify-center rounded-full border border-neutral-mid bg-white text-forest disabled:opacity-30 disabled:cursor-not-allowed hover:border-forest hover:bg-forest-xlight transition-colors"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <span className="text-sm text-ink-mid font-medium min-w-[90px] text-center tabular-nums">
+                Page {page} / {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                aria-label="Page suivante"
+                className="w-10 h-10 flex items-center justify-center rounded-full border border-neutral-mid bg-white text-forest disabled:opacity-30 disabled:cursor-not-allowed hover:border-forest hover:bg-forest-xlight transition-colors"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {openIdx !== null && filtered[openIdx] && (
