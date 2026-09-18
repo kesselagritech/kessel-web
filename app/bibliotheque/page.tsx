@@ -16,7 +16,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Star,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -39,7 +38,6 @@ interface Document {
   status: string;
   published_at: string | null;
   created_at: string | null;
-  recommendation_order: number | null;
   document_categories: { name: string }[] | null;
 }
 
@@ -141,60 +139,6 @@ function DocCover({ doc, priority = false }: { doc: Document; priority?: boolean
   );
 }
 
-// ─── Carte format Recommandation (plus grande, halo amber) ────────────────────
-
-function RecommendedCard({ doc }: { doc: Document }) {
-  const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
-  return (
-    <Link
-      href={`/bibliotheque/${doc.slug}`}
-      className="group relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col ring-2 ring-amber/40 hover:ring-amber"
-    >
-      <DocCover doc={doc} priority />
-
-      <div className="p-6 flex flex-col flex-1">
-        {/* Titre */}
-        <h3
-          className="text-xl font-bold text-forest-dark mb-3 leading-tight"
-          style={{ fontFamily: "var(--serif)" }}
-        >
-          {doc.title}
-        </h3>
-
-        {/* Description (non tronquée sur les recommandations) */}
-        {doc.description && (
-          <p className="text-ink-light text-sm leading-relaxed mb-5 flex-1">
-            {doc.description}
-          </p>
-        )}
-
-        {/* Catégorie */}
-        {doc.document_categories?.[0]?.name && (
-          <p className="text-xs text-ink-light mb-3 uppercase tracking-wide">
-            {doc.document_categories[0].name}
-          </p>
-        )}
-
-        {/* Prix + CTA amber (au lieu de forest) */}
-        <div className="flex items-center justify-between pt-4 border-t border-neutral-mid mt-auto">
-          <div>
-            <span
-              className="text-2xl font-bold"
-              style={{ fontFamily: "var(--mono)", color: config.accent }}
-            >
-              {doc.price.toLocaleString("fr-FR")}
-            </span>
-            <span className="text-xs text-ink-light ml-1">FCFA</span>
-          </div>
-          <span className="inline-flex items-center gap-1.5 bg-amber hover:bg-amber-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors">
-            Découvrir
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 // ─── Sélecteur custom (flèche bien positionnée) ───────────────────────────────
 function FilterSelect({
   value, onChange, children,
@@ -239,7 +183,7 @@ export default function BibliothequePage() {
       const [docsRes, catsRes] = await Promise.all([
         supabase
           .from("documents")
-          .select("id, title, slug, type, category_id, speculation, price, description, status, published_at, created_at, recommendation_order, document_categories(name)")
+          .select("id, title, slug, type, category_id, speculation, price, description, status, published_at, created_at, document_categories(name)")
           .eq("status", "published"),
         supabase
           .from("document_categories")
@@ -252,13 +196,6 @@ export default function BibliothequePage() {
     }
     load();
   }, []);
-
-  // Recommandations : docs avec recommendation_order défini, triés
-  const recommendations = useMemo(() => {
-    return documents
-      .filter((d) => d.recommendation_order != null)
-      .sort((a, b) => (a.recommendation_order! - b.recommendation_order!));
-  }, [documents]);
 
   // Filtrage + tri (type puis alpha)
   const sorted = useMemo(() => {
@@ -326,41 +263,6 @@ export default function BibliothequePage() {
           </p>
         </div>
       </section>
-
-      {/* SECTION RECOMMANDATIONS — n'apparaît que s'il y a au moins 1 doc recommandé */}
-      {!loading && recommendations.length > 0 && (
-        <section className="py-16 bg-neutral border-b border-neutral-mid">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-10">
-              <p className="reveal inline-flex items-center gap-2 text-amber font-semibold text-sm uppercase tracking-wider mb-3">
-                <Star size={14} fill="currentColor" />
-                Sélection éditoriale
-              </p>
-              <h2 className="reveal reveal-delay-1 text-3xl md:text-4xl font-bold text-forest-dark mb-3" style={{ fontFamily: "var(--serif)" }}>
-                Nos recommandations
-              </h2>
-              <p className="reveal reveal-delay-2 text-ink-light max-w-2xl mx-auto">
-                Une sélection de publications essentielles, à découvrir en priorité.
-              </p>
-            </div>
-
-            <div
-              className={
-                "grid gap-6 " +
-                (recommendations.length === 1
-                  ? "sm:grid-cols-1 max-w-xl mx-auto"
-                  : recommendations.length === 2
-                    ? "sm:grid-cols-2 max-w-4xl mx-auto"
-                    : "sm:grid-cols-2 lg:grid-cols-3")
-              }
-            >
-              {recommendations.map((doc) => (
-                <RecommendedCard key={doc.id} doc={doc} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* CATALOGUE */}
       <section className="py-16 bg-neutral">
