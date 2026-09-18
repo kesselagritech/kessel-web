@@ -67,3 +67,9 @@ fix-accents-*.ps1
 auth-redirect-v*/
 biblio-perf-v*/
 collab-reports-v*/
+
+# Marqueurs et backups locaux des scripts d'apply
+.kessel-applied/
+kessel-*-reco-*/
+reports-*-v*/
+
