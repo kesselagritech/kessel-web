@@ -16,6 +16,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Star,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -38,6 +39,7 @@ interface Document {
   status: string;
   published_at: string | null;
   created_at: string | null;
+  recommendation_order: number | null;
   document_categories: { name: string }[] | null;
 }
 
@@ -56,6 +58,9 @@ const TYPE_ORDER: Record<string, number> = {
 
 // Pagination
 const PAGE_SIZE = 15;
+
+// Nombre max de documents mis en avant (aligné sur le CHECK SQL 1..3)
+const RECO_MAX = 3;
 
 function getPageNumbers(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -139,6 +144,42 @@ function DocCover({ doc, priority = false }: { doc: Document; priority?: boolean
   );
 }
 
+// ─── Carte "recommandé" (section mise en avant) ───────────────────────────────
+function RecommendedCard({ doc }: { doc: Document }) {
+  const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
+  return (
+    <Link
+      href={`/bibliotheque/${doc.slug}`}
+      className="group relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col"
+      style={{ boxShadow: "0 0 0 2px rgba(232,184,77,0.55), 0 10px 30px -12px rgba(186,117,23,0.35)" }}
+    >
+      <DocCover doc={doc} priority />
+
+      <div className="p-6 flex flex-col flex-1">
+        <h3 className="text-xl font-bold text-forest-dark mb-2 leading-tight" style={{ fontFamily: "var(--serif)" }}>
+          {doc.title}
+        </h3>
+        {doc.description && (
+          <p className="text-ink-light text-sm leading-relaxed mb-5 flex-1 line-clamp-4">
+            {doc.description}
+          </p>
+        )}
+        <div className="flex items-center justify-between pt-4 border-t border-neutral-mid mt-auto">
+          <div>
+            <span className="text-xl font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
+              {doc.price.toLocaleString("fr-FR")}
+            </span>
+            <span className="text-xs text-ink-light ml-1">FCFA</span>
+          </div>
+          <span className="inline-flex items-center gap-1.5 bg-amber hover:bg-amber-dark text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
+            Découvrir
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 // ─── Sélecteur custom (flèche bien positionnée) ───────────────────────────────
 function FilterSelect({
   value, onChange, children,
@@ -183,7 +224,7 @@ export default function BibliothequePage() {
       const [docsRes, catsRes] = await Promise.all([
         supabase
           .from("documents")
-          .select("id, title, slug, type, category_id, speculation, price, description, status, published_at, created_at, document_categories(name)")
+          .select("id, title, slug, type, category_id, speculation, price, description, status, published_at, created_at, recommendation_order, document_categories(name)")
           .eq("status", "published"),
         supabase
           .from("document_categories")
@@ -196,6 +237,16 @@ export default function BibliothequePage() {
     }
     load();
   }, []);
+
+  // Recommandations : docs publiés avec une position 1..3, triés par position
+  const recommendations = useMemo(
+    () =>
+      documents
+        .filter((d) => d.recommendation_order != null)
+        .sort((a, b) => (a.recommendation_order ?? 99) - (b.recommendation_order ?? 99))
+        .slice(0, RECO_MAX),
+    [documents],
+  );
 
   // Filtrage + tri (type puis alpha)
   const sorted = useMemo(() => {
@@ -263,6 +314,26 @@ export default function BibliothequePage() {
           </p>
         </div>
       </section>
+
+      {/* RECOMMANDATIONS — n'apparaît que si au moins 1 doc est marqué dans l'admin */}
+      {!loading && recommendations.length > 0 && (
+        <section className="pt-16 pb-4 bg-neutral">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Star size={18} className="text-amber" fill="currentColor" />
+              <p className="text-amber font-semibold text-sm uppercase tracking-wider">Sélection Kessel</p>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-forest-dark mb-8" style={{ fontFamily: "var(--serif)" }}>
+              Nos recommandations
+            </h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recommendations.map((doc) => (
+                <RecommendedCard key={doc.id} doc={doc} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CATALOGUE */}
       <section className="py-16 bg-neutral">
@@ -351,7 +422,7 @@ export default function BibliothequePage() {
                       href={`/bibliotheque/${doc.slug}`}
                       className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
                     >
-                      <DocCover doc={doc} priority={idx < 6} />
+                      <DocCover doc={doc} priority={idx < 3} />
 
                       <div className="p-5 flex flex-col flex-1">
                         {/* Titre */}
