@@ -1,5 +1,6 @@
-// lib/campay.ts — Client CamPay (serveur uniquement) — [campay-live v1]
-// Passerelle Mobile Money (MTN / Orange) de la bibliothèque web. Remplace Monetbil.
+// lib/campay.ts — Client CamPay (serveur uniquement) — [campay-live v2 : carte bancaire]
+// Passerelle Mobile Money (MTN / Orange) + carte bancaire de la bibliothèque web.
+// Moyens proposés : NEXT_PUBLIC_CAMPAY_PAYMENT_OPTIONS (« MOMO » ou « MOMO,CARD », défaut MOMO).
 //
 // Flux « lien de paiement » :
 //   1. /api/campay/initiate demande un lien à CamPay (get_payment_link)
@@ -14,6 +15,13 @@
 // Référence API : SDK officiel CamPay (pypi « campay ») — hôte live https://www.campay.net
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+
+/** Moyens de paiement proposés sur la page CamPay. Valeurs admises : MOMO, CARD. */
+export function paymentOptions(): string {
+  const raw = (process.env.NEXT_PUBLIC_CAMPAY_PAYMENT_OPTIONS || 'MOMO').toUpperCase()
+  const opts = raw.split(',').map((s) => s.trim()).filter((s) => s === 'MOMO' || s === 'CARD')
+  return opts.length ? Array.from(new Set(opts)).join(',') : 'MOMO'
+}
 
 const BASE_URL = (process.env.CAMPAY_BASE_URL || 'https://www.campay.net/api').replace(/\/+$/, '')
 
@@ -53,7 +61,7 @@ export async function createPaymentLink(params: {
       external_reference: params.externalReference,
       redirect_url: params.redirectUrl,
       failure_redirect_url: params.failureRedirectUrl,
-      payment_options: 'MOMO',
+      payment_options: paymentOptions(),
     }),
     cache: 'no-store',
   })

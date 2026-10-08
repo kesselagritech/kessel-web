@@ -532,7 +532,9 @@ export default function DocumentPage() {
                     )}
                   </button>
                   <p className="text-sm text-ink-light">
-                    Paiement sécurisé par Mobile Money (MTN / Orange)
+                    {(process.env.NEXT_PUBLIC_CAMPAY_PAYMENT_OPTIONS || "").toUpperCase().includes("CARD")
+                      ? "Paiement sécurisé par Mobile Money (MTN / Orange) ou carte bancaire"
+                      : "Paiement sécurisé par Mobile Money (MTN / Orange)"}
                   </p>
                 </div>
               )}
