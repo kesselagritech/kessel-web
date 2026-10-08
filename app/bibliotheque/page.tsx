@@ -307,10 +307,10 @@ export default function BibliothequePage() {
         <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
           <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Bibliothèque</p>
           <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
-            Tout le savoir agricole,<br /><em className="text-amber-light">accessible et structuré.</em>
+            L&apos;agriculture africaine est une opportunité.<br /><em className="text-amber-light">Encore faut-il la comprendre.</em>
           </h1>
           <p className="reveal reveal-delay-2 text-lg text-white/70 max-w-2xl mx-auto">
-            Business plans, fiches techniques et guides éducatifs — des ressources conçues pour le terrain camerounais, par des professionnels du secteur.
+            Business plans, fiches techniques et guides éducatifs pour passer de l&apos;idée au projet rentable. Des ressources pratiques, construites sur des données de terrain, pour quiconque veut entreprendre dans l&apos;agriculture en Afrique.
           </p>
         </div>
       </section>
