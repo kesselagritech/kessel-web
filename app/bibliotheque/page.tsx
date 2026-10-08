@@ -97,7 +97,7 @@ function DocCover({ doc, priority = false }: { doc: Document; priority?: boolean
   const coverUrl = getCoverImage(doc);
 
   return (
-    <div className="relative w-full aspect-[4/3] overflow-hidden bg-forest-dark">
+    <div className="relative w-full aspect-[16/9] overflow-hidden bg-forest-dark">
       {/* Miniature optimisée : next/image gère AVIF/WebP + resize CDN Vercel + lazy loading */}
       {/* priority=true sur les 6 premières cartes (above-the-fold) → gain LCP */}
       <Image
@@ -113,20 +113,20 @@ function DocCover({ doc, priority = false }: { doc: Document; priority?: boolean
       <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/70 via-transparent to-forest-dark/40" />
 
       {/* Badge type */}
-      <div className="absolute top-4 left-4">
+      <div className="absolute top-3 left-3">
         <span
-          className="inline-flex items-center gap-1.5 bg-white/95 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm"
+          className="inline-flex items-center gap-1 bg-white/95 text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm"
           style={{ color: config.accent }}
         >
-          <Icon size={13} />
+          <Icon size={12} />
           {config.label}
         </span>
       </div>
 
       {/* Badge nouveauté */}
       {isNew(doc) && (
-        <div className="absolute top-4 right-4">
-          <span className="inline-flex items-center bg-amber text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-sm">
+        <div className="absolute top-3 right-3">
+          <span className="inline-flex items-center bg-amber text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
             Nouveau
           </span>
         </div>
@@ -134,8 +134,8 @@ function DocCover({ doc, priority = false }: { doc: Document; priority?: boolean
 
       {/* Spéculation en bas */}
       {doc.speculation && (
-        <div className="absolute bottom-4 left-4">
-          <span className="text-white text-sm font-semibold" style={{ fontFamily: "var(--serif)" }}>
+        <div className="absolute bottom-3 left-3">
+          <span className="text-white text-xs font-semibold" style={{ fontFamily: "var(--serif)" }}>
             {doc.speculation}
           </span>
         </div>
@@ -155,23 +155,23 @@ function RecommendedCard({ doc }: { doc: Document }) {
     >
       <DocCover doc={doc} priority />
 
-      <div className="p-6 flex flex-col flex-1">
-        <h3 className="text-xl font-bold text-forest-dark mb-2 leading-tight" style={{ fontFamily: "var(--serif)" }}>
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className="text-lg font-bold text-forest-dark mb-2 leading-snug" style={{ fontFamily: "var(--serif)" }}>
           {doc.title}
         </h3>
         {doc.description && (
-          <p className="text-ink-light text-sm leading-relaxed mb-5 flex-1 line-clamp-4">
+          <p className="text-ink-light text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
             {doc.description}
           </p>
         )}
-        <div className="flex items-center justify-between pt-4 border-t border-neutral-mid mt-auto">
+        <div className="flex items-center justify-between pt-3 border-t border-neutral-mid mt-auto">
           <div>
-            <span className="text-xl font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
+            <span className="text-lg font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
               {doc.price.toLocaleString("fr-FR")}
             </span>
             <span className="text-xs text-ink-light ml-1">FCFA</span>
           </div>
-          <span className="inline-flex items-center gap-1.5 bg-amber hover:bg-amber-dark text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
+          <span className="inline-flex items-center gap-1.5 bg-amber hover:bg-amber-dark text-white text-sm font-semibold px-4 py-1.5 rounded-xl transition-colors">
             Découvrir
           </span>
         </div>
@@ -323,7 +323,7 @@ export default function BibliothequePage() {
               <Star size={18} className="text-amber" fill="currentColor" />
               <p className="text-amber font-semibold text-sm uppercase tracking-wider">Sélection Kessel</p>
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-forest-dark mb-8" style={{ fontFamily: "var(--serif)" }}>
+            <h2 className="text-2xl md:text-3xl font-bold text-forest-dark mb-6" style={{ fontFamily: "var(--serif)" }}>
               Nos recommandations
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -393,7 +393,7 @@ export default function BibliothequePage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-white rounded-2xl overflow-hidden animate-pulse">
-                  <div className="aspect-[4/3] bg-neutral-mid" />
+                  <div className="aspect-[16/9] bg-neutral-mid" />
                   <div className="p-5">
                     <div className="h-5 bg-neutral-mid rounded w-3/4 mb-3" />
                     <div className="h-4 bg-neutral-mid rounded w-full mb-2" />
@@ -424,35 +424,35 @@ export default function BibliothequePage() {
                     >
                       <DocCover doc={doc} priority={idx < 3} />
 
-                      <div className="p-5 flex flex-col flex-1">
+                      <div className="p-4 flex flex-col flex-1">
                         {/* Titre */}
-                        <h3 className="text-lg font-bold text-forest-dark mb-2 leading-tight" style={{ fontFamily: "var(--serif)" }}>
+                        <h3 className="text-[17px] font-bold text-forest-dark mb-1.5 leading-snug" style={{ fontFamily: "var(--serif)" }}>
                           {doc.title}
                         </h3>
 
                         {/* Description */}
                         {doc.description && (
-                          <p className="text-ink-light text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
+                          <p className="text-ink-light text-sm leading-relaxed mb-3 flex-1 line-clamp-3">
                             {doc.description}
                           </p>
                         )}
 
                         {/* Catégorie */}
                         {doc.document_categories?.[0]?.name && (
-                          <p className="text-xs text-ink-light mb-3 uppercase tracking-wide">
+                          <p className="text-[11px] text-ink-light mb-2 uppercase tracking-wide">
                             {doc.document_categories[0].name}
                           </p>
                         )}
 
                         {/* Prix + CTA */}
-                        <div className="flex items-center justify-between pt-4 border-t border-neutral-mid mt-auto">
+                        <div className="flex items-center justify-between pt-3 border-t border-neutral-mid mt-auto">
                           <div>
-                            <span className="text-xl font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
+                            <span className="text-lg font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
                               {doc.price.toLocaleString("fr-FR")}
                             </span>
                             <span className="text-xs text-ink-light ml-1">FCFA</span>
                           </div>
-                          <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors ">
+                          <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-1.5 rounded-xl transition-colors ">
                             Consulter
                           </span>
                         </div>
