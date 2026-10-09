@@ -49,11 +49,12 @@ const TYPE_CONFIG: Record<string, { label: string; icon: typeof BookOpen; accent
   guide:           { label: "Guide Éducatif",  icon: GraduationCap, accent: "#185FA5" },
 };
 
-// Ordre stable des types pour le tri
+// Ordre des types, utilisé seulement pour départager deux documents au même prix
+// (du format le plus léger au plus complet)
 const TYPE_ORDER: Record<string, number> = {
-  business_plan: 1,
+  guide: 1,
   fiche_technique: 2,
-  guide: 3,
+  business_plan: 3,
 };
 
 // Pagination
@@ -248,7 +249,8 @@ export default function BibliothequePage() {
     [documents],
   );
 
-  // Filtrage + tri (type puis alpha)
+  // Filtrage + tri : prix croissant, puis type (guide → fiche → BP), puis alpha
+  // TRI-PRIX-ASC v1 — afficher d'abord les documents les moins chers
   const sorted = useMemo(() => {
     const filtered = documents.filter((d) => {
       if (filterType !== "all" && d.type !== filterType) return false;
@@ -265,6 +267,8 @@ export default function BibliothequePage() {
     });
 
     return [...filtered].sort((a, b) => {
+      const priceCompare = (a.price ?? 0) - (b.price ?? 0);
+      if (priceCompare !== 0) return priceCompare;
       const typeCompare = (TYPE_ORDER[a.type] ?? 99) - (TYPE_ORDER[b.type] ?? 99);
       if (typeCompare !== 0) return typeCompare;
       return a.title.localeCompare(b.title, "fr", { sensitivity: "base" });
