@@ -73,3 +73,5 @@ collab-reports-v*/
 kessel-*-reco-*/
 reports-*-v*/
 
+
+*.bak*
