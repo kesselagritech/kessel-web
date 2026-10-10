@@ -21,7 +21,6 @@ export const metadata: Metadata = {
     title: "Kessel - Gestion de projets agricoles",
     description:
       "Application mobile de gestion de projets agricoles pour les promoteurs camerounais.",
-    url: "https://www.kesselagritech.com",
     siteName: "Kessel Agritech",
     locale: "fr_CM",
     type: "website",
