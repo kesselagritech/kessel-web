@@ -4,6 +4,7 @@ import { Providers } from "@/components/Providers";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.kesselagritech.com"),
   title: "Kessel - Gestion de projets agricoles | Cameroun",
   description:
     "Kessel accompagne les promoteurs de projets agricoles camerounais avec des outils de gestion professionnels : finances, taches, marches, techniciens.",
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
     title: "Kessel - Gestion de projets agricoles",
     description:
       "Application mobile de gestion de projets agricoles pour les promoteurs camerounais.",
-    url: "https://kesselagritech.com",
+    url: "https://www.kesselagritech.com",
     siteName: "Kessel Agritech",
     locale: "fr_CM",
     type: "website",
