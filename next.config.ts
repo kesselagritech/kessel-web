@@ -1,4 +1,4 @@
-﻿import type { NextConfig } from "next";
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -9,7 +9,12 @@ const nextConfig: NextConfig = {
       {
         source: '/bibliotheque/business-plan-manioc',
         destination: '/bibliotheque/manioc',
-        permanent: true, // 301
+        permanent: true, // 308 (permanente)
+      },
+      {
+        source: '/installation-android',
+        destination: '/application',
+        permanent: true, // 308 (permanente)
       },
     ];
   },
