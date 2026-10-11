@@ -5,11 +5,13 @@ import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.kesselagritech.com"),
-  title: "Kessel - Gestion de projets agricoles | Cameroun",
+  title: "Kessel Agritech - Savoir et outils pour l'agriculture africaine",
   description:
-    "Kessel accompagne les promoteurs de projets agricoles camerounais avec des outils de gestion professionnels : finances, taches, marches, techniciens.",
+    "Kessel accompagne les promoteurs de projets agricoles en Afrique : bibliothèque de guides, fiches techniques et business plans, comparateur de projets, et application de gestion de terrain.",
   keywords: [
     "agriculture",
+    "agriculture africaine",
+    "Afrique",
     "Cameroun",
     "gestion agricole",
     "promoteur",
@@ -18,9 +20,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Atine Mvom Philippe Andre" }],
   openGraph: {
-    title: "Kessel - Gestion de projets agricoles",
+    title: "Kessel Agritech - L'agriculture africaine mérite des outils à sa hauteur",
     description:
-      "Application mobile de gestion de projets agricoles pour les promoteurs camerounais.",
+      "Guides, fiches techniques, business plans et comparateur de projets pour les promoteurs agricoles africains.",
     siteName: "Kessel Agritech",
     locale: "fr_CM",
     type: "website",

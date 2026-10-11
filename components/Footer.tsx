@@ -14,7 +14,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-white/50 text-sm leading-relaxed mb-4">
-              Digitalisation et professionnalisation du secteur agricole camerounais.
+              Digitalisation et professionnalisation du secteur agricole africain.
             </p>
             <div className="space-y-1 text-sm">
               <a href="mailto:contact@kesselagritech.com" className="text-white/70 hover:text-amber transition-colors block">contact@kesselagritech.com</a>

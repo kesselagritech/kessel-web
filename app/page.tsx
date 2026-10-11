@@ -42,15 +42,15 @@ export default function HomePage() {
         <div className="relative z-10 max-w-3xl mx-auto w-full text-center">
           <div className="reveal inline-flex items-center gap-2 bg-amber/15 border border-amber/30 rounded-full px-4 py-1.5 mb-6">
             <span className="w-2 h-2 bg-amber rounded-full animate-pulse" />
-            <span className="text-amber-light text-sm font-medium">Agriculture · Technologie · Cameroun</span>
+            <span className="text-amber-light text-sm font-medium">Agriculture · Technologie · Afrique</span>
           </div>
 
           <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6" style={{ fontFamily: "var(--serif)" }}>
-            Le secteur agricole mérite <em className="text-amber-light">des outils à sa hauteur.</em>
+            L&apos;agriculture africaine mérite <em className="text-amber-light">des outils à sa hauteur.</em>
           </h1>
 
           <p className="reveal reveal-delay-2 text-lg text-white/75 mb-8 max-w-xl mx-auto leading-relaxed">
-            Kessel Agritech est une structure spécialisée dans la digitalisation et la professionnalisation du secteur agricole camerounais. Nous démocratisons les connaissances essentielles et connectons les promoteurs à des professionnels engagés.
+            Née au Cameroun, Kessel Agritech est une structure spécialisée dans la digitalisation et la professionnalisation du secteur agricole africain. Nous démocratisons les connaissances essentielles et connectons les promoteurs à des professionnels engagés, où qu&apos;ils soient sur le continent.
           </p>
 
           <div className="reveal reveal-delay-3 flex flex-col sm:flex-row gap-4 justify-center">
@@ -134,7 +134,7 @@ export default function HomePage() {
                 Palmier à huile ou cacao ? Maraîchage ou plantain ? Comparez les spéculations sur les indicateurs qui comptent : rentabilité à long terme, seuil de rentabilité, marge par hectare, coût d&apos;opportunité.
               </p>
               <p className="text-ink-light leading-relaxed mb-6">
-                Des chiffres standards issus de données recoupées, pour investir en connaissance de cause — pas sur la base d&apos;un conseil de couloir.
+                Des chiffres standards issus de données recoupées, pour investir en connaissance de cause — pas sur la base d&apos;un conseil de couloir. Marché de référence actuel : le Cameroun.
               </p>
               <Link href="/comparateur" className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-7 py-3.5 rounded-xl transition-colors">
                 <BarChart3 size={20} />
@@ -167,7 +167,7 @@ export default function HomePage() {
                 Guides éducatifs (1 000 FCFA), fiches techniques détaillées (2 000 FCFA), et business plans complets par spéculation (5 500 FCFA) — pédologie, physiologie végétale, gestion intégrée, formalisation, chaîne de valeur.
               </p>
               <p className="text-ink-light leading-relaxed mb-4">
-                Chaque document est conçu comme un outil de compréhension autonome, basé sur des données recoupées du secteur camerounais. Pour des projections adaptées à votre situation, nos équipes proposent des consultations sur devis.
+                Chaque document est conçu comme un outil de compréhension autonome. Les principes agronomiques valent pour toute l&apos;Afrique subsaharienne, du Sahel à la forêt équatoriale ; les chiffres économiques sont calibrés sur le marché camerounais, pris comme référence. Pour des projections adaptées à votre pays et à votre situation, nos équipes proposent des consultations sur devis.
               </p>
               <Link href="/bibliotheque" className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-7 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
                 <FileText size={20} />
@@ -200,7 +200,7 @@ export default function HomePage() {
                 L&apos;outil de terrain. Suivez vos finances, planifiez vos tâches, recevez les rapports de vos techniciens — le tout depuis votre téléphone, même sans connexion internet.
               </p>
               <p className="text-ink-light leading-relaxed mb-6">
-                Disponible sur iOS et Android, gratuitement.
+                Disponible sur iOS et Android, gratuitement. Conçue aujourd&apos;hui pour le Cameroun (zones agro-écologiques, marchés, paiement mobile) ; l&apos;ouverture à d&apos;autres pays est prévue.
               </p>
               <Link href="/application" className="inline-flex items-center justify-center gap-2 border-2 border-forest hover:bg-forest-light text-forest font-semibold px-7 py-3.5 rounded-xl transition-colors">
                 <Smartphone size={20} />
@@ -229,13 +229,13 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">En chiffres</p>
             <h2 className="reveal reveal-delay-1 text-3xl md:text-4xl font-bold text-forest-dark" style={{ fontFamily: "var(--serif)" }}>
-              Conçu pour le terrain <em>camerounais.</em>
+              Pensé pour le terrain <em>africain.</em>
             </h2>
           </div>
 
           <div className="reveal reveal-delay-2 grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { value: "5", label: "zones agro-écologiques" },
+              { value: "5", label: "grands types de milieu, du Sahel à la forêt" },
               { value: "60+", label: "spéculations couvertes" },
               { value: "78", label: "fiches ITK" },
               { value: "2", label: "langues (FR · EN)" },
