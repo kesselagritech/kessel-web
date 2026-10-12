@@ -13,11 +13,11 @@ export default function ConfidentialitePage() {
       accent="confidentialité."
       meta={
         <>
-          Version 2.0 · Publiée le 12 octobre 2026 ·{" "}
+          Version 2.1 · Mise à jour le 12 octobre 2026 ·{" "}
           <Link href="/confidentialite/en" className="underline hover:text-amber">English version</Link>
         </>
       }
-      footerNote="Dernière mise à jour : 12 octobre 2026 · Version 2.0"
+      footerNote="Dernière mise à jour : 12 octobre 2026 · Version 2.1"
     >
       <div className="reveal">
         <P last>
@@ -53,10 +53,11 @@ export default function ConfidentialitePage() {
           rows={[
             ["Identité", "Numéro de téléphone, nom, photo de profil (facultative), rôle (promoteur, technicien, superviseur), langue, zone agro-écologique, région, pays de résidence"],
             ["Connexion", "Code PIN, conservé uniquement sous forme hachée et salée"],
-            ["Données agricoles", "Projets, tâches, dépenses, revenus, récoltes, rapports de terrain"],
+            ["Données agricoles", "Projets, tâches, dépenses, revenus, récoltes, investissements et équipements, rapports de terrain"],
             ["Photos et localisation", "Photos prises dans l'application et coordonnées GPS au moment de la prise"],
             ["Échanges", "Messages de projet, échanges avec les superviseurs Kessel, cahiers des charges émis, validés ou refusés"],
-            ["Technique", "Jeton de notification, identifiants de session, modèle d'appareil"],
+            ["Suggestions", "Messages que vous nous envoyez depuis l'application, avec votre nom et votre numéro"],
+            ["Technique", "Jeton de notification, identifiants de session, modèle d'appareil ; à chaque connexion, adresse IP et type d'appareil"],
             ["Pannes", "Rapports de plantage pseudonymisés (sans nom ni numéro de téléphone)"],
           ]}
         />
@@ -150,8 +151,10 @@ export default function ConfidentialitePage() {
         <P last>
           Plusieurs prestataires sont situés hors du Cameroun, principalement aux États-Unis. La loi n° 2024/017 soumet ces
           transferts à des conditions, dont un niveau de protection suffisant dans le pays de destination et une autorisation de
-          l&apos;Autorité de protection des données à caractère personnel. Kessel s&apos;engage à accomplir ces formalités et limite
-          les données transférées à ce qui est nécessaire au service. Pour toute question sur ces transferts : {MAIL}.
+          l&apos;Autorité de protection des données à caractère personnel. À ce jour, cette Autorité n&apos;est pas encore
+          organisée et la procédure d&apos;autorisation n&apos;est pas ouverte. En attendant, Kessel tient un registre de ses
+          traitements et de ses mesures de sécurité, limite les données transférées à ce qui est nécessaire au service, et
+          demandera l&apos;autorisation dès que l&apos;Autorité sera en place. Pour toute question sur ces transferts : {MAIL}.
         </P>
       </Section>
 
@@ -166,6 +169,8 @@ export default function ConfidentialitePage() {
             ["Pièces des achats", "10 ans, même après suppression du compte (obligation comptable)"],
             ["Mesure d'audience du site", "60 jours"],
             ["Tentatives de connexion (sécurité)", "30 jours"],
+            ["Données de connexion (adresse IP, appareil)", "90 jours au plus après la fin de la session"],
+            ["Suggestions envoyées depuis l'application", "Conservées pour améliorer le service ; nom et numéro retirés à la suppression du compte"],
             ["Rapports de pannes", "90 jours au plus"],
             ["Messages du formulaire de contact", "3 ans au plus après le dernier échange"],
           ]}
@@ -189,7 +194,8 @@ export default function ConfidentialitePage() {
         </P>
         <P last>
           En cas de désaccord, vous pouvez saisir l&apos;<strong>Autorité de protection des données à caractère personnel</strong>{" "}
-          instituée par la loi n° 2024/017, ou l&apos;autorité compétente de votre pays de résidence.
+          instituée par la loi n° 2024/017, dès qu&apos;elle sera en place, les juridictions compétentes, ou l&apos;autorité de
+          protection des données de votre pays de résidence.
         </P>
       </Section>
 
@@ -204,8 +210,8 @@ export default function ConfidentialitePage() {
           ]}
         />
         <P last>
-          En cas de violation de données susceptible de porter atteinte à vos droits, nous informons l&apos;Autorité et les
-          personnes concernées dans les meilleurs délais, comme la loi l&apos;exige.
+          En cas de violation de données susceptible de porter atteinte à vos droits, nous informons les personnes concernées
+          dans les meilleurs délais, ainsi que l&apos;Autorité dès qu&apos;elle sera en place.
         </P>
       </Section>
 

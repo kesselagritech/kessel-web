@@ -14,11 +14,11 @@ export default function PrivacyEnPage() {
       accent="Policy."
       meta={
         <>
-          Version 2.0 · Published October 12, 2026 ·{" "}
+          Version 2.1 · Updated October 12, 2026 ·{" "}
           <Link href="/confidentialite" className="underline hover:text-amber">Version française</Link>
         </>
       }
-      footerNote="Last updated: October 12, 2026 · Version 2.0 · The French version prevails in case of discrepancy."
+      footerNote="Last updated: October 12, 2026 · Version 2.1 · The French version prevails in case of discrepancy."
     >
       <div className="reveal">
         <P last>
@@ -52,10 +52,11 @@ export default function PrivacyEnPage() {
           rows={[
             ["Identity", "Phone number, name, profile photo (optional), role (promoter, technician, supervisor), language, agro-ecological zone, region, country of residence"],
             ["Sign-in", "PIN code, stored only in hashed and salted form"],
-            ["Farm data", "Projects, tasks, expenses, revenues, harvests, field reports"],
+            ["Farm data", "Projects, tasks, expenses, revenues, harvests, investments and equipment, field reports"],
             ["Photos and location", "Photos taken in the app and GPS coordinates at the time they are taken"],
             ["Exchanges", "Project messages, exchanges with Kessel supervisors, specifications issued, approved or rejected"],
-            ["Technical", "Notification token, session identifiers, device model"],
+            ["Suggestions", "Messages you send us from the app, with your name and phone number"],
+            ["Technical", "Notification token, session identifiers, device model; at each sign-in, IP address and device type"],
             ["Crashes", "Pseudonymised crash reports (no name or phone number)"],
           ]}
         />
@@ -148,8 +149,10 @@ export default function PrivacyEnPage() {
         <P last>
           Several providers are located outside Cameroon, mainly in the United States. Law No. 2024/017 makes such transfers
           subject to conditions, including an adequate level of protection in the destination country and authorisation from the
-          Personal Data Protection Authority. Kessel undertakes to complete these formalities and limits transferred data to
-          what the service requires. For any question about these transfers: {MAIL}.
+          Personal Data Protection Authority. To date, this Authority has not yet been organised and the authorisation procedure
+          is not open. In the meantime, Kessel keeps a record of its processing activities and security measures, limits
+          transferred data to what the service requires, and will apply for authorisation as soon as the Authority is in place.
+          For any question about these transfers: {MAIL}.
         </P>
       </Section>
 
@@ -164,6 +167,8 @@ export default function PrivacyEnPage() {
             ["Purchase records", "10 years, even after account deletion (accounting obligation)"],
             ["Website audience measurement", "60 days"],
             ["Sign-in attempts (security)", "30 days"],
+            ["Sign-in data (IP address, device)", "90 days at most after the session ends"],
+            ["Suggestions sent from the app", "Kept to improve the service; name and number removed when the account is deleted"],
             ["Crash reports", "90 days at most"],
             ["Contact form messages", "3 years at most after the last exchange"],
           ]}
@@ -187,7 +192,8 @@ export default function PrivacyEnPage() {
         </P>
         <P last>
           If you disagree with our answer, you may contact the <strong>Personal Data Protection Authority</strong> established by
-          Law No. 2024/017, or the competent authority in your country of residence.
+          Law No. 2024/017 once it is in place, the competent courts, or the data protection authority of your country of
+          residence.
         </P>
       </Section>
 
@@ -202,8 +208,8 @@ export default function PrivacyEnPage() {
           ]}
         />
         <P last>
-          In the event of a data breach likely to affect your rights, we inform the Authority and the people concerned without
-          undue delay, as required by law.
+          In the event of a data breach likely to affect your rights, we inform the people concerned without undue delay, and the
+          Authority once it is in place.
         </P>
       </Section>
 
