@@ -1,5 +1,6 @@
-// components/ComingSoon.tsx — [nav-v2] Page « bientôt disponible » (vidéos, podcasts)
+// components/ComingSoon.tsx — [nav-v2b] Page « bientôt disponible » (vidéos, podcasts), hero illustré
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -9,18 +10,33 @@ export default function ComingSoon({
   accent,
   text,
   points,
+  heroImage,
 }: {
   kicker: string;
   title: string;
   accent: string;
   text: string;
   points: string[];
+  heroImage?: string;
 }) {
   return (
     <>
       <Navbar />
-      <section className="bg-forest-dark pt-32 pb-20 md:pt-40 md:pb-28">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+      <section className="relative overflow-hidden bg-forest-dark pt-32 pb-20 md:pt-40 md:pb-28">
+        {heroImage && (
+          <>
+            <Image
+              src={heroImage}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-forest-dark/70" aria-hidden="true" />
+          </>
+        )}
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
           <span className="inline-block mb-5 px-3 py-1 rounded-full bg-amber-light text-amber-dark text-xs font-semibold uppercase tracking-wider">
             Bientôt disponible
           </span>

@@ -1,4 +1,4 @@
-// app/videos/page.tsx — [nav-v2] Vidéothèque (bientôt disponible)
+// app/videos/page.tsx — [nav-v2b] Vidéothèque (bientôt disponible)
 import type { Metadata } from "next";
 import ComingSoon from "@/components/ComingSoon";
 
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 export default function VideosPage() {
   return (
     <ComingSoon
+      heroImage="/images/video-hero.jpg"
       kicker="Vidéothèque"
       title="Des tutoriels tournés"
       accent="sur le terrain."

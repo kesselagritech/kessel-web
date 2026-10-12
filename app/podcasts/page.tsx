@@ -1,4 +1,4 @@
-// app/podcasts/page.tsx — [nav-v2] Podcasts (bientôt disponible)
+// app/podcasts/page.tsx — [nav-v2b] Podcasts (bientôt disponible)
 import type { Metadata } from "next";
 import ComingSoon from "@/components/ComingSoon";
 
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 export default function PodcastsPage() {
   return (
     <ComingSoon
+      heroImage="/images/podcast-hero.jpg"
       kicker="Podcasts"
       title="La réalité du terrain,"
       accent="racontée par ceux qui la vivent."
