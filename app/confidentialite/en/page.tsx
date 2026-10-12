@@ -1,303 +1,254 @@
 "use client";
+// app/confidentialite/en/page.tsx — Privacy Policy v2.0 (EN) — [legal-v2]
+// The French version prevails in case of discrepancy.
 
-import { useScrollReveal } from "@/hooks/useScrollReveal";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import AgriPatterns from "@/components/AgriPatterns";
+import { LegalShell, Section, H3, P, A, List, Table, Box, EditorBox, EDITOR } from "@/components/legal/LegalShell";
+
+const MAIL = <A href={`mailto:${EDITOR.email}`}>{EDITOR.email}</A>;
 
 export default function PrivacyEnPage() {
-  useScrollReveal();
-
   return (
-    <>
-      <Navbar />
+    <LegalShell
+      title="Privacy"
+      accent="Policy."
+      meta={
+        <>
+          Version 2.0 · Published October 12, 2026 ·{" "}
+          <Link href="/confidentialite" className="underline hover:text-amber">Version française</Link>
+        </>
+      }
+      footerNote="Last updated: October 12, 2026 · Version 2.0 · The French version prevails in case of discrepancy."
+    >
+      <div className="reveal">
+        <P last>
+          This policy explains which personal data Kessel Agritech (&quot;<strong>Kessel</strong>&quot;, &quot;we&quot;) collects,
+          why, who it is shared with, how long it is kept and what your rights are. It covers all our services: the{" "}
+          <strong>kesselagritech.com</strong> website (including the paid library, the project comparator and the collaborator
+          space) and the <strong>Kessel</strong> mobile app (iOS and Android). <strong>We never sell personal data.</strong>
+        </P>
+      </div>
 
-      <section className="bg-forest-dark pt-28 pb-16 relative">
-        <AgriPatterns />
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Legal</p>
-          <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
-            Privacy<br /><em className="text-amber-light">Policy.</em>
-          </h1>
-          <p className="reveal reveal-delay-2 text-white/70 text-sm">
-            Version 1.0 · Effective May 3, 2026 · <Link href="/confidentialite" className="underline hover:text-amber">Version française</Link>
+      <Section title="1. Data controller">
+        <EditorBox lang="en" />
+        <P last>
+          Given the size of our organisation, the data controller also acts as data protection officer. One address for any
+          question: {MAIL}.
+        </P>
+      </Section>
+
+      <Section title="2. Legal framework">
+        <P last>
+          Our processing is governed by <strong>Cameroonian Law No. 2024/017 of December 23, 2024 on the protection of personal
+          data</strong>. As the website serves users across Africa, we apply the same rules to everyone, without prejudice to any
+          additional rights granted by the law of your country of residence.
+        </P>
+      </Section>
+
+      <Section title="3. Data we collect">
+        <H3>3.1 Kessel mobile app</H3>
+        <Table
+          head={["Category", "Data"]}
+          rows={[
+            ["Identity", "Phone number, name, profile photo (optional), role (promoter, technician, supervisor), language, agro-ecological zone, region, country of residence"],
+            ["Sign-in", "PIN code, stored only in hashed and salted form"],
+            ["Farm data", "Projects, tasks, expenses, revenues, harvests, field reports"],
+            ["Photos and location", "Photos taken in the app and GPS coordinates at the time they are taken"],
+            ["Exchanges", "Project messages, exchanges with Kessel supervisors, specifications issued, approved or rejected"],
+            ["Technical", "Notification token, session identifiers, device model"],
+            ["Crashes", "Pseudonymised crash reports (no name or phone number)"],
+          ]}
+        />
+
+        <H3>3.2 Website and library</H3>
+        <Table
+          head={["Category", "Data"]}
+          rows={[
+            ["Website account", "Email address and password (stored in hashed form). This account is separate from the app account."],
+            ["Purchases", "Document purchased, amount, date, payment status, CamPay transaction reference, operator used"],
+            ["Audience measurement", "Pages viewed (page address, without parameters), a random identifier stored in your browser, IP address, country and city derived from the IP address, device type, referring website. If you are signed in, these visits are linked to your account."],
+            ["Document views", "Number of views of each document, counted per browsing session"],
+            ["Contact form", "Name, email, phone (optional), subject and message"],
+          ]}
+        />
+
+        <H3>3.3 Collaborator space</H3>
+        <P>
+          A promoter may give a farm code to a person of their choice. That person, signed in with a website account, can then
+          view the farm&apos;s projects read-only: tasks, expenses, revenues, harvests, reports and photos. We record which
+          account has access to which farm and the date of last access.
+        </P>
+        <P last>
+          The promoter alone decides who receives the code and remains responsible for that choice. To withdraw access, write to{" "}
+          {MAIL}.
+        </P>
+
+        <H3>3.4 What we do not collect</H3>
+        <List
+          variant="cross"
+          items={[
+            "Your phone's contact list.",
+            "Photos or files on your phone other than those taken in the app.",
+            "Biometric data.",
+            "Your bank card number or Mobile Money PIN: they are entered on CamPay's secure page, never on ours.",
+            "Your browsing on other websites.",
+          ]}
+        />
+      </Section>
+
+      <Section title="4. Why we use your data">
+        <Table
+          head={["Purpose", "Legal basis"]}
+          rows={[
+            ["Create and manage your account, run the app", "Performance of the contract (Terms of Use)"],
+            ["Sell and give access to library documents", "Performance of the contract (Terms of Sale)"],
+            ["Geotag photos, access the camera, send notifications", "Your consent, which you can withdraw at any time in your phone settings"],
+            ["Share a farm with a collaborator", "The promoter's choice (performance of the contract)"],
+            ["Measure website audience and improve our content", "Legitimate interest; you may object (section 12)"],
+            ["Security, fraud prevention, crash diagnosis", "Legitimate interest"],
+            ["Keep purchase records", "Legal obligation (accounting)"],
+            ["Answer your messages", "Your request"],
+          ]}
+        />
+      </Section>
+
+      <Section title="5. App permissions">
+        <Table
+          head={["Permission", "Why", "Can be refused?"]}
+          rows={[
+            ["Camera", "Take field photos", "Yes"],
+            ["Precise location", "Geotag photos", "Yes"],
+            ["Notifications", "Reminders, messages, alerts", "Yes"],
+            ["Local storage", "Work offline", "No (essential)"],
+            ["Internet", "Sync your data", "No (essential)"],
+          ]}
+        />
+      </Section>
+
+      <Section title="6. Who receives your data">
+        <P>
+          Your data is accessible, each to the extent relevant, to: you; the people you invite to a project (technicians) or to
+          whom you give a farm code; Kessel supervisors for the projects they support; the data controller for running the
+          service; and authorities where required by law. We also rely on the following technical providers:
+        </P>
+        <Table
+          head={["Provider", "Role", "Location"]}
+          rows={[
+            ["Supabase Inc.", "Database, authentication, account emails, storage of photos and documents", "United States (Oregon)"],
+            ["Vercel Inc.", "Website hosting, aggregated audience measurement", "United States, global network"],
+            ["CamPay", "Mobile Money and card payments for the library", "Cameroon"],
+            ["Resend", "Delivery of contact form messages", "United States"],
+            ["Expo (EAS), Google (FCM), Apple (APNs)", "Delivery of app notifications", "United States"],
+            ["Sentry", "App crash diagnosis", "European Union"],
+          ]}
+        />
+      </Section>
+
+      <Section title="7. Transfers outside Cameroon">
+        <P last>
+          Several providers are located outside Cameroon, mainly in the United States. Law No. 2024/017 makes such transfers
+          subject to conditions, including an adequate level of protection in the destination country and authorisation from the
+          Personal Data Protection Authority. Kessel undertakes to complete these formalities and limits transferred data to
+          what the service requires. For any question about these transfers: {MAIL}.
+        </P>
+      </Section>
+
+      <Section title="8. Retention periods">
+        <Table
+          head={["Data", "Period"]}
+          rows={[
+            ["App account", "As long as you use it"],
+            ["Inactive app account", "Deleted with its projects after 6 consecutive months without sign-in (rule applied from November 12, 2026)"],
+            ["App account deleted at your request", "Account and projects erased from our databases upon request; photos and backup copies erased within 30 days at most"],
+            ["Website account (library)", "Never deleted for inactivity, so your purchases remain accessible; deleted at your request"],
+            ["Purchase records", "10 years, even after account deletion (accounting obligation)"],
+            ["Website audience measurement", "60 days"],
+            ["Sign-in attempts (security)", "30 days"],
+            ["Crash reports", "90 days at most"],
+            ["Contact form messages", "3 years at most after the last exchange"],
+          ]}
+        />
+      </Section>
+
+      <Section title="9. Your rights">
+        <List
+          items={[
+            "Access: obtain a copy of the data we hold about you.",
+            "Rectification: correct inaccurate or incomplete data.",
+            "Erasure: request deletion of your account and data.",
+            "Objection: object to processing based on our legitimate interest, such as audience measurement.",
+            "Portability: receive your data in a structured format.",
+            "Withdrawal of consent: at any time, without affecting prior processing.",
+          ]}
+        />
+        <P>
+          Write to {MAIL} stating the phone number (app) or email address (website) of your account. We may ask you to prove
+          the account is yours. We reply within <strong>30 days</strong> at most.
+        </P>
+        <P last>
+          If you disagree with our answer, you may contact the <strong>Personal Data Protection Authority</strong> established by
+          Law No. 2024/017, or the competent authority in your country of residence.
+        </P>
+      </Section>
+
+      <Section title="10. Security">
+        <List
+          items={[
+            "Data encrypted in transit between your device and our servers (HTTPS).",
+            "PIN codes and passwords stored only in hashed and salted form.",
+            "Database access rules: each account only sees the data that concerns it.",
+            "Payments checked directly with CamPay before any document is unlocked.",
+            "Data encrypted at rest by our database host.",
+          ]}
+        />
+        <P last>
+          In the event of a data breach likely to affect your rights, we inform the Authority and the people concerned without
+          undue delay, as required by law.
+        </P>
+      </Section>
+
+      <Section title="11. Minors">
+        <P last>
+          Accounts and purchases are reserved for people aged 18 and over. If you believe a minor has sent us data, write to us
+          and we will delete it.
+        </P>
+      </Section>
+
+      <Section title="12. Cookies and local storage">
+        <P>
+          The website uses <strong>no advertising cookies</strong>. It stores in your browser: your sign-in session; a random
+          visitor identifier, kept until you clear the site&apos;s data; and a visit identifier, renewed after 30 minutes of
+          inactivity. Vercel&apos;s audience tool works without cookies. To object to audience measurement, clear the site&apos;s
+          data in your browser or write to us.
+        </P>
+        <P last>
+          The app keeps on your phone your session tokens (in the iOS or Android secure store), a copy of your data for offline
+          use and your preferences. Everything is erased when you sign out or uninstall the app.
+        </P>
+      </Section>
+
+      <Section title="13. Changes">
+        <P last>
+          For any significant change, we notify you at least 30 days in advance: by in-app notification, by email for website
+          accounts, and on this page.
+        </P>
+      </Section>
+
+      <Section title="14. Governing law">
+        <P last>
+          This policy is governed by Cameroonian law. Any dispute falls under the competent courts of Douala, unless a mandatory
+          rule of your country of residence provides otherwise.
+        </P>
+      </Section>
+
+      <Section title="15. Contact">
+        <Box>
+          <p className="text-ink-mid">Email: {MAIL}</p>
+          <p className="text-ink-mid">
+            WhatsApp: <A href={EDITOR.wa}>{EDITOR.phone}</A>
           </p>
-        </div>
-      </section>
-
-      <section className="py-24 bg-neutral">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="bg-white p-8 md:p-12 rounded-2xl shadow-sm">
-            <div className="prose prose-lg max-w-none">
-
-              <div className="reveal">
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  Kessel Agritech ("<strong>Kessel</strong>", "we") is committed to protecting the privacy of users of our mobile application and related services (the "<strong>Service</strong>"). This policy explains what personal data we collect, why, how we use it, and what your rights are.
-                </p>
-              </div>
-
-              <div className="reveal reveal-delay-1">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>1. Data Controller</h2>
-                <div className="bg-forest-light p-6 rounded-xl mb-6">
-                  <p className="text-forest-dark"><strong>Kessel Agritech</strong> (RCCM registration in progress)</p>
-                  <p className="text-ink-mid">Represented by: Atine Mvom Philippe André, Founder and Director</p>
-                  <p className="text-ink-mid">Address: Ebome, Kribi, Cameroon</p>
-                  <p className="text-ink-mid">Email: <a href="mailto:contact@kesselagritech.com" className="text-amber hover:underline">contact@kesselagritech.com</a></p>
-                </div>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  Given the size of our organization, the Data Controller also serves as the Data Protection Officer (DPO).
-                </p>
-              </div>
-
-              <div className="reveal reveal-delay-2">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>2. Data we collect</h2>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  We only collect data strictly necessary for the operation of the Service. <strong>No data is sold to third parties.</strong>
-                </p>
-                <div className="overflow-x-auto mb-6">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-forest-dark text-white">
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Category</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Data</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Purpose</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Identity</td><td className="p-3 text-ink-mid">Phone number, first name, last name (optional), language</td><td className="p-3 text-ink-mid">Account creation and management</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Location</td><td className="p-3 text-ink-mid">GPS coordinates when capturing field photos</td><td className="p-3 text-ink-mid">Geolocate agricultural reports</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Photos</td><td className="p-3 text-ink-mid">Images captured via camera (field evidence)</td><td className="p-3 text-ink-mid">Document project reports</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Business</td><td className="p-3 text-ink-mid">Projects, tasks, expenses, revenues, reports</td><td className="p-3 text-ink-mid">Agricultural management service</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Technical</td><td className="p-3 text-ink-mid">Push notification token, session IDs, device model</td><td className="p-3 text-ink-mid">Notifications, security, support</td></tr>
-                      <tr><td className="p-3 font-medium">Logs</td><td className="p-3 text-ink-mid">Crashes, anonymized technical IDs</td><td className="p-3 text-ink-mid">Diagnostics via Sentry</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-6">2.1 What we do NOT collect</h3>
-                <ul className="space-y-2 mb-8">
-                  {[
-                    "Phone contact list",
-                    "Browsing history outside the application",
-                    "Photos or files on your phone (other than those captured via Kessel)",
-                    "Biometric data",
-                    "Credit card numbers or other payment data (no payment is required to use the Service)",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-ink-mid">
-                      <svg className="w-5 h-5 text-brick shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="reveal reveal-delay-3">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>3. Legal basis for processing</h2>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  In compliance with Cameroonian Law No. 2010/012 of December 21, 2010 and GDPR principles which we apply by alignment, each processing operation is based on one of the following grounds:
-                </p>
-                <ul className="space-y-2 mb-8">
-                  {[
-                    "Performance of contract (account, projects, reports).",
-                    "Explicit consent (GPS location, camera access).",
-                    "Legitimate interest (security, technical diagnostics).",
-                    "Legal obligation (financial operations, fraud prevention).",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-ink-mid">
-                      <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="reveal reveal-delay-4">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. App permissions</h2>
-                <div className="overflow-x-auto mb-8">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-forest-dark text-white">
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Permission</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Why</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Refusable?</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Camera</td><td className="p-3 text-ink-mid">Capture field evidence</td><td className="p-3 text-ink-mid">Yes</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Precise location</td><td className="p-3 text-ink-mid">Geolocate photos</td><td className="p-3 text-ink-mid">Yes</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Notifications</td><td className="p-3 text-ink-mid">Reminders, messages, price alerts</td><td className="p-3 text-ink-mid">Yes</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Local storage</td><td className="p-3 text-ink-mid">Offline mode</td><td className="p-3 text-ink-mid">No (essential)</td></tr>
-                      <tr><td className="p-3 font-medium">Internet</td><td className="p-3 text-ink-mid">Server synchronization</td><td className="p-3 text-ink-mid">No (essential)</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="reveal reveal-delay-5">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>5. Hosting and processors</h2>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  Your data is hosted by the following providers, all contractually committed to high security standards:
-                </p>
-                <div className="overflow-x-auto mb-6">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-forest-dark text-white">
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Processor</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Service</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Location</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Supabase Inc.</td><td className="p-3 text-ink-mid">Database, auth, file storage</td><td className="p-3 text-ink-mid">United States (us-west-2, Oregon)</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Expo (EAS)</td><td className="p-3 text-ink-mid">Push notifications</td><td className="p-3 text-ink-mid">United States</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Vercel Inc.</td><td className="p-3 text-ink-mid">Website and admin tools</td><td className="p-3 text-ink-mid">United States / EU (global CDN)</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Sentry</td><td className="p-3 text-ink-mid">Crash diagnostics</td><td className="p-3 text-ink-mid">European Union</td></tr>
-                      <tr><td className="p-3 font-medium">Google FCM</td><td className="p-3 text-ink-mid">Notification delivery</td><td className="p-3 text-ink-mid">United States</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  Some processors are located outside Cameroon (United States, European Union). To ensure adequate protection, these transfers are governed by the <strong>Standard Contractual Clauses</strong> of the European Commission and the providers' compliance policies.
-                </p>
-              </div>
-
-              <div className="reveal reveal-delay-6">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>6. Retention period</h2>
-                <div className="overflow-x-auto mb-8">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-forest-dark text-white">
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Data type</th>
-                        <th className="p-3 text-left font-semibold" style={{ fontFamily: "var(--serif)" }}>Duration</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Account (active)</td><td className="p-3 text-ink-mid">As long as the account is active</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Account (after deletion)</td><td className="p-3 text-ink-mid">Immediate and permanent erasure</td></tr>
-                      <tr className="border-b border-neutral-mid"><td className="p-3 font-medium">Photos and reports</td><td className="p-3 text-ink-mid">As long as the project is active, or until manual deletion</td></tr>
-                      <tr><td className="p-3 font-medium">Technical logs</td><td className="p-3 text-ink-mid">90 days maximum</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>7. Your rights</h2>
-                <ul className="space-y-2 mb-4">
-                  {[
-                    "Right of access: obtain a copy of all data we hold about you.",
-                    "Right to rectification: correct inaccurate data.",
-                    "Right to erasure: request deletion of your account.",
-                    "Right to portability: receive your data in a structured format.",
-                    "Right to object: object to a particular processing operation.",
-                    "Right to withdraw consent: at any time.",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-ink-mid">
-                      <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  To exercise these rights, write to <a href="mailto:contact@kesselagritech.com" className="text-amber hover:underline">contact@kesselagritech.com</a>. We will respond within <strong>30 days</strong> maximum.
-                </p>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  If you disagree, you may file a complaint with the <strong>National Agency for Information and Communication Technologies (ANTIC)</strong> in Cameroon, or any competent authority in your country.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>8. Security</h2>
-                <ul className="space-y-2 mb-4">
-                  {[
-                    "End-to-end encrypted communications (HTTPS/TLS 1.3).",
-                    "Passwords stored as hashes (PBKDF2 with unique salt).",
-                    "Strict database access policies (Row Level Security).",
-                    "Multi-factor authentication for the technical team.",
-                    "Encrypted and redundant backups.",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-ink-mid">
-                      <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  In the event of a data breach affecting your rights, we commit to notifying you within a maximum of <strong>72 hours</strong>.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>9. Minors</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  The Service is not intended for persons under 18. We do not knowingly collect data from minors. If you believe a child has provided us with data, contact us for immediate deletion.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>10. Cookies and local storage</h2>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  The mobile app does not use web cookies. However, it stores locally on your device:
-                </p>
-                <ul className="space-y-2 mb-8">
-                  {[
-                    "Session tokens (encrypted via iOS SecureStore / Android Keystore).",
-                    "Encrypted local copy of your data for offline mode.",
-                    "Your preferences (language, notification settings).",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-ink-mid">
-                      <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>11. Changes to this policy</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  We may update this policy. Substantial changes will be notified via in-app notification and email at least 30 days before the effective date.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>12. Applicable law</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  This policy is governed by Cameroonian law. Disputes shall fall under the exclusive jurisdiction of the courts of Kribi, Cameroon.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>13. Contact</h2>
-                <p className="text-ink-mid leading-relaxed">
-                  📧 <a href="mailto:contact@kesselagritech.com" className="text-amber hover:underline">contact@kesselagritech.com</a><br />
-                  📱 WhatsApp: <a href="https://wa.me/237659374501" className="text-amber hover:underline">+237 659 374 501</a><br />
-                  🏢 Kessel Agritech, Ebome, Kribi, Cameroon
-                </p>
-              </div>
-
-            </div>
-
-            <div className="mt-12 pt-8 border-t border-neutral-mid text-center">
-              <p className="text-ink-light text-sm">Last updated: May 3, 2026 · Version 1.0</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-    </>
+        </Box>
+      </Section>
+    </LegalShell>
   );
 }

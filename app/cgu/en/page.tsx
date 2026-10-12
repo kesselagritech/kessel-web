@@ -1,237 +1,233 @@
 "use client";
+// app/cgu/en/page.tsx — Terms of Use v2.0 (EN) — [legal-v2]
+// The French version prevails in case of discrepancy.
 
-import { useScrollReveal } from "@/hooks/useScrollReveal";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import AgriPatterns from "@/components/AgriPatterns";
+import { LegalShell, Section, H3, P, A, List, Box, EditorBox, EDITOR } from "@/components/legal/LegalShell";
+
+const MAIL = <A href={`mailto:${EDITOR.email}`}>{EDITOR.email}</A>;
+const CGV = <Link href="/cgv/en" className="text-amber hover:underline">Terms of Sale</Link>;
 
 export default function TermsEnPage() {
-  useScrollReveal();
-
   return (
-    <>
-      <Navbar />
+    <LegalShell
+      title="Terms of"
+      accent="Use."
+      meta={
+        <>
+          Version 2.0 · Published October 12, 2026 ·{" "}
+          <Link href="/cgu" className="underline hover:text-amber">Version française</Link>
+        </>
+      }
+      footerNote="Last updated: October 12, 2026 · Version 2.0 · The French version prevails in case of discrepancy."
+    >
+      <div className="reveal">
+        <P last>
+          These Terms of Use (&quot;<strong>Terms</strong>&quot;) govern the use of the <strong>kesselagritech.com</strong>{" "}
+          website and the <strong>Kessel</strong> mobile app (together, the &quot;<strong>Service</strong>&quot;), published by
+          Kessel Agritech. By using the Service, you (&quot;<strong>User</strong>&quot;) accept these Terms. Library purchases are
+          also governed by the {CGV}.
+        </P>
+      </div>
 
-      <section className="bg-forest-dark pt-28 pb-16 relative">
-        <AgriPatterns />
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Legal</p>
-          <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
-            Terms of<br /><em className="text-amber-light">Use.</em>
-          </h1>
-          <p className="reveal reveal-delay-2 text-white/70 text-sm">
-            Version 1.0 · Effective May 3, 2026 · <Link href="/cgu" className="underline hover:text-amber">Version française</Link>
+      <Section title="1. Publisher">
+        <EditorBox lang="en" />
+      </Section>
+
+      <Section title="2. The Service">
+        <H3>2.1 The kesselagritech.com website</H3>
+        <P>Open to farm promoters and project holders across Africa, it offers:</P>
+        <List
+          items={[
+            "A paid library of business plans, technical sheets and educational guides.",
+            "A free farm project comparator.",
+            "Free information pages (crops and livestock, agro-ecological zones, guides, technical itineraries).",
+            "A collaborator space to follow, read-only, the farm of a promoter who has given you their code.",
+          ]}
+        />
+        <H3>2.2 The Kessel mobile app</H3>
+        <P>Designed for Cameroon and free of charge, it lets you:</P>
+        <List
+          items={[
+            "Create and track farm projects and their tasks.",
+            "File field reports with geotagged photos.",
+            "Track project finances (expenses, revenues, harvests).",
+            "Invite farm technicians to your projects.",
+            "Work with Kessel supervisors: messaging and specifications.",
+            "View indicative market prices, reminders and alerts.",
+          ]}
+        />
+        <Box tone="amber">
+          <p className="text-forest-dark font-semibold">Usage rule: &quot;Kessel helps, it does not prescribe&quot;</p>
+          <p className="text-ink-mid text-sm">
+            The app, the comparator and the library documents provide information, tools and estimates. They do not replace the
+            advice of a technician, an agronomist or a financial adviser. Farming and investment decisions remain the sole
+            responsibility of the User.
           </p>
-        </div>
-      </section>
+        </Box>
+      </Section>
 
-      <section className="py-24 bg-neutral">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="bg-white p-8 md:p-12 rounded-2xl shadow-sm">
-            <div className="prose prose-lg max-w-none">
+      <Section title="3. Access and accounts">
+        <H3>3.1 Age</H3>
+        <P>Creating an account and making purchases are reserved for people aged 18 and over.</P>
+        <H3>3.2 Two separate accounts</H3>
+        <List
+          items={[
+            "App account: phone number and PIN code.",
+            "Website account: email address and password. It gives access to your purchases and the collaborator space.",
+          ]}
+        />
+        <P>
+          You provide accurate information and keep your credentials secret. Any action taken with your credentials is deemed to
+          be taken by you.
+        </P>
+        <H3>3.3 Compatible devices (app)</H3>
+        <List
+          items={[
+            "Android 7.0 or later, or iPhone with iOS 15 or later.",
+            "Internet connection to sync; most features work offline.",
+            "200 MB of free storage.",
+          ]}
+        />
+      </Section>
 
-              <div className="reveal">
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  These Terms of Use ("<strong>Terms</strong>") govern the use of the Kessel mobile application and all associated services (the "<strong>Service</strong>"), published by Kessel Agritech. By downloading, installing or using the Service, you ("<strong>User</strong>") acknowledge that you have read and accepted these Terms without reservation.
-                </p>
-              </div>
+      <Section title="4. What is free, what is paid">
+        <P>
+          The app, the comparator, the information pages and the collaborator space are free. Library documents are paid, one
+          by one. In short:
+        </P>
+        <List
+          items={[
+            "The price is shown in FCFA on each document page, before payment.",
+            "Payment goes through CamPay: Mobile Money (MTN, Orange) and, where offered, bank card.",
+            "The document is read online from your website account, updates included.",
+            "No refund once the document is accessible, except double payment, payment without access or non-conforming document.",
+            "Personal or internal business use only: no resale, sharing or redistribution.",
+          ]}
+        />
+        <P>Full details are in the {CGV}, which prevail in case of conflict.</P>
+        <P last>
+          A &quot;Kessel Team&quot; plan for organisations is under study. It is not active. No charge can be made without an
+          explicit action on your part.
+        </P>
+      </Section>
 
-              <div className="reveal reveal-delay-1">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>1. Publisher identity</h2>
-                <div className="bg-forest-light p-6 rounded-xl mb-8">
-                  <p className="text-forest-dark"><strong>Kessel Agritech</strong> (RCCM registration in progress)</p>
-                  <p className="text-ink-mid">Represented by: Atine Mvom Philippe André, Founder and Director</p>
-                  <p className="text-ink-mid">Address: Ebome, Kribi, Cameroon</p>
-                  <p className="text-ink-mid">Email: <a href="mailto:contact@kesselagritech.com" className="text-amber hover:underline">contact@kesselagritech.com</a></p>
-                </div>
-              </div>
+      <Section title="5. Your commitments">
+        <P>You agree not to:</P>
+        <List
+          variant="cross"
+          items={[
+            "Break the law, in particular Law No. 2010/012 of December 21, 2010 on cybersecurity and cybercrime.",
+            "Use the Service fraudulently or against public decency.",
+            "Bypass security measures, decompile the code or overload the servers.",
+            "Impersonate another user or share your accounts.",
+            "Copy, resell or distribute purchased documents.",
+            "Harass or make discriminatory remarks towards a technician, a supervisor or a promoter.",
+            "Disclose data of a farm viewed in the collaborator space without the promoter's consent.",
+            "Enter farm or financial information you know to be false.",
+          ]}
+        />
+      </Section>
 
-              <div className="reveal reveal-delay-2">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>2. Service description</h2>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  Kessel is a mobile application designed to help with agricultural project management, intended for farmers and agricultural technicians, primarily in Cameroon. The Service includes:
-                </p>
-                <ul className="space-y-2 mb-6">
-                  {[
-                    "Creation and tracking of agricultural projects.",
-                    "Planning and management of field tasks.",
-                    "Capturing and geolocating photo evidence reports.",
-                    "Financial tracking of projects (expenses, revenues).",
-                    "Market price monitoring.",
-                    "Inviting and collaborating with agricultural technicians.",
-                    "Receiving reminders and alerts (weather, prices, tasks).",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-ink-mid">
-                      <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="bg-amber-light/30 border border-amber/30 rounded-xl p-5 mb-8">
-                  <p className="text-forest-dark font-semibold mb-2">⚠️ Usage doctrine: "Kessel assists, does not prescribe"</p>
-                  <p className="text-ink-mid text-sm">
-                    The Service provides information, tracking tools and indicators. It is in no way intended to replace the expertise of an agricultural technician, agronomist or any qualified professional. Agricultural decisions are the sole responsibility of the User.
-                  </p>
-                </div>
-              </div>
+      <Section title="6. Your content">
+        <P last>
+          You remain the owner of what you publish (photos, reports, project data). You grant us a non-exclusive, worldwide,
+          royalty-free licence to store, reproduce and display this content, only as needed to run the Service. You warrant that
+          you hold the rights to this content.
+        </P>
+      </Section>
 
-              <div className="reveal reveal-delay-3">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>3. Access conditions</h2>
+      <Section title="7. Intellectual property">
+        <P last>
+          The Kessel brand, its logo (the hexagon and the &quot;K&quot;), the website, the app, their code, texts and library
+          documents are the exclusive property of Kessel Agritech. Any unauthorised reproduction or use is prohibited and may lead
+          to legal action.
+        </P>
+      </Section>
 
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">3.1 Legal capacity</h3>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  The Service is reserved for <strong>adult</strong> persons (18 years and older) with the legal capacity to contract.
-                </p>
+      <Section title="8. Availability">
+        <P last>
+          We aim for continuous availability but cannot guarantee it. The Service may be interrupted for maintenance, updates or
+          force majeure.
+        </P>
+      </Section>
 
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">3.2 Account creation</h3>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  Accessing the Service requires creating an account with a valid phone number. You are solely responsible for the confidentiality of your code/password.
-                </p>
+      <Section title="9. Limitation of liability">
+        <P>The Service is provided &quot;as is&quot;. We do not guarantee:</P>
+        <List
+          items={[
+            "The absolute accuracy of information (market prices, estimates, projections, reminders).",
+            "The total absence of errors or interruptions.",
+            "Fitness of the Service for a use other than the one described.",
+          ]}
+        />
+        <P last>
+          Our liability is limited to the sums you paid us in the last 12 months. We are not liable for indirect damage (crop
+          loss, loss of earnings, loss of data), except gross negligence or mandatory legal provision to the contrary.
+        </P>
+      </Section>
 
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">3.3 Technical compatibility</h3>
-                <ul className="space-y-2 mb-8">
-                  {[
-                    "Android phone (version 7.0 / API 24 minimum) or iPhone (iOS 15 minimum).",
-                    "Internet connection for synchronization (offline mode for most functions).",
-                    "Minimum storage of 200 MB.",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-ink-mid">
-                      <svg className="w-5 h-5 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+      <Section title="10. Personal data">
+        <P last>
+          Your data is processed under our{" "}
+          <Link href="/confidentialite/en" className="text-amber hover:underline">Privacy Policy</Link>, which forms part of these
+          Terms.
+        </P>
+      </Section>
 
-              <div className="reveal reveal-delay-4">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Pricing and contemplated plans</h2>
+      <Section title="11. Account deletion">
+        <H3>11.1 App account</H3>
+        <List
+          items={[
+            "You can delete it at any time from the app (Settings → Delete my account) or by writing to " + EDITOR.email + ".",
+            "Your account and projects are erased upon request; photos and backup copies within 30 days at most.",
+            "Data you entered in other users' projects remains there, without your name.",
+          ]}
+        />
+        <Box tone="amber">
+          <p className="text-forest-dark font-semibold">Inactivity: deletion after 6 months</p>
+          <p className="text-ink-mid text-sm">
+            An app account with no sign-in for 6 consecutive months is permanently deleted, together with its projects. A single
+            sign-in resets the counter. This rule applies from November 12, 2026.
+          </p>
+        </Box>
+        <H3>11.2 Website account (library)</H3>
+        <P last>
+          It is <strong>never deleted for inactivity</strong>, so your purchases remain accessible. You can request its deletion
+          at {MAIL}; access to purchased documents is then permanently lost. Purchase records are kept for 10 years, as required
+          by accounting law.
+        </P>
+      </Section>
 
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.1 Current plan</h3>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  The Service is currently provided <strong>free of charge</strong> to all users (farmers, technicians, partners). No bank card or payment method is required to use the Application or any of its features.
-                </p>
+      <Section title="12. Suspension by Kessel">
+        <P last>
+          We may suspend or close an account in case of serious breach of these Terms or the Terms of Sale, fraud or threat to
+          the security of the Service. Except in emergencies, we notify you beforehand.
+        </P>
+      </Section>
 
-                <h3 className="text-lg font-semibold text-forest-dark mb-2 mt-4">4.2 Extended plan under consideration ("Kessel Team")</h3>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  An extended plan, called "Kessel Team", is being considered for agricultural organizations working with multiple collaborators and technicians. This plan is not currently active. Its final terms (features, price, subscription mode, conditions) will be communicated in advance to interested users. No charge can be made without explicit action on your part.
-                </p>
-              </div>
+      <Section title="13. Changes to these Terms">
+        <P last>
+          Any significant change is announced at least 30 days in advance: by in-app notification, by email for website
+          accounts, and on this page.
+        </P>
+      </Section>
 
-              <div className="reveal reveal-delay-5">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>5. User commitments</h2>
-                <ul className="space-y-2 mb-8">
-                  {[
-                    "Comply with Cameroonian law (notably Law No. 2010/012 on cybercrime).",
-                    "Not use the Service for fraudulent or unethical purposes.",
-                    "Not attempt to circumvent security measures.",
-                    "Not perform reverse engineering or decompilation of the code.",
-                    "Not overload or disrupt servers.",
-                    "Not impersonate another user.",
-                    "Respect agricultural technicians: no harassment, no discriminatory remarks.",
-                    "Guarantee the truthfulness of agricultural information you enter.",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-ink-mid">
-                      <svg className="w-5 h-5 text-brick shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+      <Section title="14. Governing law and disputes">
+        <P last>
+          These Terms are governed by Cameroonian law. In case of dispute, an amicable solution is sought first. Failing that,
+          the competent courts of Douala have jurisdiction, unless a mandatory rule provides otherwise.
+        </P>
+      </Section>
 
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>6. User-published content</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  You retain ownership of content you publish via the Service (photos, reports, project data). However, you grant us a <strong>non-exclusive, worldwide, royalty-free license</strong> to use, store, reproduce and adapt such content, only as necessary to provide the Service.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>7. Intellectual property</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  The Kessel application, its trademark, logo (the hexagon and "K"), interface, source code, and all associated documentation are the exclusive property of Kessel Agritech. Any unauthorized reproduction is subject to prosecution.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>8. Availability</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  We strive to ensure Service availability 24/7, but cannot guarantee absolute availability. The Service may be temporarily interrupted for maintenance, updates or in case of force majeure.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>9. Limitation of liability</h2>
-                <p className="text-ink-mid leading-relaxed mb-4">
-                  The Service is provided "<strong>as is</strong>". We do not guarantee accuracy of all information (market prices, weather, reminders), absence of bugs, or suitability for a particular use other than that described.
-                </p>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  Our liability is limited to the amount actually paid by the User over the 12 months preceding the triggering event. We are in no case liable for indirect damages (crop loss, lost profits, user data loss).
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>10. Personal data</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  The processing of your personal data is governed by our <Link href="/confidentialite/en" className="text-amber hover:underline">Privacy Policy</Link>, which is an integral part of these Terms.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>11. Account deletion</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  You may delete your account at any time from in-app Settings, or by emailing <a href="mailto:contact@kesselagritech.com" className="text-amber hover:underline">contact@kesselagritech.com</a>. Deletion is effective within 30 days (reversibility window).
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>12. Termination by Kessel</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  We may suspend or terminate your access in case of serious breach of these Terms, fraudulent use, security risk or prolonged inactivity (more than 24 months).
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>13. Changes to these Terms</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  We may modify these Terms. Substantial changes will be notified at least 30 days before their effective date.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>14. Applicable law</h2>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  These Terms are governed by <strong>Cameroonian law</strong>. Disputes shall fall under the exclusive jurisdiction of the courts of <strong>Kribi, Cameroon</strong>.
-                </p>
-              </div>
-
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>15. Contact</h2>
-                <p className="text-ink-mid leading-relaxed">
-                  For any question regarding these Terms:<br />
-                  📧 <a href="mailto:contact@kesselagritech.com" className="text-amber hover:underline">contact@kesselagritech.com</a><br />
-                  📱 WhatsApp: <a href="https://wa.me/237659374501" className="text-amber hover:underline">+237 659 374 501</a><br />
-                  🏢 Kessel Agritech, Ebome, Kribi, Cameroon
-                </p>
-              </div>
-
-            </div>
-
-            <div className="mt-12 pt-8 border-t border-neutral-mid text-center">
-              <p className="text-ink-light text-sm">Last updated: May 3, 2026 · Version 1.0</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-    </>
+      <Section title="15. Contact">
+        <Box>
+          <p className="text-ink-mid">Email: {MAIL}</p>
+          <p className="text-ink-mid">
+            WhatsApp: <A href={EDITOR.wa}>{EDITOR.phone}</A>
+          </p>
+        </Box>
+      </Section>
+    </LegalShell>
   );
 }

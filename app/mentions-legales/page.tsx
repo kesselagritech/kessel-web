@@ -1,112 +1,76 @@
-﻿"use client";
+"use client";
+// app/mentions-legales/page.tsx — Mentions légales v2.0 — [legal-v2]
 
-import { useScrollReveal } from "@/hooks/useScrollReveal";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import AgriPatterns from "@/components/AgriPatterns";
+import Link from "next/link";
+import { LegalShell, Section, P, A, Box, EditorBox, EDITOR } from "@/components/legal/LegalShell";
+
+const MAIL = <A href={`mailto:${EDITOR.email}`}>{EDITOR.email}</A>;
 
 export default function MentionsLegalesPage() {
-  useScrollReveal();
-
   return (
-    <>
-      <Navbar />
+    <LegalShell
+      title="Mentions"
+      accent="légales."
+      meta="Version 2.0 · 12 octobre 2026"
+      footerNote="Dernière mise à jour : 12 octobre 2026"
+    >
+      <Section title="1. Éditeur">
+        <P>
+          Le site <strong>kesselagritech.com</strong> et l&apos;application mobile <strong>Kessel</strong> sont édités par :
+        </P>
+        <EditorBox />
+        <P last>Directeur de la publication : {EDITOR.owner}.</P>
+      </Section>
 
-      {/* HERO */}
-      <section className="bg-forest-dark pt-28 pb-16 relative">
-        <AgriPatterns />
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <p className="reveal text-amber font-semibold text-sm uppercase tracking-wider mb-3">Legal</p>
-          <h1 className="reveal reveal-delay-1 text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "var(--serif)" }}>
-            Mentions<br /><em className="text-amber-light">légales.</em>
-          </h1>
-        </div>
-      </section>
+      <Section title="2. Hébergement">
+        <Box>
+          <p className="text-forest-dark">
+            <strong>Vercel Inc.</strong> — hébergement du site
+          </p>
+          <p className="text-ink-mid">340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis · vercel.com</p>
+        </Box>
+        <Box>
+          <p className="text-forest-dark">
+            <strong>Supabase Inc.</strong> — base de données, comptes et fichiers
+          </p>
+          <p className="text-ink-mid">Serveurs situés aux États-Unis (Oregon) · supabase.com</p>
+        </Box>
+        <P last>
+          Les paiements de la bibliothèque sont traités par <strong>CamPay</strong> (Cameroun). La liste complète de nos
+          prestataires figure dans la{" "}
+          <Link href="/confidentialite" className="text-amber hover:underline">Politique de confidentialité</Link>.
+        </P>
+      </Section>
 
-      {/* CONTENU */}
-      <section className="py-24 bg-neutral">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="bg-white p-8 md:p-12 rounded-2xl shadow-sm">
-            <div className="prose prose-lg max-w-none">
-              
-              <div className="reveal">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>1. Editeur du site</h2>
-                <p className="text-ink-mid leading-relaxed mb-6">
-                  Le site <strong>kesselagritech.com</strong> et l'application mobile <strong>Kessel</strong> sont édités par :
-                </p>
-                <div className="bg-forest-light p-6 rounded-xl mb-8">
-                  <p className="text-forest-dark"><strong>Kessel Agritech</strong></p>
-                  <p className="text-ink-mid">Entreprise individuelle</p>
-                  <p className="text-ink-mid">Fondateur : Atine Mvom Philippe Andre</p>
-                  <p className="text-ink-mid">Siège social : Kribi, Région du Sud, Cameroun</p>
-                  <p className="text-ink-mid">Email : contact@kesselagritech.com</p>
-                  <p className="text-ink-mid">WhatsApp : +237 659 374 501</p>
-                </div>
-              </div>
+      <Section title="3. Propriété intellectuelle">
+        <P last>
+          L&apos;ensemble des contenus du site et de l&apos;application (textes, documents de la bibliothèque, images, logos,
+          icônes, logiciels, bases de données) est protégé par le droit d&apos;auteur et le droit des marques, notamment la loi
+          camerounaise n° 2000/011 du 19 décembre 2000 relative au droit d&apos;auteur et aux droits voisins. Toute reproduction ou
+          exploitation non autorisée est interdite.
+        </P>
+      </Section>
 
-              <div className="reveal reveal-delay-1">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>2. Hebergement</h2>
-                <p className="text-ink-mid leading-relaxed mb-6">
-                  Le site web est hébergé par :
-                </p>
-                <div className="bg-forest-light p-6 rounded-xl mb-8">
-                  <p className="text-forest-dark"><strong>Vercel Inc.</strong></p>
-                  <p className="text-ink-mid">340 S Lemon Ave #4133</p>
-                  <p className="text-ink-mid">Walnut, CA 91789, USA</p>
-                  <p className="text-ink-mid">Site : vercel.com</p>
-                </div>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  Les données de l'application sont hébergées par <strong>Supabase Inc.</strong> sur des serveurs sécurisés.
-                </p>
-              </div>
+      <Section title="4. Conditions applicables">
+        <P last>
+          L&apos;utilisation du Service est régie par les{" "}
+          <Link href="/cgu" className="text-amber hover:underline">Conditions générales d&apos;utilisation</Link>, les achats par
+          les <Link href="/cgv" className="text-amber hover:underline">Conditions générales de vente</Link>, et le traitement des
+          données par la{" "}
+          <Link href="/confidentialite" className="text-amber hover:underline">Politique de confidentialité</Link>.
+        </P>
+      </Section>
 
-              <div className="reveal reveal-delay-2">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>3. Propriete intellectuelle</h2>
-                <p className="text-ink-mid leading-relaxed mb-6">
-                  L ensemble du contenu du site et de l'application Kessel (textes, images, logos, icônes, logiciels, bases de données) est protégé par le droit d auteur et le droit des marques.
-                </p>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  Toute reproduction, representation, modification ou exploitation non autorisée est interdite et constitue une contrefaçon sanctionnée par le Code de la propriété intellectuelle.
-                </p>
-              </div>
+      <Section title="5. Responsabilité">
+        <P last>
+          Kessel Agritech veille à l&apos;exactitude des informations publiées, sans pouvoir garantir leur exhaustivité ni leur
+          actualité permanente. Les contenus sont éducatifs et ne remplacent pas l&apos;avis d&apos;un professionnel.
+        </P>
+      </Section>
 
-              <div className="reveal reveal-delay-3">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>4. Donnees personnelles</h2>
-                <p className="text-ink-mid leading-relaxed mb-6">
-                  Les informations concernant la collecte et le traitement des données personnelles sont détaillées dans notre <a href="/confidentialite" className="text-amber hover:underline">Politique de confidentialite</a>.
-                </p>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  Conformêment à la législation en vigueur, vous disposez d un droit d'accès, de rectification et de suppression des données vous concernant.
-                </p>
-              </div>
-
-              <div className="reveal reveal-delay-4">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>5. Responsabilite</h2>
-                <p className="text-ink-mid leading-relaxed mb-6">
-                  Kessel Agritech s efforce d assurer l'exactitude des informations diffusées sur le site et l'application. Toutefois, nous ne pouvons garantir l'exactitude, la complétude ou l actualité des informations.
-                </p>
-                <p className="text-ink-mid leading-relaxed mb-8">
-                  L utilisation des informations et contenus disponibles sur le site ou l'application se fait sous la seule responsabilité de l utilisateur.
-                </p>
-              </div>
-
-              <div className="reveal reveal-delay-5">
-                <h2 className="text-2xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>6. Contact</h2>
-                <p className="text-ink-mid leading-relaxed">
-                  Pour toute question concernant ces mentions légales, vous pouvez nous contacter a l adresse <a href="mailto:contact@kesselagritech.com" className="text-amber hover:underline">contact@kesselagritech.com</a>.
-                </p>
-              </div>
-
-            </div>
-
-            <div className="mt-12 pt-8 border-t border-neutral-mid text-center">
-              <p className="text-ink-light text-sm">Derniere mise a jour : Avril 2026</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-    </>
+      <Section title="6. Contact">
+        <P last>Pour toute question : {MAIL}.</P>
+      </Section>
+    </LegalShell>
   );
 }
