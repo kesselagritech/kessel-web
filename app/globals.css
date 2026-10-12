@@ -137,3 +137,20 @@ body {
 .prose-kessel pre { background: #1A3D25; color: #D5E5D8; padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; margin: 1.25rem 0; }
 .prose-kessel pre code { background: none; padding: 0; color: inherit; }
 .prose-kessel > :first-child { margin-top: 0; }
+
+/* =====================================================
+   NAVBAR v2 — onglets à icônes qui se déplient [nav-v2]
+===================================================== */
+.knav-label { max-width: 0; opacity: 0; margin-left: 0; overflow: hidden; transition: max-width 240ms ease, opacity 180ms ease, margin-left 240ms ease; }
+.knav-tab[data-expanded="true"] .knav-label,
+.knav-tab:focus-visible .knav-label { max-width: 16rem; opacity: 1; margin-left: 0.5rem; }
+@media (hover: hover) {
+  .knav-tab:hover .knav-label { max-width: 16rem; opacity: 1; margin-left: 0.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .knav-label { transition: none; }
+}
+/* Téléphone : place pour la barre fixe du bas */
+@media (max-width: 767px) {
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+}
