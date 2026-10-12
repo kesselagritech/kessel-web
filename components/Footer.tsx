@@ -1,4 +1,4 @@
-// components/Footer.tsx — [footer-v2] version compacte sur téléphone, ordinateur et tablette inchangés
+// components/Footer.tsx — [footer-v2 · nav-v3] version compacte sur téléphone, ordinateur et tablette inchangés
 import Link from "next/link";
 
 export default function Footer() {
@@ -25,7 +25,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Nos outils — masqué sur téléphone : la barre du bas donne déjà ces liens */}
+          {/* Nos outils — masqué sur téléphone : le bouton « Menu » donne déjà ces liens */}
           <div className="hidden md:block">
             <h4 className="text-white font-semibold mb-4">Nos outils</h4>
             <ul className="space-y-2 text-sm">
