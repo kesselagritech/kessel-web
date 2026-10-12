@@ -1240,7 +1240,7 @@ function HarvestSummary({
           >
             {p.total.toLocaleString("fr-FR")}
           </div>
-          <div className="text-xs text-ink-light uppercase tracking-wide">
+          <div className="text-xs text-ink-light uppercase tracking-wide [overflow-wrap:anywhere]">
             {p.unit}
           </div>
         </div>
@@ -1339,10 +1339,10 @@ function ReportCard({ r, onClick }: { r: Report; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="text-left rounded-xl border border-neutral-mid p-4 bg-forest-xlight hover:border-forest hover:shadow-md hover:-translate-y-0.5 transition-all"
+      className="min-w-0 text-left rounded-xl border border-neutral-mid p-4 bg-forest-xlight hover:border-forest hover:shadow-md hover:-translate-y-0.5 transition-all"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
-        <span className="font-semibold text-forest-dark leading-tight line-clamp-2">
+        <span className="min-w-0 font-semibold text-forest-dark leading-tight line-clamp-2 [overflow-wrap:anywhere]">
           {r.titre || "Rapport"}
         </span>
         <span className="text-xs text-ink-light shrink-0 whitespace-nowrap">
@@ -1350,7 +1350,7 @@ function ReportCard({ r, onClick }: { r: Report; onClick: () => void }) {
         </span>
       </div>
       {r.observations && (
-        <p className="text-sm text-ink-mid leading-relaxed line-clamp-2 mb-3">
+        <p className="text-sm text-ink-mid leading-relaxed line-clamp-2 mb-3 [overflow-wrap:anywhere]">
           {r.observations}
         </p>
       )}
@@ -1813,7 +1813,7 @@ function ReportsSection({ reports }: { reports: Report[] }) {
         </div>
       ) : (
         <>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {pageItems.map((r, i) => {
               const absoluteIdx = (page - 1) * REPORTS_PAGE_SIZE + i;
               return (
@@ -1903,12 +1903,12 @@ function ProjectView({
             Projet partagé · lecture seule
           </p>
           <h1
-            className="text-3xl md:text-4xl font-bold text-white mb-3"
+            className="text-3xl md:text-4xl font-bold text-white mb-3 [overflow-wrap:anywhere]"
             style={{ fontFamily: "var(--serif)" }}
           >
             {project.name}
           </h1>
-          <p className="text-white/70 mb-8">
+          <p className="text-white/70 mb-8 [overflow-wrap:anywhere]">
             {[
               project.type_production,
               project.speculation_autre,
@@ -1929,7 +1929,7 @@ function ProjectView({
 
       {/* Graphiques */}
       <section className="py-12 bg-neutral">
-        <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-5">
+        <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-5">
           <Card icon={Wallet} title="Budget consommé">
             <BudgetGauge total={totalDep} budget={project.budget ?? 0} />
           </Card>
@@ -2085,7 +2085,7 @@ function ProjectView({
           </div>
 
           {/* Caisse : depenses / revenus / depots */}
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <FinanceList
               icon={Receipt}
               title={`Dépenses (${expenses.length})`}
@@ -2258,7 +2258,7 @@ function Dashboard({
             Suivi d&apos;exploitation · lecture seule
           </p>
           <h1
-            className="text-3xl md:text-4xl font-bold text-white mb-2"
+            className="text-3xl md:text-4xl font-bold text-white mb-2 [overflow-wrap:anywhere]"
             style={{ fontFamily: "var(--serif)" }}
           >
             {current?.name || "Exploitation"}
@@ -2274,7 +2274,7 @@ function Dashboard({
                   key={e.owner_id}
                   onClick={() => onSelectExploitation(e.owner_id)}
                   className={
-                    "px-4 py-2 rounded-xl text-sm font-medium transition-colors " +
+                    "max-w-full text-left px-4 py-2 rounded-xl text-sm font-medium transition-colors [overflow-wrap:anywhere] " +
                     (e.owner_id === current?.owner_id
                       ? "bg-white text-forest-dark"
                       : "bg-white/10 text-white hover:bg-white/20")
@@ -2300,18 +2300,18 @@ function Dashboard({
               Aucun projet dans cette exploitation pour l&apos;instant.
             </p>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {projects.map((p) => {
                 const done = !!p.date_cloture;
                 return (
                   <button
                     key={p.id}
                     onClick={() => onOpenProject(p.id)}
-                    className="text-left bg-white rounded-2xl shadow-sm border border-neutral-mid p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col"
+                    className="min-w-0 text-left bg-white rounded-2xl shadow-sm border border-neutral-mid p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col"
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <h3
-                        className="font-bold text-forest-dark leading-tight"
+                        className="min-w-0 font-bold text-forest-dark leading-tight [overflow-wrap:anywhere]"
                         style={{ fontFamily: "var(--serif)" }}
                       >
                         {p.name}
@@ -2327,7 +2327,7 @@ function Dashboard({
                         {done ? "Terminé" : "En cours"}
                       </span>
                     </div>
-                    <p className="text-sm text-ink-light mb-4 flex-1">
+                    <p className="text-sm text-ink-light mb-4 flex-1 [overflow-wrap:anywhere]">
                       {[
                         p.type_production,
                         p.speculation_autre,
