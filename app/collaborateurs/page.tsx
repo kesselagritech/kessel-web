@@ -954,6 +954,22 @@ function CashFlowChart({
   // Colonne survolée (desktop) ou tapée (mobile) pour l'info-bulle
   const [hover, setHover] = useState<number | null>(null);
 
+  // [collab-v2] Le graphique prend la largeur réelle de sa carte (plus de 320 px imposés).
+  // Trop de mois pour l'écran : défilement horizontal, ouvert sur les mois les plus récents.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [cw, setCw] = useState(0);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setCw(Math.floor(entry.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [data.months.length]);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el && el.scrollWidth > el.clientWidth) el.scrollLeft = el.scrollWidth;
+  }, [cw, data.months.length]);
+
   if (data.months.length === 0)
     return <p className="text-sm text-ink-light">Aucun mouvement daté à afficher.</p>;
 
@@ -967,11 +983,15 @@ function CashFlowChart({
   const padT = 12;
   const padB = 34;
   const plotH = H - padT - padB;
-  const slot = 60;
-  const W = Math.max(320, per.length * slot);
+  // Colonnes resserrées jusqu'à 25 px (9 mois tiennent sur un téléphone de 320 px) ; au-delà, défilement.
+  const MIN_SLOT = 25;
+  const slot = cw > 0 ? Math.max(MIN_SLOT, cw / per.length) : 60;
+  const W = Math.round(per.length * slot);
+  const scrollable = cw > 0 && W > cw + 1;
+  const labelStep = Math.ceil(56 / slot); // une étiquette « janv. 26 » demande environ 56 px
   const y = (v: number) => padT + ((vmax - v) / span) * plotH;
   const y0 = y(0);
-  const bw = 12;
+  const bw = Math.min(12, Math.floor((slot - 6) / 2));
 
   return (
     <div>
@@ -986,7 +1006,7 @@ function CashFlowChart({
           <span className="w-3 h-0.5" style={{ background: C.amberDark }} /> Trésorerie
         </span>
       </div>
-      <div className="overflow-x-auto relative">
+      <div ref={scrollRef} className="overflow-x-auto relative">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           width={W}
@@ -1026,15 +1046,17 @@ function CashFlowChart({
                   rx={2}
                   fill={C.brick}
                 />
-                <text
-                  x={cx}
-                  y={H - 12}
-                  textAnchor="middle"
-                  fontSize={11}
-                  fill={C.inkLight}
-                >
-                  {monthLabel(p.m)}
-                </text>
+                {(per.length - 1 - i) % labelStep === 0 && (
+                  <text
+                    x={Math.min(Math.max(cx, 26), W - 26)}
+                    y={H - 12}
+                    textAnchor="middle"
+                    fontSize={11}
+                    fill={C.inkLight}
+                  >
+                    {monthLabel(p.m)}
+                  </text>
+                )}
               </g>
             );
           })}
@@ -1108,6 +1130,9 @@ function CashFlowChart({
             );
           })()}
       </div>
+      {scrollable && (
+        <p className="text-xs text-ink-light mt-2">← Faites glisser pour voir les mois précédents</p>
+      )}
       <p className="text-sm text-ink-mid mt-3">
         Trésorerie actuelle :{" "}
         <span
@@ -1227,10 +1252,10 @@ function HarvestSummary({
 /* Petite stat pour l'entete */
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-white/10 px-4 py-3">
+    <div className="rounded-xl bg-white/10 px-3 sm:px-4 py-3 min-w-0">
       <div className="text-xs text-white/70 uppercase tracking-wide">{label}</div>
       <div
-        className="text-lg font-bold text-white"
+        className="text-base sm:text-lg font-bold text-white [overflow-wrap:anywhere]"
         style={{ fontFamily: "var(--mono)" }}
       >
         {value}
@@ -1941,7 +1966,34 @@ function ProjectView({
               <ListChecks size={18} className="text-forest" /> Tâches ({tasks.length})
             </h2>
             {tasks.length ? (
-              <div className="overflow-x-auto rounded-xl border border-neutral-mid">
+              <>
+              {/* [collab-v2] Téléphone : une carte par tâche, sans défilement horizontal */}
+              <div className="sm:hidden rounded-xl border border-neutral-mid divide-y divide-neutral-mid overflow-hidden">
+                {tasks.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setOpenTask(t)}
+                    aria-label={`Voir le détail : ${t.name || "tâche"}`}
+                    className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-neutral/60 focus:bg-neutral/60 focus:outline-none transition-colors"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-ink leading-snug [overflow-wrap:anywhere]">{t.name || "—"}</p>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-light">
+                        <TaskStateBadge t={t} />
+                        <span>Échéance {dateFR(t.date_fin)}</span>
+                        {t.quantite_recoltee ? (
+                          <span className="text-ink">
+                            Récolte {t.quantite_recoltee.toLocaleString("fr-FR")} {t.unite_recoltee || ""}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <ChevronRight size={16} className="text-ink-light shrink-0" />
+                  </button>
+                ))}
+              </div>
+              <div className="hidden sm:block overflow-x-auto rounded-xl border border-neutral-mid">
                 <table className="w-full text-sm">
                   <thead className="bg-neutral text-ink-mid">
                     <tr>
@@ -2026,6 +2078,7 @@ function ProjectView({
                   </tbody>
                 </table>
               </div>
+              </>
             ) : (
               <p className="text-sm text-ink-light">Aucune tâche.</p>
             )}
