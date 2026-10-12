@@ -20,6 +20,7 @@ export default function Footer() {
               <a href="mailto:contact@kesselagritech.com" className="text-white/70 hover:text-amber transition-colors block">contact@kesselagritech.com</a>
               <a href="https://wa.me/237659374501" className="text-white/70 hover:text-amber transition-colors block">+237 659 374 501</a>
               <p className="text-white/40">Kribi, Cameroun</p>
+              <p className="text-white/30 text-xs pt-2">ETS KESSELAGRITECH · RCCM CM-DLA-01-2026-A10-01810 · NIU P020018912337M</p>
             </div>
           </div>
 
@@ -40,6 +41,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/contact" className="text-white/60 hover:text-amber transition-colors">Contact</Link></li>
               <li><Link href="/cgu" className="text-white/60 hover:text-amber transition-colors">Conditions d&apos;utilisation</Link></li>
+              <li><Link href="/cgv" className="text-white/60 hover:text-amber transition-colors">Conditions de vente</Link></li>
               <li><Link href="/confidentialite" className="text-white/60 hover:text-amber transition-colors">Confidentialité</Link></li>
               <li><Link href="/mentions-legales" className="text-white/60 hover:text-amber transition-colors">Mentions légales</Link></li>
             </ul>

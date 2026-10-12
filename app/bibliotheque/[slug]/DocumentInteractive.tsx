@@ -370,6 +370,13 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
                   ? "Paiement sécurisé par Mobile Money (MTN / Orange) ou carte bancaire"
                   : "Paiement sécurisé par Mobile Money (MTN / Orange)"}
               </p>
+              <p className="text-xs text-ink-light max-w-md mx-auto">
+                {/* [legal-v2] acceptation des CGV au moment de l'achat */}
+                En cliquant sur « Acheter », tu acceptes les{" "}
+                <Link href="/cgv" className="underline hover:text-amber">conditions générales de vente</Link>{" "}
+                et demandes l&apos;accès immédiat au document : il n&apos;est plus remboursable une fois accessible, sauf cas
+                prévus à l&apos;article 6.
+              </p>
             </div>
           )}
         </div>

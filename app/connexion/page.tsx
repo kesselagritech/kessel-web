@@ -251,6 +251,14 @@ function ConnexionContent() {
             )}
           </div>
 
+          {/* [legal-v2] Rappel des conditions applicables */}
+          <p className="text-center text-xs text-gray-400 mt-6">
+            {mode === "register" ? "En créant un compte, tu acceptes les " : "En utilisant ce compte, tu acceptes les "}
+            <Link href="/cgu" className="underline hover:text-gray-600">CGU</Link>, les{" "}
+            <Link href="/cgv" className="underline hover:text-gray-600">CGV</Link> et la{" "}
+            <Link href="/confidentialite" className="underline hover:text-gray-600">politique de confidentialité</Link>.
+          </p>
+
           {/* Note de clarification */}
           <p className="text-center text-xs text-gray-400 mt-6">
             Ce compte est réservé au site web kesselagritech.com.

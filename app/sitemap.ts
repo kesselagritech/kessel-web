@@ -24,6 +24,8 @@ const routes = [
   "/contact",
   "/cgu",
   "/cgu/en",
+  "/cgv",
+  "/cgv/en",
   "/confidentialite",
   "/confidentialite/en",
   "/mentions-legales",
