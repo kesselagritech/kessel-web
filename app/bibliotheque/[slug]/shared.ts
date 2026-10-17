@@ -25,6 +25,12 @@ export interface DocumentDetail {
   document_categories: { name: string }[] | null;
 }
 
+/** Aperçu gratuit renvoyé par la fonction get_document_preview (texte tronqué côté base). */
+export interface DocumentPreview {
+  preview: string;
+  locked: string[];
+}
+
 export interface RelatedDoc {
   id: string;
   title: string;

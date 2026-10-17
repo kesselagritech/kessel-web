@@ -6,7 +6,7 @@ import { ArrowLeft, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabaseServer } from "@/lib/supabaseServer";
-import { TYPE_CONFIG, DOC_PUBLIC_COLUMNS, formatDateFr, type DocumentDetail } from "./shared";
+import { TYPE_CONFIG, DOC_PUBLIC_COLUMNS, formatDateFr, type DocumentDetail, type DocumentPreview } from "./shared";
 import DocumentInteractive from "./DocumentInteractive";
 
 // ─── Chargement côté serveur (vitrine publique, sans contenu payant) ─────────
@@ -23,6 +23,22 @@ const getDocument = cache(async (slug: string): Promise<DocumentDetail | null> =
   // Erreur réseau/serveur → erreur 500 (Google réessaiera), surtout pas une 404
   if (error) throw new Error(`Chargement document « ${slug} » : ${error.message}`);
   return (data as unknown as DocumentDetail) ?? null;
+});
+
+// Aperçu gratuit : la base ne renvoie que le début du texte (jamais le document entier).
+// En cas d'erreur, la fiche s'affiche quand même, sans aperçu.
+const getPreview = cache(async (documentId: string): Promise<DocumentPreview | null> => {
+  const { data, error } = await supabaseServer.rpc("get_document_preview", { p_document_id: documentId });
+  if (error || !data) {
+    if (error) console.error("get_document_preview:", error.message);
+    return null;
+  }
+  const d = data as { preview?: unknown; locked?: unknown };
+  if (typeof d.preview !== "string") return null;
+  return {
+    preview: d.preview,
+    locked: Array.isArray(d.locked) ? d.locked.filter((x): x is string => typeof x === "string") : [],
+  };
 });
 
 type Props = { params: Promise<{ slug: string }> };
@@ -64,6 +80,7 @@ export default async function DocumentPage({ params }: Props) {
   const { slug } = await params;
   const doc = await getDocument(slug);
   if (!doc) notFound();
+  const preview = await getPreview(doc.id);
 
   const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
   const Icon = config.icon;
@@ -159,7 +176,7 @@ export default async function DocumentPage({ params }: Props) {
               </div>
             }
           >
-            <DocumentInteractive doc={doc} />
+            <DocumentInteractive doc={doc} preview={preview} />
           </Suspense>
         </div>
       </section>

@@ -23,7 +23,7 @@ import {
   RefreshCw,
   Clock,
 } from "lucide-react";
-import { TYPE_CONFIG, type DocumentDetail, type RelatedDoc } from "./shared";
+import { TYPE_CONFIG, type DocumentDetail, type DocumentPreview, type RelatedDoc } from "./shared";
 
 // [camerpay-carte v1] Carte bancaire via CamerPay. Interrupteur NEXT_PUBLIC_CAMERPAY_CARD :
 // "1" = proposée à tous ; "test:adresse@mail" = proposée à ce seul compte (essais) ; vide = masquée.
@@ -40,7 +40,13 @@ function carteVisible(email?: string | null): boolean {
 const XAF_PAR_EUR = 655.957; // taux fixe BEAC appliqué par CamerPay
 type Moyen = "momo" | "carte";
 
-export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
+export default function DocumentInteractive({
+  doc,
+  preview,
+}: {
+  doc: DocumentDetail;
+  preview: DocumentPreview | null;
+}) {
   useScrollReveal();
   const searchParams = useSearchParams();
   const { session } = useAuth();
@@ -264,13 +270,55 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
   const CARTE_ACTIVEE = carteVisible(session?.user?.email);
   const showRelated = hasPurchased && content && !relatedLoading;
 
+  // Aperçu gratuit : affiché dès le rendu serveur (lisible par Google), pendant la
+  // vérification d'achat comme devant le bouton de paiement.
+  const hasPreview = Boolean(preview && preview.preview.trim());
+  const previewBlock = hasPreview && preview ? (
+    <div className="mb-8">
+      <div className="relative bg-white rounded-2xl shadow-sm overflow-hidden">
+        <article
+          className="prose-kessel p-6 md:p-10 pb-24 md:pb-28"
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {preview.preview.replace(/^#\s+.+\n*/m, "")}
+          </ReactMarkdown>
+        </article>
+        {/* Fondu : le texte s'efface là où la lecture devient intéressante */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-white/0 via-white/85 to-white"
+        />
+      </div>
+
+      {preview.locked.length > 0 && (
+        <div className="mt-6 bg-white rounded-2xl shadow-sm p-6 md:p-8">
+          <p className="text-amber font-semibold text-xs uppercase tracking-wider mb-4">
+            La suite du document
+          </p>
+          <ol className="space-y-2.5">
+            {preview.locked.map((titre) => (
+              <li key={titre} className="flex items-start gap-3 text-sm text-forest-dark">
+                <Lock size={15} className="text-ink-light mt-0.5 flex-shrink-0" />
+                <span className="leading-snug">{titre}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </div>
+  ) : null;
+
   return (
     <>
       {checkingPurchase ? (
-        /* ── Vérification en cours ───────────────── */
-        <div className="text-center py-16">
-          <div className="animate-pulse text-ink-light">Vérification…</div>
-        </div>
+        /* ── Vérification en cours (l'aperçu reste visible) ── */
+        <>
+          {previewBlock}
+          <div className="text-center py-10">
+            <div className="animate-pulse text-ink-light">Vérification…</div>
+          </div>
+        </>
 
       ) : hasPurchased && content ? (
         /* ── CONTENU COMPLET (acheté) ────────────── */
@@ -322,7 +370,10 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
         </div>
 
       ) : (
-        /* ── PAYWALL ─────────────────────────────── */
+        <>
+        {previewBlock}
+
+        {/* ── PAYWALL ─────────────────────────────── */}
         <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
           <div className="w-16 h-16 bg-amber-light rounded-full flex items-center justify-center mx-auto mb-6">
             <Lock size={28} className="text-amber" />
@@ -332,7 +383,7 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
             className="text-2xl font-bold text-forest-dark mb-3"
             style={{ fontFamily: "var(--serif)" }}
           >
-            Document payant
+            {hasPreview ? "Envie de lire la suite ?" : "Document payant"}
           </h2>
 
           <p className="text-ink-light mb-2 max-w-md mx-auto">
@@ -439,6 +490,7 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
             </div>
           )}
         </div>
+        </>
       )}
 
       {/* ─── RESSOURCES LIÉES ──────────────────────────────── */}
