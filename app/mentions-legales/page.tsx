@@ -36,7 +36,7 @@ export default function MentionsLegalesPage() {
           <p className="text-ink-mid">Serveurs situés aux États-Unis (Oregon) · supabase.com</p>
         </Box>
         <P last>
-          Les paiements de la bibliothèque sont traités par <strong>CamPay</strong> (Cameroun). La liste complète de nos
+          Les paiements de la bibliothèque sont traités par <strong>CamPay</strong> (Mobile Money) et <strong>CamerPay</strong> (carte bancaire), tous deux au Cameroun. La liste complète de nos
           prestataires figure dans la{" "}
           <Link href="/confidentialite" className="text-amber hover:underline">Politique de confidentialité</Link>.
         </P>

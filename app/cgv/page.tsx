@@ -13,16 +13,16 @@ export default function CGVPage() {
       accent="de vente."
       meta={
         <>
-          Version 1.0 · En vigueur le 12 octobre 2026 ·{" "}
+          Version 1.1 · En vigueur le 17 octobre 2026 ·{" "}
           <Link href="/cgv/en" className="underline hover:text-amber">English version</Link>
         </>
       }
-      footerNote="Dernière mise à jour : 12 octobre 2026 · Version 1.0"
+      footerNote="Dernière mise à jour : 17 octobre 2026 · Version 1.1"
     >
       <div className="reveal">
         <P last>
           Les présentes Conditions générales de vente (« <strong>CGV</strong> ») s&apos;appliquent à tout achat de document de la{" "}
-          <strong>bibliothèque Kessel</strong> sur kesselagritech.com. Cliquer sur « Acheter » vaut acceptation des CGV en vigueur
+          <strong>bibliothèque Kessel</strong> sur kesselagritech.com. Cliquer sur « Acheter » (ou sur le bouton du moyen de paiement choisi) vaut acceptation des CGV en vigueur
           à ce moment. Elles complètent les{" "}
           <Link href="/cgu" className="text-amber hover:underline">Conditions générales d&apos;utilisation</Link> et la{" "}
           <Link href="/confidentialite" className="text-amber hover:underline">Politique de confidentialité</Link>.
@@ -49,8 +49,9 @@ export default function CGVPage() {
         <List
           items={[
             "Les prix sont indiqués en francs CFA (FCFA) sur chaque fiche, avant tout paiement.",
-            "Le prix payé est celui affiché au moment où vous cliquez sur « Acheter ». Kessel n'ajoute aucun frais.",
+            "Le prix payé est celui affiché au moment où vous cliquez sur « Acheter » (ou sur le bouton du moyen de paiement choisi). Kessel n'ajoute aucun frais.",
             "Les frais éventuellement prélevés par votre opérateur Mobile Money ou votre banque ne dépendent pas de Kessel.",
+            "Par carte bancaire, le montant est présenté en euros au taux fixe 1 € = 655,957 FCFA ; d'éventuels frais de change de votre banque ne dépendent pas de Kessel.",
             "Kessel peut modifier ses prix à tout moment ; un changement ne s'applique jamais à un achat déjà payé.",
           ]}
         />
@@ -60,8 +61,8 @@ export default function CGVPage() {
         <List
           items={[
             "Un compte du site (adresse e-mail et mot de passe) est nécessaire. Il est distinct de votre compte de l'application mobile.",
-            "Le paiement se fait sur la page sécurisée de notre prestataire CamPay : Mobile Money (MTN, Orange) et, lorsqu'elle est proposée, carte bancaire.",
-            "L'achat n'est validé qu'après confirmation du paiement par CamPay, vérifiée par nos serveurs. Un simple retour sur le site ne suffit pas.",
+            "Le paiement se fait sur la page sécurisée de nos prestataires : CamPay pour le Mobile Money (MTN, Orange) et, lorsqu'elle est proposée, CamerPay pour la carte bancaire (Visa, Mastercard, traitée par Stripe).",
+            "L'achat n'est validé qu'après confirmation du paiement par le prestataire, vérifiée par nos serveurs. Un simple retour sur le site ne suffit pas.",
             "Avec Orange Money, la confirmation peut arriver avec retard si la transaction est validée plus tard sur votre téléphone : le document se débloque alors automatiquement.",
           ]}
         />
@@ -69,7 +70,7 @@ export default function CGVPage() {
           <p className="text-forest-dark font-semibold">Votre compte a été débité mais le document reste verrouillé ?</p>
           <p className="text-ink-mid text-sm">
             Écrivez à {MAIL} ou sur WhatsApp au {EDITOR.phone} en indiquant l&apos;adresse e-mail de votre compte, le document,
-            la date et la référence de la transaction reçue par SMS. Nous vérifions auprès de CamPay et débloquons le document ou
+            la date et la référence de la transaction (reçue par SMS ou par e-mail). Nous vérifions auprès du prestataire et débloquons le document ou
             vous remboursons.
           </p>
         </Box>
@@ -90,7 +91,7 @@ export default function CGVPage() {
       <Section title="6. Rétractation et remboursement">
         <P>
           Le document est un contenu numérique fourni immédiatement, à votre demande, dès le paiement confirmé. En cliquant sur
-          « Acheter », vous demandez cet accès immédiat : <strong>aucun remboursement n&apos;est dû une fois le document
+          « Acheter » (ou sur le bouton du moyen de paiement choisi), vous demandez cet accès immédiat : <strong>aucun remboursement n&apos;est dû une fois le document
           accessible</strong>, sauf dans les cas suivants.
         </P>
         <List

@@ -1,7 +1,8 @@
-// app/api/campay/initiate/route.ts — Lancer un paiement CamPay — [campay-live v1]
+// app/api/campay/initiate/route.ts — Lancer un paiement CamPay (Mobile Money) — [campay-live v1 + camerpay-carte v1]
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient, getUserFromRequest } from '@/lib/supabase-server'
-import { createPaymentLink, confirmPurchase } from '@/lib/campay'
+import { createPaymentLink } from '@/lib/campay'
+import { solderTentativesEnAttente } from '@/lib/paiement'
 
 export const runtime = 'nodejs'
 
@@ -53,29 +54,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Document déjà acheté' }, { status: 409 })
     }
 
-    // 5. Anciennes tentatives restées « pending » : on NE les supprime PAS à l'aveugle.
-    //    Un paiement Orange peut être validé en retard (#150*50#) : on redemande d'abord
-    //    à CamPay. Si l'une a finalement réussi → document débloqué, pas de double débit.
-    const { data: olds } = await supabase
-      .from('document_purchases')
-      .select('id, payment_method')
-      .eq('user_id', user.id)
-      .eq('document_id', documentId)
-      .eq('payment_status', 'pending')
-
-    for (const old of olds || []) {
-      if (old.payment_method === 'campay') {
-        const r = await confirmPurchase(supabase, old.id)
-        if (r === 'completed') {
-          return NextResponse.json({ error: 'Document déjà acheté' }, { status: 409 })
-        }
-      }
-      // Tentative abandonnée → classée « failed » (trace conservée, rattrapable par CamPay)
-      await supabase
-        .from('document_purchases')
-        .update({ payment_status: 'failed' })
-        .eq('id', old.id)
-        .eq('payment_status', 'pending')
+    // 5. Anciennes tentatives restées « pending » (Mobile Money OU carte) : on redemande
+    //    d'abord au bon prestataire. Si l'une a finalement réussi → pas de double débit.
+    if (await solderTentativesEnAttente(supabase, user.id, documentId)) {
+      return NextResponse.json({ error: 'Document déjà acheté' }, { status: 409 })
     }
 
     // 6. Créer l'achat en attente

@@ -14,11 +14,11 @@ export default function CGUPage() {
       accent="d'utilisation."
       meta={
         <>
-          Version 2.0 · Publiée le 12 octobre 2026 ·{" "}
+          Version 2.1 · Publiée le 17 octobre 2026 ·{" "}
           <Link href="/cgu/en" className="underline hover:text-amber">English version</Link>
         </>
       }
-      footerNote="Dernière mise à jour : 12 octobre 2026 · Version 2.0"
+      footerNote="Dernière mise à jour : 17 octobre 2026 · Version 2.1"
     >
       <div className="reveal">
         <P last>
@@ -98,7 +98,7 @@ export default function CGUPage() {
         <List
           items={[
             "Le prix est affiché en FCFA sur chaque fiche, avant paiement.",
-            "Le paiement se fait via CamPay : Mobile Money (MTN, Orange) et, lorsqu'elle est proposée, carte bancaire.",
+            "Le paiement se fait via CamPay pour le Mobile Money (MTN, Orange) et, lorsqu'elle est proposée, via CamerPay pour la carte bancaire.",
             "Le document se lit en ligne depuis votre compte du site, mises à jour comprises.",
             "Pas de remboursement une fois le document accessible, sauf double paiement, paiement sans accès ou document non conforme.",
             "Usage personnel ou professionnel interne uniquement : ni revente, ni partage, ni diffusion.",

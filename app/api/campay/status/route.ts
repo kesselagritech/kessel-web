@@ -1,7 +1,8 @@
-// app/api/campay/status/route.ts — Statut d'un achat (polling de la fiche) — [campay-live v1]
+// app/api/campay/status/route.ts — Statut d'un achat (polling de la fiche) — [campay-live v1 + camerpay-carte v1]
+// Sert aux deux prestataires : l'achat porte son prestataire (payment_method), on revérifie auprès du bon.
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient, getUserFromRequest } from '@/lib/supabase-server'
-import { confirmPurchase } from '@/lib/campay'
+import { confirmAnyPurchase } from '@/lib/paiement'
 
 export const runtime = 'nodejs'
 
@@ -37,8 +38,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ status: 'completed' })
     }
 
-    // 4. Pas encore tranché → on redemande à CamPay (mêmes contrôles que le webhook)
-    const status = await confirmPurchase(supabase, purchaseId)
+    // 4. Pas encore tranché → on redemande au prestataire (mêmes contrôles que le webhook)
+    const status = await confirmAnyPurchase(supabase, purchaseId)
     return NextResponse.json({ status })
   } catch (err) {
     console.error('[CAMPAY/status] Erreur:', err)

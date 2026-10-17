@@ -14,16 +14,16 @@ export default function TermsOfSaleEnPage() {
       accent="Sale."
       meta={
         <>
-          Version 1.0 · Effective October 12, 2026 ·{" "}
+          Version 1.1 · Effective October 17, 2026 ·{" "}
           <Link href="/cgv" className="underline hover:text-amber">Version française</Link>
         </>
       }
-      footerNote="Last updated: October 12, 2026 · Version 1.0 · The French version prevails in case of discrepancy."
+      footerNote="Last updated: October 17, 2026 · Version 1.1 · The French version prevails in case of discrepancy."
     >
       <div className="reveal">
         <P last>
           These Terms of Sale apply to any purchase of a document from the <strong>Kessel library</strong> on
-          kesselagritech.com. Clicking &quot;Buy&quot; means accepting the Terms of Sale in force at that moment. They complement
+          kesselagritech.com. Clicking &quot;Buy&quot; (or the button of the chosen payment method) means accepting the Terms of Sale in force at that moment. They complement
           the <Link href="/cgu/en" className="text-amber hover:underline">Terms of Use</Link> and the{" "}
           <Link href="/confidentialite/en" className="text-amber hover:underline">Privacy Policy</Link>.
         </P>
@@ -49,8 +49,9 @@ export default function TermsOfSaleEnPage() {
         <List
           items={[
             "Prices are shown in CFA francs (FCFA) on each document page, before any payment.",
-            "The price paid is the one shown when you click \"Buy\". Kessel adds no fee.",
+            "The price paid is the one shown when you click \"Buy\" (or the button of the chosen payment method). Kessel adds no fee.",
             "Any fees charged by your Mobile Money operator or bank do not depend on Kessel.",
+            "By bank card, the amount is shown in euros at the fixed rate of 1 € = 655.957 FCFA; any currency conversion fees charged by your bank do not depend on Kessel.",
             "Kessel may change its prices at any time; a change never applies to a purchase already paid.",
           ]}
         />
@@ -60,8 +61,8 @@ export default function TermsOfSaleEnPage() {
         <List
           items={[
             "A website account (email and password) is required. It is separate from your mobile app account.",
-            "Payment is made on the secure page of our provider CamPay: Mobile Money (MTN, Orange) and, where offered, bank card.",
-            "A purchase is only confirmed once CamPay confirms the payment and our servers verify it. Returning to the website is not enough.",
+            "Payment is made on the secure page of our providers: CamPay for Mobile Money (MTN, Orange) and, where offered, CamerPay for bank cards (Visa, Mastercard, processed by Stripe).",
+            "A purchase is only confirmed once the provider confirms the payment and our servers verify it. Returning to the website is not enough.",
             "With Orange Money, confirmation may arrive late if you approve the transaction later on your phone: the document then unlocks automatically.",
           ]}
         />
@@ -69,7 +70,7 @@ export default function TermsOfSaleEnPage() {
           <p className="text-forest-dark font-semibold">Charged but the document is still locked?</p>
           <p className="text-ink-mid text-sm">
             Write to {MAIL} or on WhatsApp at {EDITOR.phone} with your account email, the document, the date and the transaction
-            reference received by SMS. We check with CamPay and either unlock the document or refund you.
+            reference (received by SMS or email). We check with the provider and either unlock the document or refund you.
           </p>
         </Box>
       </Section>
@@ -89,7 +90,7 @@ export default function TermsOfSaleEnPage() {
       <Section title="6. Withdrawal and refunds">
         <P>
           The document is digital content supplied immediately, at your request, once payment is confirmed. By clicking
-          &quot;Buy&quot;, you request this immediate access: <strong>no refund is due once the document is accessible</strong>,
+          &quot;Buy&quot; (or the button of the chosen payment method), you request this immediate access: <strong>no refund is due once the document is accessible</strong>,
           except in the following cases.
         </P>
         <List

@@ -18,6 +18,8 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 /** Moyens de paiement proposés sur la page CamPay. Valeurs admises : MOMO, CARD. */
 export function paymentOptions(): string {
+  // [camerpay-carte v1] Quand la carte passe par CamerPay, CamPay reste en Mobile Money seul.
+  if ((process.env.NEXT_PUBLIC_CAMERPAY_CARD || '').trim() !== '') return 'MOMO'
   const raw = (process.env.NEXT_PUBLIC_CAMPAY_PAYMENT_OPTIONS || 'MOMO').toUpperCase()
   const opts = raw.split(',').map((s) => s.trim()).filter((s) => s === 'MOMO' || s === 'CARD')
   return opts.length ? Array.from(new Set(opts)).join(',') : 'MOMO'

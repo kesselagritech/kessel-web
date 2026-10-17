@@ -1,7 +1,7 @@
 "use client";
 
-// Partie interactive de la fiche : vérification d'achat, paiement CamPay,
-// contenu payant (RPC sécurisée), ressources liées.
+// Partie interactive de la fiche : vérification d'achat, paiement (CamPay pour le
+// Mobile Money, CamerPay pour la carte bancaire), contenu payant (RPC sécurisée), ressources liées.
 // Logique reprise à l'identique de l'ancienne page ; seul le chargement de la
 // vitrine (titre, description…) a été déplacé côté serveur (page.tsx).
 
@@ -19,10 +19,26 @@ import {
   LogIn,
   GraduationCap,
   CreditCard,
+  Smartphone,
   RefreshCw,
   Clock,
 } from "lucide-react";
 import { TYPE_CONFIG, type DocumentDetail, type RelatedDoc } from "./shared";
+
+// [camerpay-carte v1] Carte bancaire via CamerPay. Interrupteur NEXT_PUBLIC_CAMERPAY_CARD :
+// "1" = proposée à tous ; "test:adresse@mail" = proposée à ce seul compte (essais) ; vide = masquée.
+// Même règle que carteActivee() côté serveur (lib/camerpay.ts), qui reste seule juge.
+const CARTE_REGLE = (process.env.NEXT_PUBLIC_CAMERPAY_CARD || "").trim();
+function carteVisible(email?: string | null): boolean {
+  if (CARTE_REGLE === "1") return true;
+  if (CARTE_REGLE.toLowerCase().startsWith("test:")) {
+    const testeur = CARTE_REGLE.slice(5).trim().toLowerCase();
+    return Boolean(testeur) && (email || "").trim().toLowerCase() === testeur;
+  }
+  return false;
+}
+const XAF_PAR_EUR = 655.957; // taux fixe BEAC appliqué par CamerPay
+type Moyen = "momo" | "carte";
 
 export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
   useScrollReveal();
@@ -33,8 +49,8 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [checkingPurchase, setCheckingPurchase] = useState(true);
 
-  // États paiement CamPay
-  const [paymentLoading, setPaymentLoading] = useState(false);
+  // États paiement (Mobile Money CamPay / carte CamerPay)
+  const [paymentLoading, setPaymentLoading] = useState<Moyen | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
 
@@ -205,15 +221,16 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
     loadRelated();
   }, [doc.id, doc.type, doc.slug, doc.speculation]);
 
-  // ─── Lancer le paiement CamPay ──────────────────────────
-  const handlePurchase = useCallback(async () => {
+  // ─── Lancer le paiement (Mobile Money → CamPay, carte → CamerPay) ──
+  const handlePurchase = useCallback(async (moyen: Moyen) => {
     if (!session?.access_token) return;
 
-    setPaymentLoading(true);
+    setPaymentLoading(moyen);
     setPaymentError(null);
 
     try {
-      const res = await fetch("/api/campay/initiate", {
+      const endpoint = moyen === "carte" ? "/api/camerpay/initiate" : "/api/campay/initiate";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -231,19 +248,20 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
           return;
         }
         setPaymentError(data.error || "Erreur lors du paiement");
-        setPaymentLoading(false);
+        setPaymentLoading(null);
         return;
       }
 
-      // Rediriger vers la page de paiement CamPay
+      // Rediriger vers la page de paiement du prestataire
       window.location.href = data.paymentUrl;
     } catch {
       setPaymentError("Erreur de connexion. Vérifie ton accès internet.");
-      setPaymentLoading(false);
+      setPaymentLoading(null);
     }
   }, [session, doc.id]);
 
   const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
+  const CARTE_ACTIVEE = carteVisible(session?.user?.email);
   const showRelated = hasPurchased && content && !relatedLoading;
 
   return (
@@ -275,7 +293,7 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
             Vérification du paiement…
           </h2>
           <p className="text-ink-light max-w-md mx-auto">
-            Nous confirmons ton paiement auprès de ton opérateur. Cela peut prendre quelques secondes.
+            Nous confirmons ton paiement auprès du prestataire de paiement. Cela peut prendre quelques secondes.
           </p>
         </div>
 
@@ -351,28 +369,69 @@ export default function DocumentInteractive({ doc }: { doc: DocumentDetail }) {
                   {paymentError}
                 </p>
               )}
-              <button
-                onClick={handlePurchase}
-                disabled={paymentLoading}
-                className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-              >
-                {paymentLoading ? (
-                  <span className="animate-pulse">Redirection vers le paiement…</span>
-                ) : (
-                  <>
-                    <CreditCard size={18} />
-                    {`Acheter — ${doc.price.toLocaleString("fr-FR")} FCFA`}
-                  </>
-                )}
-              </button>
-              <p className="text-sm text-ink-light">
-                {(process.env.NEXT_PUBLIC_CAMPAY_PAYMENT_OPTIONS || "").toUpperCase().includes("CARD")
-                  ? "Paiement sécurisé par Mobile Money (MTN / Orange) ou carte bancaire"
-                  : "Paiement sécurisé par Mobile Money (MTN / Orange)"}
-              </p>
+              {CARTE_ACTIVEE ? (
+                /* Deux moyens : Mobile Money (CamPay) ou carte bancaire (CamerPay) */
+                <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-xl mx-auto">
+                  <button
+                    onClick={() => handlePurchase("momo")}
+                    disabled={paymentLoading !== null}
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  >
+                    {paymentLoading === "momo" ? (
+                      <span className="animate-pulse">Redirection…</span>
+                    ) : (
+                      <>
+                        <Smartphone size={18} />
+                        Mobile Money
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handlePurchase("carte")}
+                    disabled={paymentLoading !== null}
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  >
+                    {paymentLoading === "carte" ? (
+                      <span className="animate-pulse">Redirection…</span>
+                    ) : (
+                      <>
+                        <CreditCard size={18} />
+                        Carte bancaire
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => handlePurchase("momo")}
+                  disabled={paymentLoading !== null}
+                  className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                >
+                  {paymentLoading ? (
+                    <span className="animate-pulse">Redirection vers le paiement…</span>
+                  ) : (
+                    <>
+                      <CreditCard size={18} />
+                      {`Acheter — ${doc.price.toLocaleString("fr-FR")} FCFA`}
+                    </>
+                  )}
+                </button>
+              )}
+              {CARTE_ACTIVEE ? (
+                <p className="text-sm text-ink-light max-w-md mx-auto">
+                  Mobile Money : MTN ou Orange.
+                  {" "}Carte : Visa ou Mastercard, montant présenté en euros (≈{" "}
+                  {(doc.price / XAF_PAR_EUR).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                  €, taux fixe 1 € = 655,957 FCFA).
+                </p>
+              ) : (
+                <p className="text-sm text-ink-light">
+                  Paiement sécurisé par Mobile Money (MTN / Orange)
+                </p>
+              )}
               <p className="text-xs text-ink-light max-w-md mx-auto">
                 {/* [legal-v2] acceptation des CGV au moment de l'achat */}
-                En cliquant sur « Acheter », tu acceptes les{" "}
+                {CARTE_ACTIVEE ? "En choisissant un moyen de paiement" : "En cliquant sur « Acheter »"}, tu acceptes les{" "}
                 <Link href="/cgv" className="underline hover:text-amber">conditions générales de vente</Link>{" "}
                 et demandes l&apos;accès immédiat au document : il n&apos;est plus remboursable une fois accessible, sauf cas
                 prévus à l&apos;article 6.
