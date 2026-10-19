@@ -1,5 +1,5 @@
 "use client";
-// app/cgv/page.tsx — Conditions générales de vente (bibliothèque) v1.0 — [legal-v2]
+// app/cgv/page.tsx — Conditions générales de vente (bibliothèque) v1.2 — [legal-v2] [nokash-v1]
 
 import Link from "next/link";
 import { LegalShell, Section, H3, P, A, List, Box, EditorBox, EDITOR } from "@/components/legal/LegalShell";
@@ -13,11 +13,11 @@ export default function CGVPage() {
       accent="de vente."
       meta={
         <>
-          Version 1.1 · En vigueur le 17 octobre 2026 ·{" "}
+          Version 1.2 · En vigueur le 19 octobre 2026 ·{" "}
           <Link href="/cgv/en" className="underline hover:text-amber">English version</Link>
         </>
       }
-      footerNote="Dernière mise à jour : 17 octobre 2026 · Version 1.1"
+      footerNote="Dernière mise à jour : 19 octobre 2026 · Version 1.2"
     >
       <div className="reveal">
         <P last>
@@ -41,7 +41,7 @@ export default function CGVPage() {
         </P>
         <P last>
           Un document acheté se lit <strong>en ligne, sur le site</strong>, depuis votre compte. Aucun fichier n&apos;est
-          téléchargé ni envoyé par e-mail.
+          téléchargé ni envoyé par e-mail, et aucun bien physique n&apos;est livré.
         </P>
       </Section>
 
@@ -50,8 +50,7 @@ export default function CGVPage() {
           items={[
             "Les prix sont indiqués en francs CFA (FCFA) sur chaque fiche, avant tout paiement.",
             "Le prix payé est celui affiché au moment où vous cliquez sur « Acheter » (ou sur le bouton du moyen de paiement choisi). Kessel n'ajoute aucun frais.",
-            "Les frais éventuellement prélevés par votre opérateur Mobile Money ou votre banque ne dépendent pas de Kessel.",
-            "Par carte bancaire, le montant est présenté en euros au taux fixe 1 € = 655,957 FCFA ; d'éventuels frais de change de votre banque ne dépendent pas de Kessel.",
+            "Le paiement est facturé en FCFA, y compris par carte bancaire. Les frais éventuels de votre opérateur Mobile Money ou de votre banque, dont les frais de change pour une carte émise hors zone FCFA, ne dépendent pas de Kessel.",
             "Kessel peut modifier ses prix à tout moment ; un changement ne s'applique jamais à un achat déjà payé.",
           ]}
         />
@@ -61,25 +60,26 @@ export default function CGVPage() {
         <List
           items={[
             "Un compte du site (adresse e-mail et mot de passe) est nécessaire. Il est distinct de votre compte de l'application mobile.",
-            "Le paiement se fait sur la page sécurisée de nos prestataires : CamPay pour le Mobile Money (MTN, Orange) et, lorsqu'elle est proposée, CamerPay pour la carte bancaire (Visa, Mastercard, traitée par Stripe).",
-            "L'achat n'est validé qu'après confirmation du paiement par le prestataire, vérifiée par nos serveurs. Un simple retour sur le site ne suffit pas.",
-            "Avec Orange Money, la confirmation peut arriver avec retard si la transaction est validée plus tard sur votre téléphone : le document se débloque alors automatiquement.",
+            "Le paiement se fait sur la page sécurisée de notre prestataire de paiement NOKASH, par Mobile Money (Orange Money, MTN Mobile Money) ou par carte bancaire (Visa, Mastercard). Kessel ne reçoit ni ne conserve jamais les données de votre carte.",
+            "L'achat n'est validé qu'après confirmation du paiement par NOKASH, vérifiée par nos serveurs. Un simple retour sur le site ne suffit pas.",
+            "Avec le Mobile Money, la confirmation peut arriver avec retard si la transaction est validée plus tard sur votre téléphone : le document se débloque alors automatiquement.",
           ]}
         />
         <Box tone="amber">
           <p className="text-forest-dark font-semibold">Votre compte a été débité mais le document reste verrouillé ?</p>
           <p className="text-ink-mid text-sm">
             Écrivez à {MAIL} ou sur WhatsApp au {EDITOR.phone} en indiquant l&apos;adresse e-mail de votre compte, le document,
-            la date et la référence de la transaction (reçue par SMS ou par e-mail). Nous vérifions auprès du prestataire et débloquons le document ou
+            la date et la référence de la transaction (reçue par SMS ou par e-mail). Nous vérifions auprès de NOKASH et débloquons le document ou
             vous remboursons.
           </p>
         </Box>
       </Section>
 
-      <Section title="5. Accès au document">
+      <Section title="5. Livraison et accès au document">
         <List
           items={[
-            "L'accès est ouvert dès la confirmation du paiement et reste disponible dans « Mes achats ».",
+            "Délai de livraison : l'accès est ouvert immédiatement dès la confirmation du paiement, dans l'espace « Mes achats ».",
+            "Modalité : lecture en ligne sur le site, depuis votre compte, sur ordinateur ou téléphone.",
             "L'accès est personnel et lié à votre compte. Il dure aussi longtemps que votre compte existe et que la bibliothèque est exploitée.",
             "Les mises à jour d'un document acheté sont incluses, sans frais supplémentaires.",
             "Votre compte du site n'est jamais supprimé pour inactivité. Si vous demandez sa suppression, l'accès à vos achats est définitivement perdu.",
@@ -88,22 +88,39 @@ export default function CGVPage() {
         />
       </Section>
 
-      <Section title="6. Rétractation et remboursement">
+      <Section title="6. Annulation, rétractation et remboursement">
+        <H3>6.1 Annulation avant paiement</H3>
+        <P>
+          Tant que le paiement n&apos;est pas confirmé, vous pouvez abandonner l&apos;achat sans frais : fermez la page de paiement
+          ou ne validez pas la transaction sur votre téléphone. Aucun montant n&apos;est alors débité et aucun achat n&apos;est enregistré.
+        </P>
+        <H3>6.2 Pas de rétractation après l&apos;accès</H3>
         <P>
           Le document est un contenu numérique fourni immédiatement, à votre demande, dès le paiement confirmé. En cliquant sur
           « Acheter » (ou sur le bouton du moyen de paiement choisi), vous demandez cet accès immédiat : <strong>aucun remboursement n&apos;est dû une fois le document
-          accessible</strong>, sauf dans les cas suivants.
+          accessible</strong>, sauf dans les cas prévus au point 6.3.
         </P>
+        <H3>6.3 Cas de remboursement</H3>
         <List
           items={[
             "Double paiement pour le même document.",
             "Paiement débité sans que le document soit débloqué, sans solution dans les 7 jours suivant votre réclamation.",
             "Document retiré de la bibliothèque, illisible, ou manifestement différent de sa description.",
+            "Paiement par carte effectué sans l'autorisation du titulaire de la carte (point 6.5).",
           ]}
         />
+        <H3>6.4 Procédure</H3>
+        <P>
+          La demande se fait à {MAIL} dans les 30 jours suivant l&apos;achat, avec l&apos;adresse e-mail du compte, le document,
+          la date et la référence de la transaction. Un remboursement accepté est versé sous 14 jours, par le moyen de paiement
+          utilisé (carte ou compte Mobile Money débité), via NOKASH. L&apos;accès au document remboursé est alors retiré du compte.
+        </P>
+        <H3>6.5 Paiement contesté ou frauduleux</H3>
         <P last>
-          La demande se fait à {MAIL} dans les 30 jours suivant l&apos;achat. Un remboursement accepté est versé sous 14 jours,
-          si possible par le moyen de paiement utilisé.
+          Si le titulaire d&apos;une carte ou d&apos;un compte Mobile Money signale un paiement qu&apos;il n&apos;a pas autorisé,
+          Kessel suspend sans délai l&apos;accès au document concerné, vérifie la transaction avec NOKASH, rembourse le paiement
+          reconnu frauduleux et peut bloquer le compte utilisé. Kessel conserve les éléments de preuve de l&apos;achat (date,
+          compte, référence de transaction, accès au document) et les transmet à NOKASH en cas de contestation.
         </P>
       </Section>
 
@@ -140,7 +157,7 @@ export default function CGVPage() {
         </P>
       </Section>
 
-      <Section title="9. Réclamations">
+      <Section title="9. Service client et réclamations">
         <P last>
           Toute réclamation s&apos;adresse à {MAIL} ou sur WhatsApp au {EDITOR.phone}. Nous répondons sous 15 jours au plus.
         </P>

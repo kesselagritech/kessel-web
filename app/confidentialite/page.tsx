@@ -1,5 +1,5 @@
 "use client";
-// app/confidentialite/page.tsx — Politique de confidentialité v2.0 — [legal-v2]
+// app/confidentialite/page.tsx — Politique de confidentialité v2.3 — [legal-v2] [nokash-v1]
 
 import Link from "next/link";
 import { LegalShell, Section, H3, P, A, List, Table, Box, EditorBox, EDITOR } from "@/components/legal/LegalShell";
@@ -13,11 +13,11 @@ export default function ConfidentialitePage() {
       accent="confidentialité."
       meta={
         <>
-          Version 2.2 · Mise à jour le 17 octobre 2026 ·{" "}
+          Version 2.3 · Mise à jour le 19 octobre 2026 ·{" "}
           <Link href="/confidentialite/en" className="underline hover:text-amber">English version</Link>
         </>
       }
-      footerNote="Dernière mise à jour : 17 octobre 2026 · Version 2.2"
+      footerNote="Dernière mise à jour : 19 octobre 2026 · Version 2.3"
     >
       <div className="reveal">
         <P last>
@@ -67,7 +67,7 @@ export default function ConfidentialitePage() {
           head={["Catégorie", "Données"]}
           rows={[
             ["Compte du site", "Adresse e-mail et mot de passe (conservé sous forme hachée). Ce compte est distinct de celui de l'application."],
-            ["Achats", "Document acheté, montant, date, statut du paiement, prestataire et référence de transaction (CamPay ou CamerPay), opérateur utilisé. Pour un paiement par carte, votre adresse e-mail est transmise à CamerPay."],
+            ["Achats", "Document acheté, montant, date, statut du paiement, prestataire et référence de transaction (NOKASH), opérateur ou type de carte utilisé, historique des consultations du document acheté. Votre adresse e-mail est transmise à NOKASH pour le paiement."],
             ["Mesure d'audience", "Pages consultées (adresse de la page, sans paramètres), identifiant aléatoire enregistré dans votre navigateur, adresse IP, pays et ville déduits de l'adresse IP, type d'appareil, site d'origine. Si vous êtes connecté, ces visites sont rattachées à votre compte."],
             ["Lecture des fiches", "Nombre de consultations de chaque fiche, compté par session de navigation"],
             ["Formulaire de contact", "Nom, e-mail, téléphone (facultatif), sujet et message"],
@@ -92,7 +92,7 @@ export default function ConfidentialitePage() {
             "Le carnet de contacts de votre téléphone.",
             "Les photos ou fichiers de votre téléphone autres que ceux pris dans l'application.",
             "Vos données biométriques.",
-            "Vos numéros de carte bancaire ou votre code Mobile Money : ils sont saisis sur la page sécurisée du prestataire de paiement (CamPay ou CamerPay), jamais chez nous.",
+            "Vos numéros de carte bancaire ou votre code Mobile Money : ils sont saisis sur la page sécurisée du prestataire de paiement (NOKASH), jamais chez nous.",
             "Votre navigation sur d'autres sites.",
           ]}
         />
@@ -107,7 +107,7 @@ export default function ConfidentialitePage() {
             ["Géolocaliser les photos, accéder à la caméra, envoyer des notifications", "Votre consentement, retirable à tout moment dans les réglages du téléphone"],
             ["Partager une exploitation avec un collaborateur", "Choix du promoteur (exécution du contrat)"],
             ["Mesurer l'audience du site et améliorer nos contenus", "Intérêt légitime ; vous pouvez vous y opposer (section 12)"],
-            ["Sécurité, prévention de la fraude, diagnostic des pannes", "Intérêt légitime"],
+            ["Sécurité, prévention de la fraude (dont la preuve des achats en cas de paiement contesté), diagnostic des pannes", "Intérêt légitime"],
             ["Conserver les pièces des achats", "Obligation légale (comptabilité)"],
             ["Répondre à vos messages", "Votre demande"],
           ]}
@@ -139,8 +139,7 @@ export default function ConfidentialitePage() {
           rows={[
             ["Supabase Inc.", "Base de données, authentification, e-mails de compte, stockage des photos et documents", "États-Unis (Oregon)"],
             ["Vercel Inc.", "Hébergement du site, mesure d'audience agrégée", "États-Unis, réseau mondial"],
-            ["CamPay", "Paiement Mobile Money de la bibliothèque", "Cameroun"],
-            ["CamerPay (et son partenaire Stripe)", "Paiement par carte bancaire de la bibliothèque", "Cameroun ; Stripe : États-Unis, Union européenne"],
+            ["NOKASH", "Paiement de la bibliothèque (Mobile Money et carte bancaire), vérification des paiements contestés", "Cameroun"],
             ["Resend", "Acheminement des messages du formulaire de contact", "États-Unis"],
             ["Expo (EAS), Google (FCM), Apple (APNs)", "Acheminement des notifications de l'application", "États-Unis"],
             ["Sentry", "Diagnostic des pannes de l'application", "Union européenne"],
@@ -168,7 +167,7 @@ export default function ConfidentialitePage() {
             ["Compte de l'application supprimé à votre demande", "Compte et projets effacés de nos bases dès la demande ; photos et copies de sauvegarde effacées sous 30 jours au plus"],
             ["Compte du site (bibliothèque)", "Jamais supprimé pour inactivité, afin de préserver l'accès à vos achats ; supprimé à votre demande"],
             ["Pièces des achats", "10 ans, même après suppression du compte (obligation comptable)"],
-            ["Mesure d'audience du site", "60 jours"],
+            ["Mesure d'audience du site (adresse IP, pays, appareil)", "180 jours, pour la mesure d'audience et la preuve des achats en cas de paiement contesté"],
             ["Tentatives de connexion (sécurité)", "30 jours"],
             ["Données de connexion (adresse IP, appareil)", "90 jours au plus après la fin de la session"],
             ["Suggestions envoyées depuis l'application", "Conservées pour améliorer le service ; nom et numéro retirés à la suppression du compte"],
@@ -206,7 +205,7 @@ export default function ConfidentialitePage() {
             "Échanges chiffrés pendant leur transport entre votre appareil et nos serveurs (HTTPS).",
             "Codes PIN et mots de passe conservés uniquement sous forme hachée et salée.",
             "Règles d'accès en base de données : chaque compte ne voit que les données qui le concernent.",
-            "Paiements vérifiés directement auprès du prestataire (CamPay ou CamerPay) avant tout déblocage de document.",
+            "Paiements vérifiés directement auprès du prestataire de paiement (NOKASH) avant tout déblocage de document.",
             "Données chiffrées au repos chez notre hébergeur de base de données.",
           ]}
         />

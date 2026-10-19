@@ -31,7 +31,7 @@ const faqs: { q: string; a: ReactNode }[] = [
   },
   {
     q: "Comment acheter un document de la bibliothèque ?",
-    a: "Connectez-vous avec votre compte du site, ouvrez la fiche puis choisissez votre moyen de paiement. Le Mobile Money (MTN ou Orange) se règle sur la page sécurisée de CamPay ; la carte bancaire, lorsqu'elle est proposée, sur celle de CamerPay (montant présenté en euros). Le document se débloque dès que le paiement est confirmé.",
+    a: "Connectez-vous avec votre compte du site, ouvrez la fiche puis choisissez votre moyen de paiement. Le paiement se fait sur la page sécurisée de NOKASH, par Mobile Money (Orange Money, MTN Mobile Money) ou par carte bancaire (Visa, Mastercard), en FCFA. Le document se débloque dès que le paiement est confirmé.",
   },
   {
     q: "J'ai payé, mais le document reste verrouillé. Que faire ?",

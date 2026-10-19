@@ -1,5 +1,5 @@
 "use client";
-// app/cgv/en/page.tsx — Terms of Sale (library) v1.0 (EN) — [legal-v2]
+// app/cgv/en/page.tsx — Terms of Sale (library) v1.2 (EN) — [legal-v2] [nokash-v1]
 // The French version prevails in case of discrepancy.
 
 import Link from "next/link";
@@ -14,11 +14,11 @@ export default function TermsOfSaleEnPage() {
       accent="Sale."
       meta={
         <>
-          Version 1.1 · Effective October 17, 2026 ·{" "}
+          Version 1.2 · Effective October 19, 2026 ·{" "}
           <Link href="/cgv" className="underline hover:text-amber">Version française</Link>
         </>
       }
-      footerNote="Last updated: October 17, 2026 · Version 1.1 · The French version prevails in case of discrepancy."
+      footerNote="Last updated: October 19, 2026 · Version 1.2 · The French version prevails in case of discrepancy."
     >
       <div className="reveal">
         <P last>
@@ -41,7 +41,7 @@ export default function TermsOfSaleEnPage() {
         </P>
         <P last>
           A purchased document is read <strong>online, on the website</strong>, from your account. No file is downloaded or sent
-          by email.
+          by email, and no physical goods are delivered.
         </P>
       </Section>
 
@@ -50,8 +50,7 @@ export default function TermsOfSaleEnPage() {
           items={[
             "Prices are shown in CFA francs (FCFA) on each document page, before any payment.",
             "The price paid is the one shown when you click \"Buy\" (or the button of the chosen payment method). Kessel adds no fee.",
-            "Any fees charged by your Mobile Money operator or bank do not depend on Kessel.",
-            "By bank card, the amount is shown in euros at the fixed rate of 1 € = 655.957 FCFA; any currency conversion fees charged by your bank do not depend on Kessel.",
+            "Payment is charged in FCFA, including by bank card. Any fees charged by your Mobile Money operator or bank, including currency conversion fees for a card issued outside the FCFA zone, do not depend on Kessel.",
             "Kessel may change its prices at any time; a change never applies to a purchase already paid.",
           ]}
         />
@@ -61,24 +60,25 @@ export default function TermsOfSaleEnPage() {
         <List
           items={[
             "A website account (email and password) is required. It is separate from your mobile app account.",
-            "Payment is made on the secure page of our providers: CamPay for Mobile Money (MTN, Orange) and, where offered, CamerPay for bank cards (Visa, Mastercard, processed by Stripe).",
-            "A purchase is only confirmed once the provider confirms the payment and our servers verify it. Returning to the website is not enough.",
-            "With Orange Money, confirmation may arrive late if you approve the transaction later on your phone: the document then unlocks automatically.",
+            "Payment is made on the secure page of our payment provider NOKASH, by Mobile Money (Orange Money, MTN Mobile Money) or by bank card (Visa, Mastercard). Kessel never receives or stores your card details.",
+            "A purchase is only confirmed once NOKASH confirms the payment and our servers verify it. Returning to the website is not enough.",
+            "With Mobile Money, confirmation may arrive late if you approve the transaction later on your phone: the document then unlocks automatically.",
           ]}
         />
         <Box tone="amber">
           <p className="text-forest-dark font-semibold">Charged but the document is still locked?</p>
           <p className="text-ink-mid text-sm">
             Write to {MAIL} or on WhatsApp at {EDITOR.phone} with your account email, the document, the date and the transaction
-            reference (received by SMS or email). We check with the provider and either unlock the document or refund you.
+            reference (received by SMS or email). We check with NOKASH and either unlock the document or refund you.
           </p>
         </Box>
       </Section>
 
-      <Section title="5. Access to the document">
+      <Section title="5. Delivery and access to the document">
         <List
           items={[
-            "Access opens as soon as payment is confirmed and remains available under \"My purchases\".",
+            "Delivery time: access opens immediately once payment is confirmed, under \"My purchases\".",
+            "Method: online reading on the website, from your account, on a computer or phone.",
             "Access is personal and linked to your account. It lasts as long as your account exists and the library is operated.",
             "Updates to a purchased document are included at no extra cost.",
             "Your website account is never deleted for inactivity. If you request its deletion, access to your purchases is permanently lost.",
@@ -87,22 +87,39 @@ export default function TermsOfSaleEnPage() {
         />
       </Section>
 
-      <Section title="6. Withdrawal and refunds">
+      <Section title="6. Cancellation, withdrawal and refunds">
+        <H3>6.1 Cancellation before payment</H3>
+        <P>
+          Until payment is confirmed, you may abandon the purchase at no cost: close the payment page or do not approve the
+          transaction on your phone. No amount is then charged and no purchase is recorded.
+        </P>
+        <H3>6.2 No withdrawal after access</H3>
         <P>
           The document is digital content supplied immediately, at your request, once payment is confirmed. By clicking
           &quot;Buy&quot; (or the button of the chosen payment method), you request this immediate access: <strong>no refund is due once the document is accessible</strong>,
-          except in the following cases.
+          except in the cases listed in 6.3.
         </P>
+        <H3>6.3 Refund cases</H3>
         <List
           items={[
             "Double payment for the same document.",
             "Payment charged without the document being unlocked, with no solution within 7 days of your complaint.",
             "Document withdrawn from the library, unreadable, or clearly different from its description.",
+            "Card payment made without the cardholder's authorisation (see 6.5).",
           ]}
         />
+        <H3>6.4 Procedure</H3>
+        <P>
+          Requests go to {MAIL} within 30 days of purchase, with your account email, the document, the date and the transaction
+          reference. An accepted refund is paid within 14 days, through the payment method used (card or Mobile Money account
+          charged), via NOKASH. Access to the refunded document is then removed from the account.
+        </P>
+        <H3>6.5 Disputed or fraudulent payment</H3>
         <P last>
-          Requests go to {MAIL} within 30 days of purchase. An accepted refund is paid within 14 days, where possible through the
-          payment method used.
+          If the holder of a card or Mobile Money account reports a payment they did not authorise, Kessel immediately suspends
+          access to the document concerned, checks the transaction with NOKASH, refunds the payment found to be fraudulent and may
+          block the account used. Kessel keeps the evidence of the purchase (date, account, transaction reference, access to the
+          document) and provides it to NOKASH in the event of a dispute.
         </P>
       </Section>
 
@@ -139,7 +156,7 @@ export default function TermsOfSaleEnPage() {
         </P>
       </Section>
 
-      <Section title="9. Complaints">
+      <Section title="9. Customer service and complaints">
         <P last>Send any complaint to {MAIL} or on WhatsApp at {EDITOR.phone}. We reply within 15 days at most.</P>
       </Section>
 

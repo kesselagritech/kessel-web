@@ -15,11 +15,11 @@ export default function TermsEnPage() {
       accent="Use."
       meta={
         <>
-          Version 2.1 · Published October 17, 2026 ·{" "}
+          Version 2.2 · Published October 19, 2026 ·{" "}
           <Link href="/cgu" className="underline hover:text-amber">Version française</Link>
         </>
       }
-      footerNote="Last updated: October 17, 2026 · Version 2.1 · The French version prevails in case of discrepancy."
+      footerNote="Last updated: October 19, 2026 · Version 2.2 · The French version prevails in case of discrepancy."
     >
       <div className="reveal">
         <P last>
@@ -99,9 +99,9 @@ export default function TermsEnPage() {
         <List
           items={[
             "The price is shown in FCFA on each document page, before payment.",
-            "Payment goes through CamPay for Mobile Money (MTN, Orange) and, where offered, through CamerPay for bank cards.",
+            "Payment goes through NOKASH, by Mobile Money (Orange Money, MTN Mobile Money) or bank card (Visa, Mastercard), in FCFA.",
             "The document is read online from your website account, updates included.",
-            "No refund once the document is accessible, except double payment, payment without access or non-conforming document.",
+            "No refund once the document is accessible, except double payment, payment without access, non-conforming document or fraudulent payment.",
             "Personal or internal business use only: no resale, sharing or redistribution.",
           ]}
         />

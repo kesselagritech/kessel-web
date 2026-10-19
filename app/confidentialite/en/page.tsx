@@ -14,11 +14,11 @@ export default function PrivacyEnPage() {
       accent="Policy."
       meta={
         <>
-          Version 2.2 · Updated October 17, 2026 ·{" "}
+          Version 2.3 · Updated October 19, 2026 ·{" "}
           <Link href="/confidentialite" className="underline hover:text-amber">Version française</Link>
         </>
       }
-      footerNote="Last updated: October 17, 2026 · Version 2.2 · The French version prevails in case of discrepancy."
+      footerNote="Last updated: October 19, 2026 · Version 2.3 · The French version prevails in case of discrepancy."
     >
       <div className="reveal">
         <P last>
@@ -66,7 +66,7 @@ export default function PrivacyEnPage() {
           head={["Category", "Data"]}
           rows={[
             ["Website account", "Email address and password (stored in hashed form). This account is separate from the app account."],
-            ["Purchases", "Document purchased, amount, date, payment status, provider and transaction reference (CamPay or CamerPay), operator used. For a card payment, your email address is shared with CamerPay."],
+            ["Purchases", "Document purchased, amount, date, payment status, provider and transaction reference (NOKASH), operator or card type used, viewing history of the purchased document. Your email address is shared with NOKASH for the payment."],
             ["Audience measurement", "Pages viewed (page address, without parameters), a random identifier stored in your browser, IP address, country and city derived from the IP address, device type, referring website. If you are signed in, these visits are linked to your account."],
             ["Document views", "Number of views of each document, counted per browsing session"],
             ["Contact form", "Name, email, phone (optional), subject and message"],
@@ -91,7 +91,7 @@ export default function PrivacyEnPage() {
             "Your phone's contact list.",
             "Photos or files on your phone other than those taken in the app.",
             "Biometric data.",
-            "Your bank card number or Mobile Money PIN: they are entered on the payment provider's secure page (CamPay or CamerPay), never on ours.",
+            "Your bank card number or Mobile Money PIN: they are entered on the payment provider's secure page (NOKASH), never on ours.",
             "Your browsing on other websites.",
           ]}
         />
@@ -106,7 +106,7 @@ export default function PrivacyEnPage() {
             ["Geotag photos, access the camera, send notifications", "Your consent, which you can withdraw at any time in your phone settings"],
             ["Share a farm with a collaborator", "The promoter's choice (performance of the contract)"],
             ["Measure website audience and improve our content", "Legitimate interest; you may object (section 12)"],
-            ["Security, fraud prevention, crash diagnosis", "Legitimate interest"],
+            ["Security, fraud prevention (including proof of purchase in the event of a disputed payment), crash diagnosis", "Legitimate interest"],
             ["Keep purchase records", "Legal obligation (accounting)"],
             ["Answer your messages", "Your request"],
           ]}
@@ -137,8 +137,7 @@ export default function PrivacyEnPage() {
           rows={[
             ["Supabase Inc.", "Database, authentication, account emails, storage of photos and documents", "United States (Oregon)"],
             ["Vercel Inc.", "Website hosting, aggregated audience measurement", "United States, global network"],
-            ["CamPay", "Mobile Money payments for the library", "Cameroon"],
-            ["CamerPay (and its partner Stripe)", "Bank card payments for the library", "Cameroon; Stripe: United States, European Union"],
+            ["NOKASH", "Library payments (Mobile Money and bank card), review of disputed payments", "Cameroon"],
             ["Resend", "Delivery of contact form messages", "United States"],
             ["Expo (EAS), Google (FCM), Apple (APNs)", "Delivery of app notifications", "United States"],
             ["Sentry", "App crash diagnosis", "European Union"],
@@ -166,7 +165,7 @@ export default function PrivacyEnPage() {
             ["App account deleted at your request", "Account and projects erased from our databases upon request; photos and backup copies erased within 30 days at most"],
             ["Website account (library)", "Never deleted for inactivity, so your purchases remain accessible; deleted at your request"],
             ["Purchase records", "10 years, even after account deletion (accounting obligation)"],
-            ["Website audience measurement", "60 days"],
+            ["Website audience measurement (IP address, country, device)", "180 days, for audience measurement and proof of purchase in the event of a disputed payment"],
             ["Sign-in attempts (security)", "30 days"],
             ["Sign-in data (IP address, device)", "90 days at most after the session ends"],
             ["Suggestions sent from the app", "Kept to improve the service; name and number removed when the account is deleted"],
@@ -204,7 +203,7 @@ export default function PrivacyEnPage() {
             "Data encrypted in transit between your device and our servers (HTTPS).",
             "PIN codes and passwords stored only in hashed and salted form.",
             "Database access rules: each account only sees the data that concerns it.",
-            "Payments checked directly with the provider (CamPay or CamerPay) before any document is unlocked.",
+            "Payments checked directly with the payment provider (NOKASH) before any document is unlocked.",
             "Data encrypted at rest by our database host.",
           ]}
         />

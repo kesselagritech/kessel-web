@@ -11,7 +11,7 @@ export default function MentionsLegalesPage() {
     <LegalShell
       title="Mentions"
       accent="légales."
-      meta="Version 2.0 · 12 octobre 2026"
+      meta="Version 2.1 · 19 octobre 2026"
       footerNote="Dernière mise à jour : 12 octobre 2026"
     >
       <Section title="1. Éditeur">
@@ -36,7 +36,7 @@ export default function MentionsLegalesPage() {
           <p className="text-ink-mid">Serveurs situés aux États-Unis (Oregon) · supabase.com</p>
         </Box>
         <P last>
-          Les paiements de la bibliothèque sont traités par <strong>CamPay</strong> (Mobile Money) et <strong>CamerPay</strong> (carte bancaire), tous deux au Cameroun. La liste complète de nos
+          Les paiements de la bibliothèque sont traités par <strong>NOKASH</strong> (Mobile Money et carte bancaire), au Cameroun. La liste complète de nos
           prestataires figure dans la{" "}
           <Link href="/confidentialite" className="text-amber hover:underline">Politique de confidentialité</Link>.
         </P>
