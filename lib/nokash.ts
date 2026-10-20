@@ -1,5 +1,6 @@
-// lib/nokash.ts — Client NOKASH (serveur uniquement) — [nokash v1]
-// Passerelle unique de la bibliothèque web : Mobile Money (MTN / Orange) ET carte bancaire.
+// lib/nokash.ts — Client NOKASH (serveur uniquement) — [nokash v1] [nokash v2 : multi-pays]
+// Passerelle unique de la bibliothèque web : Mobile Money (15 pays, cf. lib/nokashPays.ts),
+// virement bancaire (Nigeria) ET carte bancaire.
 //
 // Interrupteur NEXT_PUBLIC_NOKASH (même logique que l'ancien interrupteur carte) :
 //   "1"                  → NOKASH pour tous (CamPay / CamerPay masqués) ;
@@ -25,6 +26,7 @@
 
 import { createHmac } from 'node:crypto'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { PaysNokash } from '@/lib/nokashPays'
 
 /** NOKASH proposé à ce compte ? (même règle côté navigateur et serveur) */
 export function nokashActif(email?: string | null): boolean {
@@ -63,15 +65,6 @@ export class NokashError extends Error {
 
 // ─── Données client ──────────────────────────────────────────────────────────
 
-export type Operateur = 'MTN_MOMO' | 'ORANGE_MONEY'
-
-/** Numéro camerounais → format NOKASH « 2376XXXXXXXX ». Renvoie null si invalide. */
-export function normaliserTelephone(brut: string): string | null {
-  let d = String(brut || '').replace(/\D/g, '')
-  if (d.startsWith('00')) d = d.slice(2)
-  if (d.length === 9) d = `237${d}`
-  return /^2376\d{8}$/.test(d) ? d : null
-}
 
 /** Nom accepté par NOKASH pour la carte : lettres, chiffres, espaces (accents retirés). */
 export function nettoyerNom(brut: string): string {
@@ -112,20 +105,33 @@ function signature(orderId: string, amount: number, phone: string, iSpace: strin
   return algo === 'sha256-hex' ? h.digest('hex') : h.digest('base64')
 }
 
+/** Compte bancaire temporaire à créditer (Nigeria). */
+export type Virement = {
+  banque: string | null
+  codeBanque: string | null
+  compte: string
+  expireLe: string | null
+}
+
 export type Lancement = {
   /** id NOKASH à mémoriser dans payment_ref (préfixé « test: » en mode test) */
   paymentRef: string
   /** page de paiement NOKASH (carte uniquement) */
   paymentUrl: string | null
+  /** compte à créditer (virement Nigeria uniquement) */
+  virement: Virement | null
 }
 
-/** Lance un paiement Mobile Money ou carte. Lève NokashError si NOKASH refuse. */
+/** Lance un paiement Mobile Money, virement ou carte. Lève NokashError si NOKASH refuse. */
 export async function lancerPaiement(params: {
-  moyen: 'momo' | 'carte'
+  moyen: 'momo' | 'carte' | 'virement'
   purchaseId: string
+  /** montant ENTIER dans la monnaie du pays (XAF pour la carte) */
   amount: number
   callbackUrl: string
-  operateur?: Operateur
+  /** pays de paiement (Mobile Money / virement) ; la carte est toujours émise côté Cameroun */
+  pays?: PaysNokash
+  operateur?: string
   telephone?: string
   nom?: string
   email?: string
@@ -136,9 +142,9 @@ export async function lancerPaiement(params: {
   const body: Record<string, unknown> = {
     i_space_key: iSpace,
     app_space_key: appSpace,
-    country: 'CM',
+    country: params.moyen === 'carte' ? 'CM' : params.pays?.code,
     order_id: params.purchaseId, // notre purchase.id : unique par tentative
-    amount: String(params.amount), // entier XAF, minimum 200
+    amount: String(params.amount), // entier, dans la monnaie du pays
   }
   // Callback réservé aux clés de production : en test, NOKASH le refuse.
   if (mode === 'live') body.callback_url = params.callbackUrl
@@ -146,12 +152,28 @@ export async function lancerPaiement(params: {
   const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' }
 
   if (params.moyen === 'momo') {
-    if (!params.operateur || !params.telephone) throw new NokashError(400, 'Opérateur et numéro requis')
+    const p = params.pays
+    if (!p || p.mode !== 'momo') throw new NokashError(400, 'Pays requis')
+    if (!params.operateur || !p.operateurs.some((o) => o.code === params.operateur)) {
+      throw new NokashError(400, 'Opérateur inconnu pour ce pays')
+    }
+    if (!params.telephone) throw new NokashError(400, 'Numéro requis')
     body.payment_method = params.operateur
-    body.payment_type = 'CM_MOBILEMONEY'
+    body.payment_type = p.type
+    // Essais sandbox 20/10/2026 : hors Cameroun, NOKASH exige la monnaie (« currency is invalid »
+    // sans elle au Gabon / Congo). Le Cameroun reste tel qu'il a été validé en réel.
+    if (p.code !== 'CM') body.currency = p.monnaie
     body.user_data = { user_phone: params.telephone }
     const sig = signature(params.purchaseId, params.amount, params.telephone, iSpace, appSpace)
     if (sig) headers['hmac-signature'] = sig
+  } else if (params.moyen === 'virement') {
+    const p = params.pays
+    if (!p || p.mode !== 'virement') throw new NokashError(400, 'Pays requis')
+    if (!params.nom || !params.email) throw new NokashError(400, 'Nom et e-mail requis')
+    body.payment_method = p.operateurs[0].code
+    body.payment_type = p.type
+    body.currency = p.monnaie
+    body.user_data = { user_name: params.nom, user_email: params.email }
   } else {
     if (!params.nom || !params.email) throw new NokashError(400, 'Nom et e-mail requis')
     body.payment_method = 'I_CARD'
@@ -190,7 +212,20 @@ export async function lancerPaiement(params: {
     }
   }
 
-  return { paymentRef: mode === 'test' ? `${PREFIXE_TEST}${id}` : id, paymentUrl }
+  let virement: Virement | null = null
+  if (params.moyen === 'virement') {
+    const s = (v: unknown) => (v == null || v === '' ? null : String(v))
+    const compte = s(data?.va_account_number)
+    if (!compte) throw new NokashError(502, 'NOKASH : pas de compte de virement')
+    virement = {
+      banque: s(data?.va_bank_name),
+      codeBanque: s(data?.va_bank_code),
+      compte,
+      expireLe: s(data?.va_expiry_date_in_utc),
+    }
+  }
+
+  return { paymentRef: mode === 'test' ? `${PREFIXE_TEST}${id}` : id, paymentUrl, virement }
 }
 
 export type NokashTransaction = {
@@ -241,12 +276,14 @@ export async function confirmNokashPurchase(
 ): Promise<ConfirmResult> {
   const { data: purchase, error } = await supabase
     .from('document_purchases')
-    .select('id, amount, payment_status, payment_ref, payment_method')
+    .select('id, amount, pay_amount, payment_status, payment_ref, payment_method')
     .eq('id', purchaseId)
     .maybeSingle()
 
   if (error || !purchase) return 'pending'
   if (purchase.payment_method !== 'nokash') return 'pending'
+  // Montant attendu : celui réellement demandé à NOKASH (monnaie du pays), sinon le prix FCFA
+  const attendu = Number(purchase.pay_amount ?? purchase.amount)
   if (purchase.payment_status === 'completed') return 'completed'
   if (purchase.payment_status === 'refunded') return 'failed'
 
@@ -288,11 +325,11 @@ export async function confirmNokashPurchase(
   }
 
   if (tx.status === 'SUCCESS') {
-    const sameAmount = Number.isFinite(tx.amount) && tx.amount === Number(purchase.amount)
+    const sameAmount = Number.isFinite(tx.amount) && tx.amount === attendu
     if (!sameAmount) {
       console.error('[NOKASH] INCOHÉRENCE de montant — achat NON débloqué', {
         purchaseId,
-        attendu: purchase.amount,
+        attendu,
         recu: tx.amount,
       })
       return 'pending'

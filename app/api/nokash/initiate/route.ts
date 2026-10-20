@@ -1,19 +1,16 @@
-// app/api/nokash/initiate/route.ts — Lancer un paiement NOKASH (Mobile Money ou carte) — [nokash v1]
+// app/api/nokash/initiate/route.ts — Lancer un paiement NOKASH (Mobile Money, virement ou carte) — [nokash v1 + v2 multi-pays]
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient, getUserFromRequest } from '@/lib/supabase-server'
-import {
-  lancerPaiement,
-  nettoyerNom,
-  nokashActif,
-  normaliserTelephone,
-  NokashError,
-  type Operateur,
-} from '@/lib/nokash'
+import { lancerPaiement, nettoyerNom, nokashActif, NokashError, type Virement } from '@/lib/nokash'
+import { normaliserNumero, paysNokash, type Monnaie, type PaysNokash } from '@/lib/nokashPays'
+import { prixLocal, TauxIndisponible } from '@/lib/taux'
 import { solderTentativesEnAttente } from '@/lib/paiement'
 
 export const runtime = 'nodejs'
 
-const MONTANT_MIN = 200 // minimum NOKASH en XAF
+const MONTANT_MIN = 200 // minimum NOKASH en XAF / XOF
+/** Minimums connus (doc NOKASH) ; les autres monnaies : NOKASH tranche lui-même. */
+const MINIMUM_LOCAL: Partial<Record<Monnaie, number>> = { XAF: 200, XOF: 200, NGN: 500 }
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(request: NextRequest) {
@@ -34,6 +31,7 @@ export async function POST(request: NextRequest) {
     const body = (await request.json().catch(() => ({}))) as {
       documentId?: string
       moyen?: string
+      pays?: string
       operateur?: string
       telephone?: string
       nom?: string
@@ -42,33 +40,47 @@ export async function POST(request: NextRequest) {
     if (!documentId) {
       return NextResponse.json({ error: 'documentId requis' }, { status: 400 })
     }
-    const moyen = body.moyen === 'carte' ? 'carte' : body.moyen === 'momo' ? 'momo' : null
+    const moyen =
+      body.moyen === 'carte' ? 'carte' : body.moyen === 'momo' ? 'momo' : body.moyen === 'virement' ? 'virement' : null
     if (!moyen) {
       return NextResponse.json({ error: 'Moyen de paiement inconnu' }, { status: 400 })
     }
 
     // 2-bis. Données du payeur, validées AVANT de créer quoi que ce soit
-    let operateur: Operateur | undefined
+    let pays: PaysNokash | null = null
+    let operateur: string | undefined
     let telephone: string | undefined
     let nom: string | undefined
     let email: string | undefined
-    if (moyen === 'momo') {
-      if (body.operateur !== 'MTN_MOMO' && body.operateur !== 'ORANGE_MONEY') {
-        return NextResponse.json({ error: 'Choisis ton opérateur : MTN ou Orange.' }, { status: 400 })
+    if (moyen !== 'carte') {
+      pays = paysNokash(body.pays)
+      if (!pays || pays.mode !== moyen) {
+        return NextResponse.json({ error: 'Pays non pris en charge pour ce moyen de paiement.' }, { status: 400 })
+      }
+    }
+    if (moyen === 'momo' && pays) {
+      if (!pays.operateurs.some((o) => o.code === body.operateur)) {
+        return NextResponse.json({ error: 'Choisis ton opérateur.' }, { status: 400 })
       }
       operateur = body.operateur
-      telephone = normaliserTelephone(body.telephone || '') ?? undefined
+      telephone = normaliserNumero(pays, body.telephone || '') ?? undefined
       if (!telephone) {
-        return NextResponse.json({ error: 'Numéro invalide : 9 chiffres commençant par 6 (ex. 6 77 12 34 56).' }, { status: 400 })
+        return NextResponse.json(
+          { error: `Numéro invalide pour ${pays.nom} (ex. ${pays.exemple}).` },
+          { status: 400 }
+        )
       }
     } else {
       nom = nettoyerNom(body.nom || '')
       if (nom.length < 2) {
-        return NextResponse.json({ error: 'Indique le nom inscrit sur la carte.' }, { status: 400 })
+        return NextResponse.json(
+          { error: moyen === 'carte' ? 'Indique le nom inscrit sur la carte.' : 'Indique ton nom complet.' },
+          { status: 400 }
+        )
       }
       email = (user.email || '').trim()
       if (!EMAIL_RE.test(email)) {
-        return NextResponse.json({ error: 'Ton compte n’a pas d’adresse e-mail valide pour le paiement par carte.' }, { status: 400 })
+        return NextResponse.json({ error: 'Ton compte n’a pas d’adresse e-mail valide pour ce paiement.' }, { status: 400 })
       }
     }
 
@@ -91,6 +103,27 @@ export async function POST(request: NextRequest) {
     if (!Number.isInteger(amount) || amount < MONTANT_MIN) {
       console.error('[NOKASH] Prix invalide pour', doc.id, doc.price)
       return NextResponse.json({ error: 'Prix du document invalide' }, { status: 500 })
+    }
+
+    // 3-bis. Montant dans la monnaie du pays (prix FCFA inchangé en zone FCFA, converti ailleurs)
+    const monnaie: Monnaie = pays ? pays.monnaie : 'XAF'
+    let montantLocal: number
+    try {
+      montantLocal = await prixLocal(amount, monnaie)
+    } catch (e) {
+      if (e instanceof TauxIndisponible) {
+        console.error('[NOKASH] taux indisponible', monnaie, e.message)
+        return NextResponse.json(
+          { error: 'Le paiement dans ta monnaie est momentanément indisponible. Réessaie plus tard ou paie par carte.' },
+          { status: 503 }
+        )
+      }
+      throw e
+    }
+    const minimum = MINIMUM_LOCAL[monnaie]
+    if (!Number.isInteger(montantLocal) || montantLocal <= 0 || (minimum !== undefined && montantLocal < minimum)) {
+      console.error('[NOKASH] montant local invalide', { monnaie, montantLocal })
+      return NextResponse.json({ error: 'Montant invalide pour ce pays.' }, { status: 400 })
     }
 
     // 4. Déjà acheté ?
@@ -121,6 +154,9 @@ export async function POST(request: NextRequest) {
         amount,
         payment_status: 'pending',
         payment_method: 'nokash',
+        pay_country: pays ? pays.code : 'CM',
+        pay_currency: monnaie,
+        pay_amount: montantLocal,
       })
       .select('id')
       .single()
@@ -135,12 +171,14 @@ export async function POST(request: NextRequest) {
 
     let paymentRef: string
     let paymentUrl: string | null
+    let virement: Virement | null
     try {
       const r = await lancerPaiement({
         moyen,
         purchaseId: purchase.id, // order_id = notre purchase.id : clé de rapprochement
-        amount,
+        amount: montantLocal,
         callbackUrl: `${siteUrl}/api/nokash/webhook`,
+        pays: pays ?? undefined,
         operateur,
         telephone,
         nom,
@@ -148,6 +186,7 @@ export async function POST(request: NextRequest) {
       })
       paymentRef = r.paymentRef
       paymentUrl = r.paymentUrl
+      virement = r.virement
     } catch (e) {
       // On garde une trace (« failed ») plutôt que d'effacer : si NOKASH avait malgré tout
       // créé la transaction, l'achat reste retrouvable par son order_id.
@@ -173,7 +212,7 @@ export async function POST(request: NextRequest) {
       .eq('id', purchase.id)
     if (refErr) console.error('[NOKASH] Enregistrement id échoué', purchase.id, refErr)
 
-    return NextResponse.json({ purchaseId: purchase.id, paymentUrl })
+    return NextResponse.json({ purchaseId: purchase.id, paymentUrl, virement, montant: montantLocal, monnaie })
   } catch (err) {
     console.error('[NOKASH] initiate:', err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
