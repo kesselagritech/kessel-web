@@ -1,14 +1,15 @@
-// lib/paiement.ts — Aiguillage commun CamPay (Mobile Money) / CamerPay (carte) — [camerpay-carte v1]
+// lib/paiement.ts — Aiguillage commun CamPay / CamerPay / NOKASH — [camerpay-carte v1 + nokash v1]
 // Serveur uniquement. Chaque achat porte son prestataire dans document_purchases.payment_method :
 // on revérifie toujours auprès du BON prestataire.
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { confirmPurchase as confirmCampay } from '@/lib/campay'
 import { confirmCardPurchase } from '@/lib/camerpay'
+import { confirmNokashPurchase } from '@/lib/nokash'
 
 export type ConfirmResult = 'completed' | 'failed' | 'pending'
 
-/** Revérifie un achat auprès de son prestataire (CamPay ou CamerPay). */
+/** Revérifie un achat auprès de son prestataire (CamPay, CamerPay ou NOKASH). */
 export async function confirmAnyPurchase(
   supabase: SupabaseClient,
   purchaseId: string
@@ -19,6 +20,7 @@ export async function confirmAnyPurchase(
     .eq('id', purchaseId)
     .maybeSingle()
 
+  if (data?.payment_method === 'nokash') return confirmNokashPurchase(supabase, purchaseId)
   if (data?.payment_method === 'camerpay') return confirmCardPurchase(supabase, purchaseId)
   if (data?.payment_method === 'campay') return confirmCampay(supabase, purchaseId)
   return 'pending'
