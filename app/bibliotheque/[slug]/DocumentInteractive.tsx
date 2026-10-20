@@ -1,7 +1,8 @@
 "use client";
 
-// Partie interactive de la fiche : vérification d'achat, paiement (CamPay pour le
-// Mobile Money, CamerPay pour la carte bancaire), contenu payant (RPC sécurisée), ressources liées.
+// Partie interactive de la fiche : vérification d'achat, paiement (NOKASH pour le Mobile Money
+// et la carte quand NEXT_PUBLIC_NOKASH l'active ; sinon CamPay / CamerPay), contenu payant
+// (RPC sécurisée), ressources liées.
 // Logique reprise à l'identique de l'ancienne page ; seul le chargement de la
 // vitrine (titre, description…) a été déplacé côté serveur (page.tsx).
 
@@ -22,6 +23,7 @@ import {
   Smartphone,
   RefreshCw,
   Clock,
+  X,
 } from "lucide-react";
 import { TYPE_CONFIG, type DocumentDetail, type DocumentPreview, type RelatedDoc } from "./shared";
 
@@ -39,6 +41,35 @@ function carteVisible(email?: string | null): boolean {
 }
 const XAF_PAR_EUR = 655.957; // taux fixe BEAC appliqué par CamerPay
 type Moyen = "momo" | "carte";
+
+// [nokash v1] Passerelle unique NOKASH (Mobile Money + carte). Interrupteur NEXT_PUBLIC_NOKASH :
+// "1" = pour tous ; "test:adresse@mail" = ce seul compte (essais) ; vide = ancien circuit.
+// Même règle que nokashActif() côté serveur (lib/nokash.ts), qui reste seul juge.
+const NOKASH_REGLE = (process.env.NEXT_PUBLIC_NOKASH || "").trim();
+function nokashVisible(email?: string | null): boolean {
+  if (NOKASH_REGLE === "1") return true;
+  if (NOKASH_REGLE.toLowerCase().startsWith("test:")) {
+    const testeur = NOKASH_REGLE.slice(5).trim().toLowerCase();
+    return Boolean(testeur) && (email || "").trim().toLowerCase() === testeur;
+  }
+  return false;
+}
+type Operateur = "MTN_MOMO" | "ORANGE_MONEY";
+/** Devine l'opérateur d'après le début du numéro (indicatif, le client peut corriger). */
+function devinerOperateur(tel: string): Operateur | null {
+  let d = tel.replace(/\D/g, "");
+  if (d.startsWith("00")) d = d.slice(2);
+  if (d.startsWith("237")) d = d.slice(3);
+  if (/^6(7|5[0-4])/.test(d)) return "MTN_MOMO";
+  if (/^6(9|5[5-9])/.test(d)) return "ORANGE_MONEY";
+  return null;
+}
+function lireLocal(cle: string): string {
+  try { return localStorage.getItem(cle) || ""; } catch { return ""; }
+}
+function ecrireLocal(cle: string, v: string) {
+  try { localStorage.setItem(cle, v); } catch { /* stockage indisponible : sans conséquence */ }
+}
 
 export default function DocumentInteractive({
   doc,
@@ -59,6 +90,17 @@ export default function DocumentInteractive({
   const [paymentLoading, setPaymentLoading] = useState<Moyen | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
+
+  // [nokash v1] Formulaires et attente Mobile Money
+  const [panneau, setPanneau] = useState<Moyen | null>(null);
+  const [operateur, setOperateur] = useState<Operateur | null>(null);
+  const [operateurManuel, setOperateurManuel] = useState(false);
+  const [telephone, setTelephone] = useState("");
+  const [nomCarte, setNomCarte] = useState("");
+  const [refEnCours, setRefEnCours] = useState<string | null>(null);
+  const [attenteMomo, setAttenteMomo] = useState<Operateur | null>(null);
+  const [relance, setRelance] = useState(0);
+  const [delaiDepasse, setDelaiDepasse] = useState(false);
 
   // Ressources liées
   const [relatedDoc, setRelatedDoc] = useState<RelatedDoc | null>(null);
@@ -117,20 +159,34 @@ export default function DocumentInteractive({
     checkAndFetch();
   }, [session, doc.id]);
 
-  // 3. Polling post-paiement — quand le visiteur revient de CamPay
+  // Champs mémorisés sur cet appareil (confort : numéro et nom de la dernière fois)
   useEffect(() => {
-    if (paiement !== "retour" || !purchaseRef || !session?.access_token || hasPurchased) return;
+    const tel = lireLocal("kessel_pay_tel");
+    if (tel) {
+      setTelephone(tel);
+      setOperateur(devinerOperateur(tel));
+    }
+    setNomCarte(lireLocal("kessel_pay_nom"));
+  }, []);
+
+  // 3. Polling post-paiement — retour de la page de paiement (carte) ou attente de la
+  //    validation sur le téléphone (Mobile Money NOKASH)
+  const refSuivie = refEnCours || (paiement === "retour" ? purchaseRef : null);
+  useEffect(() => {
+    if (!refSuivie || !session?.access_token || hasPurchased) return;
 
     setVerifying(true);
+    setDelaiDepasse(false);
     let cancelled = false;
     let attempts = 0;
-    const maxAttempts = 10;
+    // Mobile Money : le client peut mettre du temps à valider sur son téléphone (~3 min)
+    const maxAttempts = attenteMomo ? 60 : 20;
 
     async function pollStatus() {
       while (!cancelled && attempts < maxAttempts) {
         attempts++;
         try {
-          const res = await fetch(`/api/campay/status?purchaseId=${purchaseRef}`, {
+          const res = await fetch(`/api/campay/status?purchaseId=${encodeURIComponent(refSuivie!)}`, {
             headers: { Authorization: `Bearer ${session!.access_token}` },
           });
           const data = await res.json();
@@ -141,8 +197,15 @@ export default function DocumentInteractive({
             return;
           }
           if (data.status === "failed") {
-            setPaymentError("Le paiement a échoué. Réessaie ou contacte-nous.");
+            setPaymentError(
+              attenteMomo
+                ? "Le paiement n'a pas été validé (refusé, annulé ou délai expiré). Tu peux réessayer."
+                : "Le paiement a échoué. Réessaie ou contacte-nous."
+            );
             setVerifying(false);
+            setAttenteMomo(null);
+            setRefEnCours(null);
+            try { window.history.replaceState(null, "", `/bibliotheque/${slug}`); } catch { /* sans effet */ }
             return;
           }
         } catch {
@@ -153,14 +216,14 @@ export default function DocumentInteractive({
       }
 
       if (!cancelled && attempts >= maxAttempts) {
-        setPaymentError("La vérification prend du temps. Rafraîchis la page dans quelques instants.");
-        setVerifying(false);
+        // On ne conclut pas à l'échec : la validation peut encore arriver. Le client relance.
+        setDelaiDepasse(true);
       }
     }
 
     pollStatus();
     return () => { cancelled = true; };
-  }, [paiement, purchaseRef, session, slug, hasPurchased]);
+  }, [refSuivie, session, slug, hasPurchased, attenteMomo, relance]);
 
   // 4. Charger les ressources liées (contrepartie BP↔ITK ou suggestions guides)
   useEffect(() => {
@@ -266,8 +329,81 @@ export default function DocumentInteractive({
     }
   }, [session, doc.id]);
 
+  // ─── [nokash v1] Lancer un paiement NOKASH (Mobile Money ou carte) ──
+  const handleNokash = useCallback(async (moyen: Moyen) => {
+    if (!session?.access_token) return;
+    setPaymentError(null);
+
+    if (moyen === "momo") {
+      if (!operateur) { setPaymentError("Choisis ton opérateur : MTN ou Orange."); return; }
+      if (telephone.replace(/\D/g, "").length < 9) { setPaymentError("Saisis ton numéro Mobile Money (9 chiffres)."); return; }
+    } else if (nomCarte.trim().length < 2) {
+      setPaymentError("Indique le nom inscrit sur la carte."); return;
+    }
+
+    setPaymentLoading(moyen);
+    try {
+      const res = await fetch("/api/nokash/initiate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(
+          moyen === "momo"
+            ? { documentId: doc.id, moyen, operateur, telephone }
+            : { documentId: doc.id, moyen, nom: nomCarte }
+        ),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 409) { window.location.reload(); return; }
+        setPaymentError(data.error || "Erreur lors du paiement");
+        setPaymentLoading(null);
+        return;
+      }
+
+      // Une adresse qui reprend la vérification si la page est rechargée ou si le client
+      // revient en arrière depuis la page de paiement
+      const retour = `/bibliotheque/${slug}?paiement=retour&ref=${data.purchaseId}`;
+      try { window.history.replaceState(null, "", retour); } catch { /* sans effet */ }
+
+      if (moyen === "momo") {
+        ecrireLocal("kessel_pay_tel", telephone);
+        setAttenteMomo(operateur);
+        setRefEnCours(data.purchaseId);
+        setPaymentLoading(null);
+        setPanneau(null);
+      } else {
+        ecrireLocal("kessel_pay_nom", nomCarte.trim());
+        if (data.paymentUrl) {
+          window.location.href = data.paymentUrl;
+        } else {
+          // Mode test NOKASH : pas de page carte, on vérifie directement le statut
+          setRefEnCours(data.purchaseId);
+          setPaymentLoading(null);
+          setPanneau(null);
+        }
+      }
+    } catch {
+      setPaymentError("Erreur de connexion. Vérifie ton accès internet.");
+      setPaymentLoading(null);
+    }
+  }, [session, doc.id, slug, operateur, telephone, nomCarte]);
+
+  const annulerAttente = useCallback(() => {
+    setAttenteMomo(null);
+    setRefEnCours(null);
+    setVerifying(false);
+    setDelaiDepasse(false);
+    try { window.history.replaceState(null, "", `/bibliotheque/${slug}`); } catch { /* sans effet */ }
+    window.location.href = `/bibliotheque/${slug}`;
+  }, [slug]);
+
   const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
-  const CARTE_ACTIVEE = carteVisible(session?.user?.email);
+  const NOKASH_ACTIF = nokashVisible(session?.user?.email);
+  const CARTE_ACTIVEE = NOKASH_ACTIF || carteVisible(session?.user?.email);
   const showRelated = hasPurchased && content && !relatedLoading;
 
   // Aperçu gratuit : affiché dès le rendu serveur (lisible par Google), pendant la
@@ -329,20 +465,68 @@ export default function DocumentInteractive({
         </article>
 
       ) : verifying ? (
-        /* ── VÉRIFICATION POST-PAIEMENT ──────────── */
+        /* ── VÉRIFICATION POST-PAIEMENT / ATTENTE MOBILE MONEY ── */
         <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
           <div className="w-16 h-16 bg-amber-light rounded-full flex items-center justify-center mx-auto mb-6">
-            <RefreshCw size={28} className="text-amber animate-spin" />
+            {attenteMomo ? (
+              <Smartphone size={28} className={`text-amber ${delaiDepasse ? "" : "animate-pulse"}`} />
+            ) : (
+              <RefreshCw size={28} className={`text-amber ${delaiDepasse ? "" : "animate-spin"}`} />
+            )}
           </div>
           <h2
             className="text-2xl font-bold text-forest-dark mb-3"
             style={{ fontFamily: "var(--serif)" }}
           >
-            Vérification du paiement…
+            {attenteMomo ? "Valide le paiement sur ton téléphone" : "Vérification du paiement…"}
           </h2>
-          <p className="text-ink-light max-w-md mx-auto">
-            Nous confirmons ton paiement auprès du prestataire de paiement. Cela peut prendre quelques secondes.
-          </p>
+          {attenteMomo ? (
+            <div className="text-ink-light max-w-md mx-auto space-y-2">
+              <p>
+                {`Une demande de ${doc.price.toLocaleString("fr-FR")} FCFA a été envoyée sur ton numéro ${attenteMomo === "MTN_MOMO" ? "MTN" : "Orange"}. Saisis ton code secret pour confirmer.`}
+              </p>
+              <p className="text-sm">
+                {attenteMomo === "MTN_MOMO"
+                  ? "Pas de message ? Compose *126# pour voir les paiements en attente."
+                  : "Pas de message ? Compose #150*50# pour valider le paiement en attente."}
+              </p>
+              <p className="text-sm">Le document se débloque tout seul dès la confirmation.</p>
+            </div>
+          ) : (
+            <p className="text-ink-light max-w-md mx-auto">
+              Nous confirmons ton paiement auprès du prestataire de paiement. Cela peut prendre quelques secondes.
+            </p>
+          )}
+          {delaiDepasse && (
+            <div className="mt-6 space-y-3">
+              <p className="text-sm text-ink-light max-w-md mx-auto">
+                Pas encore de confirmation. Si tu as validé, elle peut arriver avec un peu de retard.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  onClick={() => setRelance((n) => n + 1)}
+                  className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-6 py-3 rounded-xl transition-all"
+                >
+                  <RefreshCw size={16} />
+                  Vérifier à nouveau
+                </button>
+                <button
+                  onClick={annulerAttente}
+                  className="inline-flex items-center justify-center gap-2 border border-neutral-mid text-forest-dark font-semibold px-6 py-3 rounded-xl hover:bg-neutral transition-all"
+                >
+                  Recommencer
+                </button>
+              </div>
+            </div>
+          )}
+          {attenteMomo && !delaiDepasse && (
+            <button
+              onClick={annulerAttente}
+              className="mt-6 text-sm text-ink-light underline hover:text-amber"
+            >
+              Changer de numéro ou de moyen de paiement
+            </button>
+          )}
         </div>
 
       ) : paiement === "echec" ? (
@@ -420,7 +604,144 @@ export default function DocumentInteractive({
                   {paymentError}
                 </p>
               )}
-              {CARTE_ACTIVEE ? (
+              {NOKASH_ACTIF ? (
+                /* [nokash v1] Deux moyens via NOKASH, avec un petit formulaire chacun */
+                <div className="max-w-xl mx-auto">
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch">
+                    <button
+                      onClick={() => { setPanneau(panneau === "momo" ? null : "momo"); setPaymentError(null); }}
+                      disabled={paymentLoading !== null}
+                      aria-expanded={panneau === "momo"}
+                      className={`flex-1 inline-flex items-center justify-center gap-2 font-semibold px-6 py-3.5 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed ${panneau === "momo" ? "bg-amber-dark text-white" : "bg-amber hover:bg-amber-dark text-white hover:-translate-y-0.5"}`}
+                    >
+                      <Smartphone size={18} />
+                      Mobile Money
+                    </button>
+                    <button
+                      onClick={() => { setPanneau(panneau === "carte" ? null : "carte"); setPaymentError(null); }}
+                      disabled={paymentLoading !== null}
+                      aria-expanded={panneau === "carte"}
+                      className={`flex-1 inline-flex items-center justify-center gap-2 font-semibold px-6 py-3.5 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed ${panneau === "carte" ? "bg-forest-dark text-white" : "bg-forest hover:bg-forest-dark text-white hover:-translate-y-0.5"}`}
+                    >
+                      <CreditCard size={18} />
+                      Carte bancaire
+                    </button>
+                  </div>
+
+                  {panneau === "momo" && (
+                    <form
+                      onSubmit={(e) => { e.preventDefault(); handleNokash("momo"); }}
+                      className="mt-4 text-left bg-forest-xlight rounded-xl p-5 space-y-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="font-semibold text-forest-dark text-sm">Payer par Mobile Money</p>
+                        <button type="button" onClick={() => setPanneau(null)} aria-label="Fermer" className="text-ink-light hover:text-forest-dark">
+                          <X size={18} />
+                        </button>
+                      </div>
+                      <div>
+                        <label htmlFor="pay-tel" className="block text-xs font-semibold text-ink-light uppercase tracking-wider mb-1.5">
+                          Numéro Mobile Money
+                        </label>
+                        <div className="flex items-stretch rounded-lg border border-neutral-mid bg-white focus-within:border-forest overflow-hidden">
+                          <span className="px-3 flex items-center text-ink-light text-sm border-r border-neutral-mid" style={{ fontFamily: "var(--mono)" }}>+237</span>
+                          <input
+                            id="pay-tel"
+                            type="tel"
+                            inputMode="numeric"
+                            autoComplete="tel-national"
+                            placeholder="6 XX XX XX XX"
+                            value={telephone}
+                            onChange={(e) => {
+                              const v = e.target.value.replace(/[^\d\s+]/g, "").slice(0, 16);
+                              setTelephone(v);
+                              if (!operateurManuel) setOperateur(devinerOperateur(v));
+                            }}
+                            className="flex-1 min-w-0 px-3 py-3 text-base outline-none"
+                            style={{ fontFamily: "var(--mono)" }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-ink-light uppercase tracking-wider mb-1.5">Opérateur</p>
+                        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Opérateur">
+                          {([["MTN_MOMO", "MTN MoMo"], ["ORANGE_MONEY", "Orange Money"]] as const).map(([val, lib]) => (
+                            <button
+                              key={val}
+                              type="button"
+                              role="radio"
+                              aria-checked={operateur === val}
+                              onClick={() => { setOperateur(val); setOperateurManuel(true); }}
+                              className={`py-2.5 rounded-lg border text-sm font-semibold transition-all ${operateur === val ? "border-forest bg-white text-forest-dark ring-2 ring-forest/20" : "border-neutral-mid bg-white text-ink-light hover:border-forest/50"}`}
+                            >
+                              {lib}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={paymentLoading !== null}
+                        className="w-full inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-6 py-3.5 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {paymentLoading === "momo" ? (
+                          <span className="animate-pulse">Envoi de la demande…</span>
+                        ) : (
+                          `Payer ${doc.price.toLocaleString("fr-FR")} FCFA`
+                        )}
+                      </button>
+                      <p className="text-xs text-ink-light">
+                        Tu recevras une demande de confirmation sur ton téléphone. Garde-le à portée de main.
+                      </p>
+                    </form>
+                  )}
+
+                  {panneau === "carte" && (
+                    <form
+                      onSubmit={(e) => { e.preventDefault(); handleNokash("carte"); }}
+                      className="mt-4 text-left bg-forest-xlight rounded-xl p-5 space-y-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="font-semibold text-forest-dark text-sm">Payer par carte bancaire</p>
+                        <button type="button" onClick={() => setPanneau(null)} aria-label="Fermer" className="text-ink-light hover:text-forest-dark">
+                          <X size={18} />
+                        </button>
+                      </div>
+                      <div>
+                        <label htmlFor="pay-nom" className="block text-xs font-semibold text-ink-light uppercase tracking-wider mb-1.5">
+                          Nom sur la carte
+                        </label>
+                        <input
+                          id="pay-nom"
+                          type="text"
+                          autoComplete="cc-name"
+                          placeholder="Prénom Nom"
+                          value={nomCarte}
+                          onChange={(e) => setNomCarte(e.target.value.slice(0, 60))}
+                          className="w-full rounded-lg border border-neutral-mid bg-white px-3 py-3 text-base outline-none focus:border-forest"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={paymentLoading !== null}
+                        className="w-full inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-6 py-3.5 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {paymentLoading === "carte" ? (
+                          <span className="animate-pulse">Redirection…</span>
+                        ) : (
+                          <>
+                            <Lock size={16} />
+                            {`Continuer vers le paiement sécurisé`}
+                          </>
+                        )}
+                      </button>
+                      <p className="text-xs text-ink-light">
+                        Tu saisiras ta carte sur la page sécurisée de NOKASH : Kessel ne voit jamais ses numéros.
+                      </p>
+                    </form>
+                  )}
+                </div>
+              ) : CARTE_ACTIVEE ? (
                 /* Deux moyens : Mobile Money (CamPay) ou carte bancaire (CamerPay) */
                 <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-xl mx-auto">
                   <button
@@ -468,7 +789,11 @@ export default function DocumentInteractive({
                   )}
                 </button>
               )}
-              {CARTE_ACTIVEE ? (
+              {NOKASH_ACTIF ? (
+                <p className="text-sm text-ink-light max-w-md mx-auto">
+                  Mobile Money : MTN ou Orange. Carte : Visa ou Mastercard, débitée en FCFA.
+                </p>
+              ) : CARTE_ACTIVEE ? (
                 <p className="text-sm text-ink-light max-w-md mx-auto">
                   Mobile Money : MTN ou Orange.
                   {" "}Carte : Visa ou Mastercard, montant présenté en euros (≈{" "}
