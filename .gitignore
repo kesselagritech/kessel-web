@@ -75,3 +75,8 @@ reports-*-v*/
 
 
 *.bak*
+
+# Fichiers prives (jamais commites)
+/modifs/
+/nokash-*
+/sauvegarde-*.json
