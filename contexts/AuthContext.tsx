@@ -13,6 +13,7 @@ interface AuthContextType {
     email: string,
     password: string,
     redirectAfter?: string,
+    coordonnees?: { telephone: string; pays: string },
   ) => Promise<{ error: Error | null; needsConfirmation: boolean }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
@@ -70,12 +71,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
     redirectAfter?: string,
+    coordonnees?: { telephone: string; pays: string },
   ) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: buildCallbackUrl(redirectAfter),
+        // [bibliotheque-compte v2] pays + numéro exigés pour lire la bibliothèque
+        ...(coordonnees ? { data: { telephone: coordonnees.telephone, pays: coordonnees.pays } } : {}),
       },
     });
     const needsConfirmation = !error && !!data.user && !data.session;

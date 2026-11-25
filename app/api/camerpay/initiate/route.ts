@@ -6,7 +6,16 @@ import { solderTentativesEnAttente } from '@/lib/paiement'
 
 export const runtime = 'nodejs'
 
+const BIBLIOTHEQUE_GRATUITE = true as boolean
+
 export async function POST(request: NextRequest) {
+  // [bibliotheque-gratuite v1] 25/11/2026 : la bibliothèque est gratuite, plus aucun paiement n'est lancé.
+  if (BIBLIOTHEQUE_GRATUITE) {
+    return NextResponse.json(
+      { error: "La bibliothèque est désormais gratuite : aucun paiement n'est nécessaire." },
+      { status: 410 }
+    )
+  }
   try {
     // 1. Auth
     const user = await getUserFromRequest(request)

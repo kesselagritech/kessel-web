@@ -158,13 +158,13 @@ export default function HomePage() {
             <div className="lg:order-2">
               <div className="inline-flex items-center gap-2 bg-amber-light rounded-full px-4 py-1.5 mb-4">
                 <BookOpen size={16} className="text-amber" />
-                <span className="text-amber-dark text-sm font-medium" style={{ color: "#854F0B" }}>À partir de 1 000 FCFA</span>
+                <span className="text-amber-dark text-sm font-medium" style={{ color: "#854F0B" }}>Accès gratuit</span>
               </div>
               <h3 className="text-2xl md:text-3xl font-bold text-forest-dark mb-4" style={{ fontFamily: "var(--serif)" }}>
                 Bibliothèque professionnelle
               </h3>
               <p className="text-ink-light leading-relaxed mb-4">
-                Guides éducatifs (1 000 FCFA), fiches techniques détaillées (2 000 FCFA), et business plans complets par spéculation (5 500 FCFA) — pédologie, physiologie végétale, gestion intégrée, formalisation, chaîne de valeur.
+                Guides éducatifs, fiches techniques détaillées et business plans complets par spéculation, en accès libre et gratuit — pédologie, physiologie végétale, gestion intégrée, formalisation, chaîne de valeur.
               </p>
               <p className="text-ink-light leading-relaxed mb-4">
                 Chaque document est conçu comme un outil de compréhension autonome. Les principes agronomiques valent pour toute l&apos;Afrique subsaharienne, du Sahel à la forêt équatoriale ; les chiffres économiques sont calibrés sur le marché camerounais, pris comme référence. Pour des projections adaptées à votre pays et à votre situation, nos équipes proposent des consultations sur devis.

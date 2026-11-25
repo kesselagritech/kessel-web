@@ -458,7 +458,7 @@ export default function ComparateurPage() {
               >
                 <span>BP {cleanTitle(specA!.title)}</span>
                 <span className="flex items-center gap-2 text-sm opacity-90">
-                  {specA!.price.toLocaleString("fr-FR")} FCFA
+                  Lire
                   <ArrowRight className="w-4 h-4" />
                 </span>
               </Link>
@@ -468,7 +468,7 @@ export default function ComparateurPage() {
               >
                 <span>BP {cleanTitle(specB!.title)}</span>
                 <span className="flex items-center gap-2 text-sm opacity-90">
-                  {specB!.price.toLocaleString("fr-FR")} FCFA
+                  Lire
                   <ArrowRight className="w-4 h-4" />
                 </span>
               </Link>

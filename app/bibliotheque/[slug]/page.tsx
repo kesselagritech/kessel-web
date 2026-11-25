@@ -9,7 +9,7 @@ import { supabaseServer } from "@/lib/supabaseServer";
 import { TYPE_CONFIG, DOC_PUBLIC_COLUMNS, formatDateFr, type DocumentDetail, type DocumentPreview } from "./shared";
 import DocumentInteractive from "./DocumentInteractive";
 
-// ─── Chargement côté serveur (vitrine publique, sans contenu payant) ─────────
+// ─── Chargement côté serveur (fiche publique + aperçu ; contenu complet réservé aux comptes) ─
 // cache() : une seule requête partagée entre generateMetadata et la page.
 
 const getDocument = cache(async (slug: string): Promise<DocumentDetail | null> => {
@@ -25,8 +25,8 @@ const getDocument = cache(async (slug: string): Promise<DocumentDetail | null> =
   return (data as unknown as DocumentDetail) ?? null;
 });
 
-// Aperçu gratuit : la base ne renvoie que le début du texte (jamais le document entier).
-// En cas d'erreur, la fiche s'affiche quand même, sans aperçu.
+// [bibliotheque-compte v1] Aperçu public (lisible par Google) : la base ne renvoie que le début.
+// Le document complet est chargé dans le navigateur, une fois connecté avec un numéro de téléphone.
 const getPreview = cache(async (documentId: string): Promise<DocumentPreview | null> => {
   const { data, error } = await supabaseServer.rpc("get_document_preview", { p_document_id: documentId });
   if (error || !data) {
@@ -168,11 +168,11 @@ export default async function DocumentPage({ params }: Props) {
             </p>
           )}
 
-          {/* Partie interactive : achat, paiement, contenu, ressources liées */}
+          {/* Aperçu public, document complet après connexion (gratuit) + ressources liées */}
           <Suspense
             fallback={
               <div className="text-center py-16">
-                <div className="animate-pulse text-ink-light">Vérification…</div>
+                <div className="animate-pulse text-ink-light">Chargement…</div>
               </div>
             }
           >

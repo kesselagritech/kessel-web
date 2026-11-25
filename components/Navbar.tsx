@@ -150,7 +150,7 @@ export default function Navbar() {
     window.location.href = "/connexion?deconnecte=1";
   };
 
-  // Bouton du compte : « Connexion » si visiteur, sinon initiale + menu (Mes achats, Déconnexion)
+  // Bouton du compte : « Connexion » si visiteur, sinon initiale + menu (Déconnexion)
   const account = (phone: boolean) => {
     if (authLoading) return <span className="w-11 h-11" />;
     if (!user) {
@@ -189,9 +189,6 @@ export default function Navbar() {
         {accountMenu && (
           <div role="menu" className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-lg p-2 text-forest-dark">
             <p className="px-3 py-2 text-xs text-ink-light truncate">{user.email}</p>
-            <Link role="menuitem" href="/mes-documents" className="flex items-center gap-3 px-3 h-11 rounded-xl hover:bg-forest-light font-medium">
-              <Icon name="receipt" size={20} /> Mes achats
-            </Link>
             <button role="menuitem" type="button" onClick={handleSignOut} className="w-full flex items-center gap-3 px-3 h-11 rounded-xl hover:bg-forest-light font-medium text-left">
               <Icon name="logout" size={20} /> Déconnexion
             </button>

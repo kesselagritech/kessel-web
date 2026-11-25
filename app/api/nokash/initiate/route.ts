@@ -13,7 +13,16 @@ const MONTANT_MIN = 200 // minimum NOKASH en XAF / XOF
 const MINIMUM_LOCAL: Partial<Record<Monnaie, number>> = { XAF: 200, XOF: 200, NGN: 500 }
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+const BIBLIOTHEQUE_GRATUITE = true as boolean
+
 export async function POST(request: NextRequest) {
+  // [bibliotheque-gratuite v1] 25/11/2026 : la bibliothèque est gratuite, plus aucun paiement n'est lancé.
+  if (BIBLIOTHEQUE_GRATUITE) {
+    return NextResponse.json(
+      { error: "La bibliothèque est désormais gratuite : aucun paiement n'est nécessaire." },
+      { status: 410 }
+    )
+  }
   try {
     // 1. Auth
     const user = await getUserFromRequest(request)

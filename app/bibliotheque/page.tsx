@@ -7,7 +7,6 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/contexts/AuthContext";
 import {
   BookOpen,
   FileText,
@@ -166,12 +165,7 @@ function RecommendedCard({ doc }: { doc: Document }) {
           </p>
         )}
         <div className="flex items-center justify-between pt-3 border-t border-neutral-mid mt-auto">
-          <div>
-            <span className="text-lg font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
-              {doc.price.toLocaleString("fr-FR")}
-            </span>
-            <span className="text-xs text-ink-light ml-1">FCFA</span>
-          </div>
+          <span className="text-sm font-semibold" style={{ color: config.accent }}>Gratuit</span>
           <span className="inline-flex items-center gap-1.5 bg-amber hover:bg-amber-dark text-white text-sm font-semibold px-4 py-1.5 rounded-xl transition-colors">
             Découvrir
           </span>
@@ -210,7 +204,6 @@ function FilterSelect({
 
 export default function BibliothequePage() {
   useScrollReveal();
-  const { user } = useAuth();
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -370,16 +363,6 @@ export default function BibliothequePage() {
                   ))}
                 </FilterSelect>
               )}
-
-              {user && (
-                <Link
-                  href="/mes-documents"
-                  className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-forest text-forest hover:bg-forest-light font-medium text-sm transition-colors sm:ml-auto"
-                >
-                  <BookOpen size={16} />
-                  Mes achats
-                </Link>
-              )}
             </div>
           </div>
 
@@ -450,12 +433,7 @@ export default function BibliothequePage() {
 
                         {/* Prix + CTA */}
                         <div className="flex items-center justify-between pt-3 border-t border-neutral-mid mt-auto">
-                          <div>
-                            <span className="text-lg font-bold" style={{ fontFamily: "var(--mono)", color: config.accent }}>
-                              {doc.price.toLocaleString("fr-FR")}
-                            </span>
-                            <span className="text-xs text-ink-light ml-1">FCFA</span>
-                          </div>
+                          <span className="text-sm font-semibold" style={{ color: config.accent }}>Gratuit</span>
                           <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-1.5 rounded-xl transition-colors ">
                             Consulter
                           </span>

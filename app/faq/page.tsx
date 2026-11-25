@@ -21,35 +21,15 @@ const faqs: { q: string; a: ReactNode }[] = [
   },
   {
     q: "Kessel est-il payant ?",
-    a: (
-      <>
-        L&apos;application, le comparateur et les pages d&apos;information sont gratuits. Seuls les documents de la
-        bibliothèque sont payants, à l&apos;unité, sans abonnement : le prix est affiché en FCFA sur chaque fiche avant tout
-        paiement. Voir les <L href="/cgv">Conditions générales de vente</L>.
-      </>
-    ),
+    a: "Non. L'application, le comparateur, les pages d'information et tous les documents de la bibliothèque (business plans, fiches techniques, guides) sont gratuits. Seules les études personnalisées réalisées sur demande font l'objet d'un devis.",
   },
   {
-    q: "Comment acheter un document de la bibliothèque ?",
-    a: "Connectez-vous avec votre compte du site, ouvrez la fiche puis choisissez votre moyen de paiement. Le paiement se fait sur la page sécurisée de NOKASH, par Mobile Money (Orange Money, MTN Mobile Money) ou par carte bancaire (Visa, Mastercard), en FCFA. Le document se débloque dès que le paiement est confirmé.",
+    q: "Comment lire un document de la bibliothèque ?",
+    a: "Créez un compte gratuit sur le site avec votre adresse e-mail, votre pays et votre numéro de téléphone, puis ouvrez n'importe quel document : il s'affiche en entier, sans paiement. Sans compte, seul le début de chaque document est visible. Les mises à jour sont visibles dès leur publication.",
   },
   {
-    q: "J'ai payé, mais le document reste verrouillé. Que faire ?",
-    a: "Avec Orange Money, la confirmation peut arriver en retard si vous validez la transaction plus tard sur votre téléphone : le document se débloque alors tout seul. Sinon, écrivez-nous (contact@kesselagritech.com ou WhatsApp +237 659 374 501) avec votre e-mail de compte, le document, la date et la référence reçue par SMS. Nous débloquons le document ou vous remboursons.",
-  },
-  {
-    q: "Puis-je télécharger un document acheté ?",
-    a: "Non. Les documents se lisent en ligne, depuis « Mes achats », sur n'importe quel appareil connecté à votre compte. Les mises à jour d'un document acheté sont incluses sans frais.",
-  },
-  {
-    q: "Puis-je être remboursé ?",
-    a: (
-      <>
-        Le document étant accessible immédiatement, il n&apos;est pas remboursable une fois débloqué. Exceptions : double
-        paiement, paiement débité sans accès, ou document non conforme à sa description. Détails à l&apos;article 6 des{" "}
-        <L href="/cgv">CGV</L>.
-      </>
-    ),
+    q: "J'ai acheté un document avant le passage au gratuit. Que se passe-t-il ?",
+    a: "Le document reste accessible, comme tous les autres. Pour toute question sur un ancien achat, écrivez-nous (contact@kesselagritech.com ou WhatsApp +237 659 374 501) avec votre e-mail de compte et la référence de paiement.",
   },
   {
     q: "Mon compte du site est-il le même que celui de l'application ?",

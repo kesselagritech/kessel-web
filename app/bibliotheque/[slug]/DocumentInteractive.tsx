@@ -1,94 +1,24 @@
 "use client";
 
-// Partie interactive de la fiche : vérification d'achat, paiement (NOKASH pour le Mobile Money
-// et la carte quand NEXT_PUBLIC_NOKASH l'active ; sinon CamPay / CamerPay), contenu payant
-// (RPC sécurisée), ressources liées.
-// Logique reprise à l'identique de l'ancienne page ; seul le chargement de la
-// vitrine (titre, description…) a été déplacé côté serveur (page.tsx).
+// [bibliotheque-compte v2] 25/11/2026 — Bibliothèque gratuite, réservée aux comptes du site.
+// Visiteur : aperçu (rendu serveur, lisible par Google) + invitation à se connecter.
+// Connecté sans pays/numéro : aperçu + demande du pays puis du numéro (enregistrés sur le compte).
+// Connecté avec pays + numéro : document complet, chargé par la fonction get_document_content
+// (qui vérifie elle aussi la connexion, le pays et le numéro). Plus aucun paiement.
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { authHref } from "@/lib/authHref";
+import { normaliserTelephone, coordonneesDuCompte } from "@/lib/telephone";
+import ChampTelephone from "@/components/ChampTelephone";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import {
-  ArrowRight,
-  Lock,
-  LogIn,
-  GraduationCap,
-  CreditCard,
-  Smartphone,
-  RefreshCw,
-  Clock,
-  X,
-} from "lucide-react";
+import { ArrowRight, GraduationCap, Clock, Lock, LogIn } from "lucide-react";
 import { TYPE_CONFIG, type DocumentDetail, type DocumentPreview, type RelatedDoc } from "./shared";
-import { PAYS_NOKASH, paysNokash, sansConversion, type Monnaie } from "@/lib/nokashPays";
-
-// [camerpay-carte v1] Carte bancaire via CamerPay. Interrupteur NEXT_PUBLIC_CAMERPAY_CARD :
-// "1" = proposée à tous ; "test:adresse@mail" = proposée à ce seul compte (essais) ; vide = masquée.
-// Même règle que carteActivee() côté serveur (lib/camerpay.ts), qui reste seule juge.
-const CARTE_REGLE = (process.env.NEXT_PUBLIC_CAMERPAY_CARD || "").trim();
-function carteVisible(email?: string | null): boolean {
-  if (CARTE_REGLE === "1") return true;
-  if (CARTE_REGLE.toLowerCase().startsWith("test:")) {
-    const testeur = CARTE_REGLE.slice(5).trim().toLowerCase();
-    return Boolean(testeur) && (email || "").trim().toLowerCase() === testeur;
-  }
-  return false;
-}
-const XAF_PAR_EUR = 655.957; // taux fixe BEAC appliqué par CamerPay
-type Moyen = "momo" | "carte";
-
-// [nokash v1] Passerelle unique NOKASH (Mobile Money + carte). Interrupteur NEXT_PUBLIC_NOKASH :
-// "1" = pour tous ; "test:adresse@mail" = ce seul compte (essais) ; vide = ancien circuit.
-// Même règle que nokashActif() côté serveur (lib/nokash.ts), qui reste seul juge.
-const NOKASH_REGLE = (process.env.NEXT_PUBLIC_NOKASH || "").trim();
-function nokashVisible(email?: string | null): boolean {
-  if (NOKASH_REGLE === "1") return true;
-  if (NOKASH_REGLE.toLowerCase().startsWith("test:")) {
-    const testeur = NOKASH_REGLE.slice(5).trim().toLowerCase();
-    return Boolean(testeur) && (email || "").trim().toLowerCase() === testeur;
-  }
-  return false;
-}
-/** Devine l'opérateur camerounais d'après le début du numéro (le client peut corriger). */
-function devinerOperateur(tel: string): string | null {
-  let d = tel.replace(/\D/g, "");
-  if (d.startsWith("00")) d = d.slice(2);
-  if (d.startsWith("237")) d = d.slice(3);
-  if (/^6(7|5[0-4])/.test(d)) return "MTN_MOMO";
-  if (/^6(9|5[5-9])/.test(d)) return "ORANGE_MONEY";
-  return null;
-}
-// [nokash v2] Attente après lancement : Mobile Money (validation sur le téléphone) ou
-// virement (compte bancaire temporaire, Nigeria). Mémorisée pour survivre à un rechargement.
-type CompteVirement = { banque: string | null; codeBanque: string | null; compte: string; expireLe: string | null };
-type Attente = {
-  type: "momo" | "virement";
-  pays: string;
-  operateurNom: string;
-  montant: number;
-  monnaie: string;
-  virement?: CompteVirement | null;
-};
-type Tarifs = { prix: Record<Monnaie, number | null>; suggere: string };
-const fmt = (n: number) => n.toLocaleString("fr-FR");
-const libMonnaie = (m: string) => (m === "XAF" || m === "XOF" ? "FCFA" : m);
-function dateLocale(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const d = new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(iso) ? iso : `${iso}Z`);
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
-}
-function lireLocal(cle: string): string {
-  try { return localStorage.getItem(cle) || ""; } catch { return ""; }
-}
-function ecrireLocal(cle: string, v: string) {
-  try { localStorage.setItem(cle, v); } catch { /* stockage indisponible : sans conséquence */ }
-}
 
 export default function DocumentInteractive({
   doc,
@@ -98,41 +28,27 @@ export default function DocumentInteractive({
   preview: DocumentPreview | null;
 }) {
   useScrollReveal();
-  const searchParams = useSearchParams();
-  const { session } = useAuth();
+  const pathname = usePathname();
+  const { user, loading: authLoading } = useAuth();
+  const coordonnees = coordonneesDuCompte(user);
+  const compteComplet = Boolean(coordonnees);
 
   const [content, setContent] = useState<string | null>(null);
-  const [hasPurchased, setHasPurchased] = useState(false);
-  const [checkingPurchase, setCheckingPurchase] = useState(true);
+  const [contentLoading, setContentLoading] = useState(false);
+  const [contentError, setContentError] = useState(false);
 
-  // États paiement (Mobile Money CamPay / carte CamerPay)
-  const [paymentLoading, setPaymentLoading] = useState<Moyen | null>(null);
-  const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [verifying, setVerifying] = useState(false);
-
-  // [nokash v1] Formulaires et attente Mobile Money
-  const [panneau, setPanneau] = useState<Moyen | null>(null);
-  const [operateur, setOperateur] = useState<string | null>(null);
-  const [operateurManuel, setOperateurManuel] = useState(false);
-  const [telephone, setTelephone] = useState("");
-  const [nomCarte, setNomCarte] = useState("");
-  const [refEnCours, setRefEnCours] = useState<string | null>(null);
-  const [attente, setAttente] = useState<Attente | null>(null);
-  const [paysCode, setPaysCode] = useState<string>("CM");
-  const [tarifs, setTarifs] = useState<Tarifs | null>(null);
-  const [relance, setRelance] = useState(0);
-  const [delaiDepasse, setDelaiDepasse] = useState(false);
+  // Saisie du pays et du numéro (comptes créés avant l'obligation)
+  const [paysSaisi, setPaysSaisi] = useState("");
+  const [telSaisi, setTelSaisi] = useState("");
+  const [telBusy, setTelBusy] = useState(false);
+  const [telError, setTelError] = useState<string | null>(null);
 
   // Ressources liées
   const [relatedDoc, setRelatedDoc] = useState<RelatedDoc | null>(null);
   const [relatedGuides, setRelatedGuides] = useState<RelatedDoc[]>([]);
   const [relatedLoading, setRelatedLoading] = useState(true);
 
-  const slug = doc.slug;
-  const paiement = searchParams.get("paiement");
-  const purchaseRef = searchParams.get("ref");
-
-  // 1-bis. Journaliser la consultation de la fiche (compteur bibliotheque)
+  // 1. Journaliser la consultation de la fiche (compteur bibliothèque)
   useEffect(() => {
     let sid: string | null = null;
     try {
@@ -146,133 +62,6 @@ export default function DocumentInteractive({
     }
     supabase.rpc("log_document_view_by_slug", { p_slug: doc.slug, p_session_id: sid }).then(({ error }) => { if (error) console.error("log_document_view_by_slug:", error); });
   }, [doc.slug]);
-
-  // 2. Vérifier l'achat + charger le contenu si acheté
-  useEffect(() => {
-    async function checkAndFetch() {
-      if (!session?.user) {
-        setCheckingPurchase(false);
-        return;
-      }
-
-      // Vérifier l'achat
-      const { data: purchases } = await supabase
-        .from("document_purchases")
-        .select("id")
-        .eq("user_id", session.user.id)
-        .eq("document_id", doc.id)
-        .eq("payment_status", "completed")
-        .limit(1);
-
-      const isFondateur = session.user.email?.toLowerCase() === "philatine04@gmail.com";
-      const purchased = isFondateur || (purchases || []).length > 0;
-      setHasPurchased(purchased);
-
-      // Charger le contenu via RPC sécurisée
-      if (purchased) {
-        const { data: contentData } = await supabase
-          .rpc("get_document_content", { p_document_id: doc.id });
-        if (contentData) setContent(contentData as string);
-      }
-
-      setCheckingPurchase(false);
-    }
-    checkAndFetch();
-  }, [session, doc.id]);
-
-  // Champs mémorisés sur cet appareil (confort : pays, numéro et nom de la dernière fois)
-  useEffect(() => {
-    const p = paysNokash(lireLocal("kessel_pay_pays"));
-    if (p) setPaysCode(p.code);
-    const tel = lireLocal("kessel_pay_tel");
-    if (tel) {
-      setTelephone(tel);
-      if (!p || p.code === "CM") setOperateur(devinerOperateur(tel));
-    }
-    setNomCarte(lireLocal("kessel_pay_nom"));
-  }, []);
-
-  // Reprise d'une attente après rechargement (Mobile Money / virement)
-  useEffect(() => {
-    if (paiement !== "retour" || !purchaseRef) return;
-    try {
-      const brut = localStorage.getItem(`kessel_pay_attente_${purchaseRef}`);
-      if (brut) setAttente(JSON.parse(brut) as Attente);
-    } catch { /* rien à reprendre */ }
-  }, [paiement, purchaseRef]);
-
-  // [nokash v2] Prix par monnaie, chargés à l'ouverture du formulaire Mobile Money
-  useEffect(() => {
-    if (panneau !== "momo" || tarifs) return;
-    let annule = false;
-    fetch(`/api/nokash/tarifs?documentId=${doc.id}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((t: Tarifs | null) => {
-        if (annule || !t) return;
-        setTarifs(t);
-        if (!lireLocal("kessel_pay_pays") && paysNokash(t.suggere)) setPaysCode(t.suggere);
-      })
-      .catch(() => { /* prix FCFA affiché, le serveur reste seul juge */ });
-    return () => { annule = true; };
-  }, [panneau, tarifs, doc.id]);
-
-  // 3. Polling post-paiement — retour de la page de paiement (carte) ou attente de la
-  //    validation sur le téléphone (Mobile Money NOKASH)
-  const refSuivie = refEnCours || (paiement === "retour" ? purchaseRef : null);
-  const typeAttente = attente?.type ?? null;
-  useEffect(() => {
-    if (!refSuivie || !session?.access_token || hasPurchased) return;
-
-    setVerifying(true);
-    setDelaiDepasse(false);
-    let cancelled = false;
-    let attempts = 0;
-    // Mobile Money : ~3 min pour valider sur le téléphone ; virement : ~6 min avant de proposer
-    // « Vérifier à nouveau » (la confirmation bancaire peut être plus lente)
-    const maxAttempts = typeAttente === "virement" ? 120 : typeAttente === "momo" ? 60 : 20;
-
-    async function pollStatus() {
-      while (!cancelled && attempts < maxAttempts) {
-        attempts++;
-        try {
-          const res = await fetch(`/api/campay/status?purchaseId=${encodeURIComponent(refSuivie!)}`, {
-            headers: { Authorization: `Bearer ${session!.access_token}` },
-          });
-          const data = await res.json();
-
-          if (data.status === "completed") {
-            // Recharger proprement sans les query params
-            window.location.href = `/bibliotheque/${slug}`;
-            return;
-          }
-          if (data.status === "failed") {
-            setPaymentError(
-              typeAttente
-                ? "Le paiement n'a pas été validé (refusé, annulé ou délai expiré). Tu peux réessayer."
-                : "Le paiement a échoué. Réessaie ou contacte-nous."
-            );
-            setVerifying(false);
-            setAttente(null);
-            setRefEnCours(null);
-            try { window.history.replaceState(null, "", `/bibliotheque/${slug}`); } catch { /* sans effet */ }
-            return;
-          }
-        } catch {
-          // Erreur réseau, on continue de poller
-        }
-
-        await new Promise((r) => setTimeout(r, 3000));
-      }
-
-      if (!cancelled && attempts >= maxAttempts) {
-        // On ne conclut pas à l'échec : la validation peut encore arriver. Le client relance.
-        setDelaiDepasse(true);
-      }
-    }
-
-    pollStatus();
-    return () => { cancelled = true; };
-  }, [refSuivie, session, slug, hasPurchased, typeAttente, relance]);
 
   // 4. Charger les ressources liées (contrepartie BP↔ITK ou suggestions guides)
   useEffect(() => {
@@ -339,161 +128,56 @@ export default function DocumentInteractive({
     loadRelated();
   }, [doc.id, doc.type, doc.slug, doc.speculation]);
 
-  // ─── Lancer le paiement (Mobile Money → CamPay, carte → CamerPay) ──
-  const handlePurchase = useCallback(async (moyen: Moyen) => {
-    if (!session?.access_token) return;
-
-    setPaymentLoading(moyen);
-    setPaymentError(null);
-
-    try {
-      const endpoint = moyen === "carte" ? "/api/camerpay/initiate" : "/api/campay/initiate";
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ documentId: doc.id }),
+  // Charger le document complet : connecté + pays et numéro enregistrés
+  useEffect(() => {
+    if (!user || !compteComplet) {
+      setContent(null);
+      return;
+    }
+    let annule = false;
+    setContentLoading(true);
+    setContentError(false);
+    supabase
+      .rpc("get_document_content", { p_document_id: doc.id })
+      .then(({ data, error }) => {
+        if (annule) return;
+        if (error) console.error("get_document_content:", error.message);
+        if (typeof data === "string" && data.trim()) setContent(data);
+        else setContentError(true);
+        setContentLoading(false);
       });
+    return () => {
+      annule = true;
+    };
+  }, [user, compteComplet, doc.id]);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (res.status === 409) {
-          // Déjà acheté — recharger pour afficher le contenu
-          window.location.reload();
-          return;
-        }
-        setPaymentError(data.error || "Erreur lors du paiement");
-        setPaymentLoading(null);
-        return;
-      }
-
-      // Rediriger vers la page de paiement du prestataire
-      window.location.href = data.paymentUrl;
-    } catch {
-      setPaymentError("Erreur de connexion. Vérifie ton accès internet.");
-      setPaymentLoading(null);
+  async function enregistrerTelephone(e: React.FormEvent) {
+    e.preventDefault();
+    setTelError(null);
+    const tel = normaliserTelephone(telSaisi, paysSaisi);
+    if (tel.erreur !== undefined) {
+      setTelError(tel.erreur);
+      return;
     }
-  }, [session, doc.id]);
+    setTelBusy(true);
+    const { error } = await supabase.auth.updateUser({ data: { telephone: tel.telephone, pays: paysSaisi } });
+    setTelBusy(false);
+    if (error) setTelError("Enregistrement impossible pour le moment. Réessaie dans un instant.");
+    // En cas de succès, le compte est mis à jour (AuthContext) et le document se charge tout seul.
+  }
 
-  // ─── [nokash v1 + v2] Lancer un paiement NOKASH (Mobile Money, virement ou carte) ──
-  const handleNokash = useCallback(async (moyen: Moyen) => {
-    if (!session?.access_token) return;
-    setPaymentError(null);
+  const showRelated = !relatedLoading;
 
-    const pays = paysNokash(paysCode);
-    const virement = moyen === "momo" && pays?.mode === "virement";
-    if (moyen === "momo") {
-      if (!pays) { setPaymentError("Choisis ton pays."); return; }
-      if (virement) {
-        if (nomCarte.trim().length < 2) { setPaymentError("Indique ton nom complet."); return; }
-      } else {
-        if (!operateur || !pays.operateurs.some((o) => o.code === operateur)) { setPaymentError("Choisis ton opérateur."); return; }
-        if (telephone.replace(/\D/g, "").length < 7) { setPaymentError("Saisis ton numéro Mobile Money."); return; }
-      }
-    } else if (nomCarte.trim().length < 2) {
-      setPaymentError("Indique le nom inscrit sur la carte."); return;
-    }
-
-    setPaymentLoading(moyen);
-    try {
-      const res = await fetch("/api/nokash/initiate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(
-          moyen === "carte"
-            ? { documentId: doc.id, moyen, nom: nomCarte }
-            : virement
-              ? { documentId: doc.id, moyen: "virement", pays: paysCode, nom: nomCarte }
-              : { documentId: doc.id, moyen, pays: paysCode, operateur, telephone }
-        ),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (res.status === 409) { window.location.reload(); return; }
-        setPaymentError(data.error || "Erreur lors du paiement");
-        setPaymentLoading(null);
-        return;
-      }
-
-      // Une adresse qui reprend la vérification si la page est rechargée ou si le client
-      // revient en arrière depuis la page de paiement
-      const retour = `/bibliotheque/${slug}?paiement=retour&ref=${data.purchaseId}`;
-      try { window.history.replaceState(null, "", retour); } catch { /* sans effet */ }
-
-      if (moyen === "momo" && pays) {
-        ecrireLocal("kessel_pay_pays", pays.code);
-        if (virement) ecrireLocal("kessel_pay_nom", nomCarte.trim());
-        else ecrireLocal("kessel_pay_tel", telephone);
-        const a: Attente = {
-          type: virement ? "virement" : "momo",
-          pays: pays.code,
-          operateurNom: pays.operateurs.find((o) => o.code === operateur)?.nom ?? "",
-          montant: Number(data.montant) || doc.price,
-          monnaie: String(data.monnaie || "XAF"),
-          virement: data.virement ?? null,
-        };
-        ecrireLocal(`kessel_pay_attente_${data.purchaseId}`, JSON.stringify(a));
-        setAttente(a);
-        setRefEnCours(data.purchaseId);
-        setPaymentLoading(null);
-        setPanneau(null);
-      } else {
-        ecrireLocal("kessel_pay_nom", nomCarte.trim());
-        if (data.paymentUrl) {
-          window.location.href = data.paymentUrl;
-        } else {
-          // Mode test NOKASH : pas de page carte, on vérifie directement le statut
-          setRefEnCours(data.purchaseId);
-          setPaymentLoading(null);
-          setPanneau(null);
-        }
-      }
-    } catch {
-      setPaymentError("Erreur de connexion. Vérifie ton accès internet.");
-      setPaymentLoading(null);
-    }
-  }, [session, doc.id, doc.price, slug, operateur, telephone, nomCarte, paysCode]);
-
-  const annulerAttente = useCallback(() => {
-    setAttente(null);
-    setRefEnCours(null);
-    setVerifying(false);
-    setDelaiDepasse(false);
-    try { window.history.replaceState(null, "", `/bibliotheque/${slug}`); } catch { /* sans effet */ }
-    window.location.href = `/bibliotheque/${slug}`;
-  }, [slug]);
-
-  const config = TYPE_CONFIG[doc.type] || TYPE_CONFIG.guide;
-  const NOKASH_ACTIF = nokashVisible(session?.user?.email);
-  const paysChoisi = paysNokash(paysCode) ?? PAYS_NOKASH[0];
-  const prixPays: number | null = sansConversion(paysChoisi.monnaie)
-    ? doc.price
-    : tarifs ? tarifs.prix[paysChoisi.monnaie] : null;
-  const CARTE_ACTIVEE = NOKASH_ACTIF || carteVisible(session?.user?.email);
-  const showRelated = hasPurchased && content && !relatedLoading;
-
-  // Aperçu gratuit : affiché dès le rendu serveur (lisible par Google), pendant la
-  // vérification d'achat comme devant le bouton de paiement.
+  // Aperçu : affiché dès le rendu serveur (lisible par Google) tant que le document complet n'est pas ouvert.
   const hasPreview = Boolean(preview && preview.preview.trim());
   const previewBlock = hasPreview && preview ? (
     <div className="mb-8">
       <div className="relative bg-white rounded-2xl shadow-sm overflow-hidden">
-        <article
-          className="prose-kessel p-6 md:p-10 pb-24 md:pb-28"
-          onContextMenu={(e) => e.preventDefault()}
-        >
+        <article className="prose-kessel p-6 md:p-10 pb-24 md:pb-28">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {preview.preview.replace(/^#\s+.+\n*/m, "")}
           </ReactMarkdown>
         </article>
-        {/* Fondu : le texte s'efface là où la lecture devient intéressante */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-white/0 via-white/85 to-white"
@@ -520,453 +204,82 @@ export default function DocumentInteractive({
 
   return (
     <>
-      {checkingPurchase ? (
-        /* ── Vérification en cours (l'aperçu reste visible) ── */
-        <>
-          {previewBlock}
-          <div className="text-center py-10">
-            <div className="animate-pulse text-ink-light">Vérification…</div>
-          </div>
-        </>
-
-      ) : hasPurchased && content ? (
-        /* ── CONTENU COMPLET (acheté) ────────────── */
-        <article className="bg-white rounded-2xl shadow-sm p-6 md:p-10 prose-kessel" onContextMenu={(e) => e.preventDefault()}>
+      {content ? (
+        /* ── DOCUMENT COMPLET (connecté + numéro) ── */
+        <article className="bg-white rounded-2xl shadow-sm p-6 md:p-10 prose-kessel">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {content.replace(/^#\s+.+\n*/m, '')}
+            {content.replace(/^#\s+.+\n*/m, "")}
           </ReactMarkdown>
         </article>
-
-      ) : verifying ? (
-        /* ── VÉRIFICATION POST-PAIEMENT / ATTENTE MOBILE MONEY ── */
-        <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
-          <div className="w-16 h-16 bg-amber-light rounded-full flex items-center justify-center mx-auto mb-6">
-            {attente ? (
-              <Smartphone size={28} className={`text-amber ${delaiDepasse ? "" : "animate-pulse"}`} />
-            ) : (
-              <RefreshCw size={28} className={`text-amber ${delaiDepasse ? "" : "animate-spin"}`} />
-            )}
-          </div>
-          <h2
-            className="text-2xl font-bold text-forest-dark mb-3"
-            style={{ fontFamily: "var(--serif)" }}
-          >
-            {attente?.type === "virement"
-              ? "Fais le virement pour débloquer ton document"
-              : attente
-                ? "Valide le paiement sur ton téléphone"
-                : "Vérification du paiement…"}
-          </h2>
-          {attente?.type === "virement" ? (
-            <div className="text-ink-light max-w-md mx-auto space-y-3">
-              {attente.virement ? (
-                <dl className="text-left bg-forest-xlight rounded-xl p-5 space-y-2 text-sm">
-                  <div className="flex justify-between gap-4"><dt>Montant exact</dt><dd className="font-bold text-forest-dark" style={{ fontFamily: "var(--mono)" }}>{`${fmt(attente.montant)} ${libMonnaie(attente.monnaie)}`}</dd></div>
-                  {attente.virement.banque && (<div className="flex justify-between gap-4"><dt>Banque</dt><dd className="font-semibold text-forest-dark text-right">{attente.virement.banque}</dd></div>)}
-                  <div className="flex justify-between gap-4"><dt>Numéro de compte</dt><dd className="font-bold text-forest-dark select-all" style={{ fontFamily: "var(--mono)" }}>{attente.virement.compte}</dd></div>
-                  {attente.virement.expireLe && (<div className="flex justify-between gap-4"><dt>Valable jusqu&apos;au</dt><dd className="text-forest-dark">{dateLocale(attente.virement.expireLe)}</dd></div>)}
-                </dl>
-              ) : (
-                <p>Les coordonnées du virement ne sont plus affichables sur cet appareil. Si tu as déjà viré, attends la confirmation ; sinon, recommence.</p>
-              )}
-              <p className="text-sm">Vire exactement ce montant, en une seule fois, depuis ton application bancaire. Ce compte ne sert qu&apos;à cet achat.</p>
-              <p className="text-sm">Tu peux fermer cette page : le document apparaîtra dans « Mes documents » dès réception du virement.</p>
-            </div>
-          ) : attente ? (
-            <div className="text-ink-light max-w-md mx-auto space-y-2">
-              <p>
-                {`Une demande de ${fmt(attente.montant)} ${libMonnaie(attente.monnaie)} a été envoyée sur ton numéro${attente.operateurNom ? ` ${attente.operateurNom}` : ""}. Saisis ton code secret pour confirmer.`}
-              </p>
-              <p className="text-sm">
-                {attente.pays === "CM" && attente.operateurNom.startsWith("MTN")
-                  ? "Pas de message ? Compose *126# pour voir les paiements en attente."
-                  : attente.pays === "CM"
-                    ? "Pas de message ? Compose #150*50# pour valider le paiement en attente."
-                    : "Pas de message ? Ouvre le menu ou l'application de ton service Mobile Money pour valider le paiement en attente."}
-              </p>
-              <p className="text-sm">Le document se débloque tout seul dès la confirmation.</p>
-            </div>
-          ) : (
-            <p className="text-ink-light max-w-md mx-auto">
-              Nous confirmons ton paiement auprès du prestataire de paiement. Cela peut prendre quelques secondes.
-            </p>
-          )}
-          {delaiDepasse && (
-            <div className="mt-6 space-y-3">
-              <p className="text-sm text-ink-light max-w-md mx-auto">
-                Pas encore de confirmation. Si tu as validé, elle peut arriver avec un peu de retard.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <button
-                  onClick={() => setRelance((n) => n + 1)}
-                  className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-6 py-3 rounded-xl transition-all"
-                >
-                  <RefreshCw size={16} />
-                  Vérifier à nouveau
-                </button>
-                <button
-                  onClick={annulerAttente}
-                  className="inline-flex items-center justify-center gap-2 border border-neutral-mid text-forest-dark font-semibold px-6 py-3 rounded-xl hover:bg-neutral transition-all"
-                >
-                  Recommencer
-                </button>
-              </div>
-            </div>
-          )}
-          {attente && !delaiDepasse && (
-            <button
-              onClick={annulerAttente}
-              className="mt-6 text-sm text-ink-light underline hover:text-amber"
-            >
-              Changer de numéro ou de moyen de paiement
-            </button>
-          )}
-        </div>
-
-      ) : paiement === "echec" ? (
-        /* ── ÉCHEC PAIEMENT ──────────────────────── */
-        <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
-          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock size={28} className="text-red-500" />
-          </div>
-          <h2
-            className="text-2xl font-bold text-forest-dark mb-3"
-            style={{ fontFamily: "var(--serif)" }}
-          >
-            Paiement non abouti
-          </h2>
-          <p className="text-ink-light mb-6 max-w-md mx-auto">
-            Le paiement n'a pas été confirmé. Aucun montant n'a été prélevé. Tu peux réessayer.
-          </p>
-          <button
-            onClick={() => window.location.href = `/bibliotheque/${slug}`}
-            className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5"
-          >
-            <RefreshCw size={18} />
-            Réessayer
-          </button>
-        </div>
-
       ) : (
         <>
-        {previewBlock}
+          {previewBlock}
 
-        {/* ── PAYWALL ─────────────────────────────── */}
-        <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
-          <div className="w-16 h-16 bg-amber-light rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock size={28} className="text-amber" />
-          </div>
-
-          <h2
-            className="text-2xl font-bold text-forest-dark mb-3"
-            style={{ fontFamily: "var(--serif)" }}
-          >
-            {hasPreview ? "Envie de lire la suite ?" : "Document payant"}
-          </h2>
-
-          <p className="text-ink-light mb-2 max-w-md mx-auto">
-            {`Accède à l'intégralité de ce ${config.label.toLowerCase()} pour`}
-          </p>
-
-          <p
-            className="text-3xl font-bold mb-8"
-            style={{ fontFamily: "var(--mono)", color: config.accent }}
-          >
-            {doc.price.toLocaleString("fr-FR")}{" "}
-            <span className="text-base text-ink-light">FCFA</span>
-          </p>
-
-          {!session?.user ? (
-            /* Pas connecté */
-            <div className="space-y-4">
-              <Link
-                href={`/connexion?redirect=/bibliotheque/${slug}`}
-                className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5"
-              >
-                <LogIn size={18} />
-                Connecte-toi pour acheter
-              </Link>
-              <p className="text-sm text-ink-light">
-                {`Pas encore de compte ? L'inscription prend 30 secondes.`}
-              </p>
+          {authLoading || contentLoading ? (
+            <div className="text-center py-10">
+              <div className="animate-pulse text-ink-light">Chargement…</div>
             </div>
-          ) : (
-            /* Connecté mais pas acheté */
-            <div className="space-y-4">
-              {paymentError && (
-                <p className="text-red-600 text-sm bg-red-50 rounded-lg px-4 py-2 mb-2">
-                  {paymentError}
-                </p>
-              )}
-              {NOKASH_ACTIF ? (
-                /* [nokash v1] Deux moyens via NOKASH, avec un petit formulaire chacun */
-                <div className="max-w-xl mx-auto">
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch">
-                    <button
-                      onClick={() => { setPanneau(panneau === "momo" ? null : "momo"); setPaymentError(null); }}
-                      disabled={paymentLoading !== null}
-                      aria-expanded={panneau === "momo"}
-                      className={`flex-1 inline-flex items-center justify-center gap-2 font-semibold px-6 py-3.5 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed ${panneau === "momo" ? "bg-amber-dark text-white" : "bg-amber hover:bg-amber-dark text-white hover:-translate-y-0.5"}`}
-                    >
-                      <Smartphone size={18} />
-                      Mobile Money
-                    </button>
-                    <button
-                      onClick={() => { setPanneau(panneau === "carte" ? null : "carte"); setPaymentError(null); }}
-                      disabled={paymentLoading !== null}
-                      aria-expanded={panneau === "carte"}
-                      className={`flex-1 inline-flex items-center justify-center gap-2 font-semibold px-6 py-3.5 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed ${panneau === "carte" ? "bg-forest-dark text-white" : "bg-forest hover:bg-forest-dark text-white hover:-translate-y-0.5"}`}
-                    >
-                      <CreditCard size={18} />
-                      Carte bancaire
-                    </button>
-                  </div>
-
-                  {panneau === "momo" && (
-                    <form
-                      onSubmit={(e) => { e.preventDefault(); handleNokash("momo"); }}
-                      className="mt-4 text-left bg-forest-xlight rounded-xl p-5 space-y-4"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold text-forest-dark text-sm">Payer par Mobile Money</p>
-                        <button type="button" onClick={() => setPanneau(null)} aria-label="Fermer" className="text-ink-light hover:text-forest-dark">
-                          <X size={18} />
-                        </button>
-                      </div>
-                      <div>
-                        <label htmlFor="pay-pays" className="block text-xs font-semibold text-ink-light uppercase tracking-wider mb-1.5">
-                          Pays
-                        </label>
-                        <select
-                          id="pay-pays"
-                          value={paysChoisi.code}
-                          onChange={(e) => {
-                            const p = paysNokash(e.target.value);
-                            if (!p) return;
-                            setPaysCode(p.code);
-                            setOperateurManuel(false);
-                            setOperateur(p.operateurs.length === 1 ? p.operateurs[0].code : p.code === "CM" ? devinerOperateur(telephone) : null);
-                            setPaymentError(null);
-                          }}
-                          className="w-full rounded-lg border border-neutral-mid bg-white px-3 py-3 text-base outline-none focus:border-forest"
-                        >
-                          {PAYS_NOKASH.map((p) => (
-                            <option key={p.code} value={p.code}>
-                              {p.mode === "virement" ? `${p.nom} (virement bancaire)` : p.nom}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      {paysChoisi.mode === "virement" ? (
-                        <div>
-                          <label htmlFor="pay-nom-vir" className="block text-xs font-semibold text-ink-light uppercase tracking-wider mb-1.5">
-                            Nom complet
-                          </label>
-                          <input
-                            id="pay-nom-vir"
-                            type="text"
-                            autoComplete="name"
-                            placeholder="Prénom Nom"
-                            value={nomCarte}
-                            onChange={(e) => setNomCarte(e.target.value.slice(0, 60))}
-                            className="w-full rounded-lg border border-neutral-mid bg-white px-3 py-3 text-base outline-none focus:border-forest"
-                          />
-                        </div>
-                      ) : (
-                        <>
-                          <div>
-                            <label htmlFor="pay-tel" className="block text-xs font-semibold text-ink-light uppercase tracking-wider mb-1.5">
-                              Numéro Mobile Money
-                            </label>
-                            <div className="flex items-stretch rounded-lg border border-neutral-mid bg-white focus-within:border-forest overflow-hidden">
-                              <span className="px-3 flex items-center text-ink-light text-sm border-r border-neutral-mid" style={{ fontFamily: "var(--mono)" }}>{`+${paysChoisi.indicatif}`}</span>
-                              <input
-                                id="pay-tel"
-                                type="tel"
-                                inputMode="numeric"
-                                autoComplete="tel-national"
-                                placeholder={paysChoisi.exemple}
-                                value={telephone}
-                                onChange={(e) => {
-                                  const v = e.target.value.replace(/[^\d\s+]/g, "").slice(0, 18);
-                                  setTelephone(v);
-                                  if (!operateurManuel && paysChoisi.code === "CM") setOperateur(devinerOperateur(v));
-                                }}
-                                className="flex-1 min-w-0 px-3 py-3 text-base outline-none"
-                                style={{ fontFamily: "var(--mono)" }}
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold text-ink-light uppercase tracking-wider mb-1.5">Opérateur</p>
-                            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Opérateur">
-                              {paysChoisi.operateurs.map((o) => (
-                                <button
-                                  key={o.code}
-                                  type="button"
-                                  role="radio"
-                                  aria-checked={operateur === o.code}
-                                  onClick={() => { setOperateur(o.code); setOperateurManuel(true); }}
-                                  className={`py-2.5 rounded-lg border text-sm font-semibold transition-all ${operateur === o.code ? "border-forest bg-white text-forest-dark ring-2 ring-forest/20" : "border-neutral-mid bg-white text-ink-light hover:border-forest/50"}`}
-                                >
-                                  {o.nom}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      {!sansConversion(paysChoisi.monnaie) && (
-                        <p className="text-xs text-ink-light">
-                          {prixPays !== null
-                            ? `Prix converti : ${fmt(doc.price)} FCFA au taux du jour, majoré de 5 % pour les frais de change, arrondi.`
-                            : tarifs
-                              ? "Paiement dans cette monnaie momentanément indisponible : choisis un autre pays ou paie par carte."
-                              : "Calcul du prix dans ta monnaie…"}{" "}
-                          <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber">Rates By Exchange Rate API</a>
-                        </p>
-                      )}
-                      <button
-                        type="submit"
-                        disabled={paymentLoading !== null || prixPays === null}
-                        className="w-full inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-6 py-3.5 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                      >
-                        {paymentLoading === "momo" ? (
-                          <span className="animate-pulse">Envoi de la demande…</span>
-                        ) : prixPays !== null ? (
-                          `${paysChoisi.mode === "virement" ? "Obtenir le compte à créditer" : "Payer"} ${fmt(prixPays)} ${libMonnaie(paysChoisi.monnaie)}`
-                        ) : (
-                          "Payer"
-                        )}
-                      </button>
-                      <p className="text-xs text-ink-light">
-                        {paysChoisi.mode === "virement"
-                          ? "Tu recevras un numéro de compte bancaire temporaire à créditer depuis ton application bancaire."
-                          : "Tu recevras une demande de confirmation sur ton téléphone. Garde-le à portée de main."}
-                      </p>
-                    </form>
-                  )}
-
-                  {panneau === "carte" && (
-                    <form
-                      onSubmit={(e) => { e.preventDefault(); handleNokash("carte"); }}
-                      className="mt-4 text-left bg-forest-xlight rounded-xl p-5 space-y-4"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold text-forest-dark text-sm">Payer par carte bancaire</p>
-                        <button type="button" onClick={() => setPanneau(null)} aria-label="Fermer" className="text-ink-light hover:text-forest-dark">
-                          <X size={18} />
-                        </button>
-                      </div>
-                      <div>
-                        <label htmlFor="pay-nom" className="block text-xs font-semibold text-ink-light uppercase tracking-wider mb-1.5">
-                          Nom sur la carte
-                        </label>
-                        <input
-                          id="pay-nom"
-                          type="text"
-                          autoComplete="cc-name"
-                          placeholder="Prénom Nom"
-                          value={nomCarte}
-                          onChange={(e) => setNomCarte(e.target.value.slice(0, 60))}
-                          className="w-full rounded-lg border border-neutral-mid bg-white px-3 py-3 text-base outline-none focus:border-forest"
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        disabled={paymentLoading !== null}
-                        className="w-full inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-6 py-3.5 rounded-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                      >
-                        {paymentLoading === "carte" ? (
-                          <span className="animate-pulse">Redirection…</span>
-                        ) : (
-                          <>
-                            <Lock size={16} />
-                            {`Continuer vers le paiement sécurisé`}
-                          </>
-                        )}
-                      </button>
-                      <p className="text-xs text-ink-light">
-                        Tu saisiras ta carte sur la page sécurisée de NOKASH : Kessel ne voit jamais ses numéros.
-                        Une fois le paiement confirmé, reviens sur cette page avec le bouton « retour » : ton document s&apos;ouvrira.
-                      </p>
-                    </form>
-                  )}
-                </div>
-              ) : CARTE_ACTIVEE ? (
-                /* Deux moyens : Mobile Money (CamPay) ou carte bancaire (CamerPay) */
-                <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-xl mx-auto">
-                  <button
-                    onClick={() => handlePurchase("momo")}
-                    disabled={paymentLoading !== null}
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                  >
-                    {paymentLoading === "momo" ? (
-                      <span className="animate-pulse">Redirection…</span>
-                    ) : (
-                      <>
-                        <Smartphone size={18} />
-                        Mobile Money
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handlePurchase("carte")}
-                    disabled={paymentLoading !== null}
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest-dark text-white font-semibold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                  >
-                    {paymentLoading === "carte" ? (
-                      <span className="animate-pulse">Redirection…</span>
-                    ) : (
-                      <>
-                        <CreditCard size={18} />
-                        Carte bancaire
-                      </>
-                    )}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => handlePurchase("momo")}
-                  disabled={paymentLoading !== null}
-                  className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          ) : !user ? (
+            /* ── VISITEUR : se connecter pour lire ── */
+            <div className="bg-white rounded-2xl shadow-sm p-8 md:p-10 text-center">
+              <p className="text-amber font-semibold text-xs uppercase tracking-wider mb-3">Gratuit</p>
+              <h3 className="text-2xl font-bold text-forest-dark mb-3" style={{ fontFamily: "var(--serif)" }}>
+                Lis ce document en entier
+              </h3>
+              <p className="text-ink-light text-sm mb-6 max-w-md mx-auto">
+                Crée ton compte gratuit avec ton adresse e-mail, ton pays et ton numéro de téléphone, puis accède à toute la bibliothèque.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link
+                  href={authHref(pathname, { mode: "register" })}
+                  className="inline-flex items-center justify-center gap-2 bg-amber hover:bg-amber-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors"
                 >
-                  {paymentLoading ? (
-                    <span className="animate-pulse">Redirection vers le paiement…</span>
-                  ) : (
-                    <>
-                      <CreditCard size={18} />
-                      {`Acheter — ${doc.price.toLocaleString("fr-FR")} FCFA`}
-                    </>
-                  )}
+                  Créer mon compte gratuit
+                  <ArrowRight size={18} />
+                </Link>
+                <Link
+                  href={authHref(pathname)}
+                  className="inline-flex items-center justify-center gap-2 border-2 border-forest text-forest hover:bg-forest-light font-semibold px-6 py-3 rounded-xl transition-colors"
+                >
+                  <LogIn size={18} />
+                  J&apos;ai déjà un compte
+                </Link>
+              </div>
+            </div>
+          ) : !compteComplet ? (
+            /* ── CONNECTÉ SANS NUMÉRO : le demander une fois ── */
+            <div className="bg-white rounded-2xl shadow-sm p-8 md:p-10">
+              <h3 className="text-xl font-bold text-forest-dark mb-2 text-center" style={{ fontFamily: "var(--serif)" }}>
+                Encore une étape
+              </h3>
+              <p className="text-ink-light text-sm mb-6 text-center max-w-md mx-auto">
+                Indique ton pays et ton numéro de téléphone (WhatsApp) pour lire toute la bibliothèque. Ils ne te seront demandés qu&apos;une fois.
+              </p>
+              <form onSubmit={enregistrerTelephone} className="max-w-sm mx-auto space-y-3">
+                <ChampTelephone
+                  pays={paysSaisi}
+                  onPays={(c) => { setPaysSaisi(c); setTelError(null); }}
+                  telephone={telSaisi}
+                  onTelephone={setTelSaisi}
+                />
+                {telError && <p className="text-sm text-red-700">{telError}</p>}
+                <button
+                  type="submit"
+                  disabled={telBusy}
+                  className="w-full bg-forest hover:bg-forest-dark text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
+                >
+                  {telBusy ? "Enregistrement…" : "Enregistrer et lire le document"}
                 </button>
-              )}
-              {NOKASH_ACTIF ? (
-                <p className="text-sm text-ink-light max-w-md mx-auto">
-                  {`Mobile Money dans ${PAYS_NOKASH.length} pays d'Afrique. Carte : Visa ou Mastercard, débitée en FCFA.`}
-                </p>
-              ) : CARTE_ACTIVEE ? (
-                <p className="text-sm text-ink-light max-w-md mx-auto">
-                  Mobile Money : MTN ou Orange.
-                  {" "}Carte : Visa ou Mastercard, montant présenté en euros (≈{" "}
-                  {(doc.price / XAF_PAR_EUR).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
-                  €, taux fixe 1 € = 655,957 FCFA).
-                </p>
-              ) : (
-                <p className="text-sm text-ink-light">
-                  Paiement sécurisé par Mobile Money (MTN / Orange)
-                </p>
-              )}
-              <p className="text-xs text-ink-light max-w-md mx-auto">
-                {/* [legal-v2] acceptation des CGV au moment de l'achat */}
-                {CARTE_ACTIVEE ? "En choisissant un moyen de paiement" : "En cliquant sur « Acheter »"}, tu acceptes les{" "}
-                <Link href="/cgv" className="underline hover:text-amber">conditions générales de vente</Link>{" "}
-                et demandes l&apos;accès immédiat au document : il n&apos;est plus remboursable une fois accessible, sauf cas
-                prévus à l&apos;article 6.
+              </form>
+            </div>
+          ) : contentError ? (
+            <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
+              <p className="font-semibold text-forest-dark mb-2">Document momentanément indisponible</p>
+              <p className="text-sm text-ink-light">
+                Recharge la page dans quelques instants. Si le problème continue, écris-nous sur WhatsApp.
               </p>
             </div>
-          )}
-        </div>
+          ) : null}
         </>
       )}
 
@@ -1026,15 +339,11 @@ export default function DocumentInteractive({
                   <div className="flex items-center justify-between mt-auto pt-3 border-t border-neutral-mid">
                     <div>
                       <span
-                        className="text-lg font-bold"
-                        style={{
-                          fontFamily: "var(--mono)",
-                          color: TYPE_CONFIG[relatedDoc.type].accent,
-                        }}
+                        className="text-sm font-semibold"
+                        style={{ color: TYPE_CONFIG[relatedDoc.type].accent }}
                       >
-                        {relatedDoc.price.toLocaleString("fr-FR")}
+                        Gratuit
                       </span>
-                      <span className="text-xs text-ink-light ml-1">FCFA</span>
                     </div>
                     <span className="inline-flex items-center gap-1.5 text-forest font-medium text-sm group-hover:gap-2 transition-all">
                       Consulter
@@ -1115,8 +424,7 @@ export default function DocumentInteractive({
                         className="text-sm font-bold"
                         style={{ fontFamily: "var(--mono)", color: TYPE_CONFIG.guide.accent }}
                       >
-                        {g.price.toLocaleString("fr-FR")}
-                        <span className="text-xs text-ink-light ml-1">FCFA</span>
+                        Gratuit
                       </span>
                       <ArrowRight size={14} className="text-forest group-hover:translate-x-1 transition-transform" />
                     </div>

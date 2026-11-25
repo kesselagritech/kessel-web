@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { sanitizeRedirect } from "@/lib/authHref";
 import { Mail, Lock, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
+import { normaliserTelephone } from "@/lib/telephone";
+import ChampTelephone from "@/components/ChampTelephone";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -19,6 +21,8 @@ function ConnexionContent() {
   const [mode, setMode] = useState<"login" | "register">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [pays, setPays] = useState("");
+  const [telephone, setTelephone] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -57,12 +61,20 @@ function ConnexionContent() {
         setBusy(false);
         return;
       }
+      // [bibliotheque-compte v2] Pays puis numéro de téléphone, obligatoires à l'inscription
+      const tel = normaliserTelephone(telephone, pays);
+      if (tel.erreur !== undefined) {
+        setError(tel.erreur);
+        setBusy(false);
+        return;
+      }
       // On propage redirectTo pour que le lien recu par email pointe vers
       // /auth/callback?redirect=... et ramene l'utilisateur sur sa page d'origine.
       const { error: err, needsConfirmation } = await signUp(
         email,
         password,
         redirectTo,
+        { telephone: tel.telephone, pays },
       );
       if (err) {
         if (err.message?.includes("already registered")) {
@@ -196,6 +208,15 @@ function ConnexionContent() {
                     />
                   </div>
                 </div>
+
+                {mode === "register" && (
+                  <ChampTelephone
+                    pays={pays}
+                    onPays={(c) => { setPays(c); setError(""); }}
+                    telephone={telephone}
+                    onTelephone={setTelephone}
+                  />
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
