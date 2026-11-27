@@ -200,7 +200,7 @@ export default function HomePage() {
                 L&apos;outil de terrain. Suivez vos finances, planifiez vos tâches, recevez les rapports de vos techniciens — le tout depuis votre téléphone, même sans connexion internet.
               </p>
               <p className="text-ink-light leading-relaxed mb-6">
-                Disponible sur iOS et Android, gratuitement. Conçue aujourd&apos;hui pour le Cameroun (zones agro-écologiques, marchés, paiement mobile) ; l&apos;ouverture à d&apos;autres pays est prévue.
+                Disponible sur iOS et Android, gratuitement. Conçue aujourd&apos;hui pour le Cameroun (zones agro-écologiques, spéculations locales) ; l&apos;ouverture à d&apos;autres pays est prévue.
               </p>
               <Link href="/application" className="inline-flex items-center justify-center gap-2 border-2 border-forest hover:bg-forest-light text-forest font-semibold px-7 py-3.5 rounded-xl transition-colors">
                 <Smartphone size={20} />

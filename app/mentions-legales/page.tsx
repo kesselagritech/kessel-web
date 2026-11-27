@@ -11,8 +11,8 @@ export default function MentionsLegalesPage() {
     <LegalShell
       title="Mentions"
       accent="légales."
-      meta="Version 2.1 · 19 octobre 2026"
-      footerNote="Dernière mise à jour : 12 octobre 2026"
+      meta="Version 2.2 · 27 novembre 2026"
+      footerNote="Dernière mise à jour : 27 novembre 2026"
     >
       <Section title="1. Éditeur">
         <P>
@@ -36,7 +36,7 @@ export default function MentionsLegalesPage() {
           <p className="text-ink-mid">Serveurs situés aux États-Unis (Oregon) · supabase.com</p>
         </Box>
         <P last>
-          Les paiements de la bibliothèque sont traités par <strong>NOKASH</strong> (Mobile Money et carte bancaire), au Cameroun. La liste complète de nos
+          Jusqu&apos;au 25 novembre 2026, les paiements de la bibliothèque étaient traités par <strong>NOKASH</strong>, au Cameroun ; la bibliothèque est gratuite depuis. La liste complète de nos
           prestataires figure dans la{" "}
           <Link href="/confidentialite" className="text-amber hover:underline">Politique de confidentialité</Link>.
         </P>
@@ -54,8 +54,8 @@ export default function MentionsLegalesPage() {
       <Section title="4. Conditions applicables">
         <P last>
           L&apos;utilisation du Service est régie par les{" "}
-          <Link href="/cgu" className="text-amber hover:underline">Conditions générales d&apos;utilisation</Link>, les achats par
-          les <Link href="/cgv" className="text-amber hover:underline">Conditions générales de vente</Link>, et le traitement des
+          <Link href="/cgu" className="text-amber hover:underline">Conditions générales d&apos;utilisation</Link>, les achats faits
+          avant le 25 novembre 2026 par les <Link href="/cgv" className="text-amber hover:underline">Conditions générales de vente</Link>, et le traitement des
           données par la{" "}
           <Link href="/confidentialite" className="text-amber hover:underline">Politique de confidentialité</Link>.
         </P>

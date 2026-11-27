@@ -14,17 +14,17 @@ export default function PrivacyEnPage() {
       accent="Policy."
       meta={
         <>
-          Version 2.3 · Updated October 19, 2026 ·{" "}
+          Version 2.4 · Updated November 27, 2026 ·{" "}
           <Link href="/confidentialite" className="underline hover:text-amber">Version française</Link>
         </>
       }
-      footerNote="Last updated: October 19, 2026 · Version 2.3 · The French version prevails in case of discrepancy."
+      footerNote="Last updated: November 27, 2026 · Version 2.4 · The French version prevails in case of discrepancy."
     >
       <div className="reveal">
         <P last>
           This policy explains which personal data Kessel Agritech (&quot;<strong>Kessel</strong>&quot;, &quot;we&quot;) collects,
           why, who it is shared with, how long it is kept and what your rights are. It covers all our services: the{" "}
-          <strong>kesselagritech.com</strong> website (including the paid library, the project comparator and the collaborator
+          <strong>kesselagritech.com</strong> website (including the library, the project comparator and the collaborator
           space) and the <strong>Kessel</strong> mobile app (iOS and Android). <strong>We never sell personal data.</strong>
         </P>
       </div>
@@ -65,8 +65,8 @@ export default function PrivacyEnPage() {
         <Table
           head={["Category", "Data"]}
           rows={[
-            ["Website account", "Email address and password (stored in hashed form). This account is separate from the app account."],
-            ["Purchases", "Document purchased, amount, date, payment status, provider and transaction reference (NOKASH), operator or card type used, viewing history of the purchased document. Your email address is shared with NOKASH for the payment."],
+            ["Website account", "Email address, password (stored in hashed form), country and phone number, requested at sign-up. This account is separate from the app account."],
+            ["Past purchases (before November 25, 2026)", "Document purchased, amount, date, payment status, provider and transaction reference (NOKASH), operator or card type used, viewing history of the purchased document. Your email address is shared with NOKASH for the payment."],
             ["Audience measurement", "Pages viewed (page address, without parameters), a random identifier stored in your browser, IP address, country and city derived from the IP address, device type, referring website. If you are signed in, these visits are linked to your account."],
             ["Document views", "Number of views of each document, counted per browsing session"],
             ["Contact form", "Name, email, phone (optional), subject and message"],
@@ -91,7 +91,7 @@ export default function PrivacyEnPage() {
             "Your phone's contact list.",
             "Photos or files on your phone other than those taken in the app.",
             "Biometric data.",
-            "Your bank card number or Mobile Money PIN: they are entered on the payment provider's secure page (NOKASH), never on ours.",
+            "Your bank card number or Mobile Money PIN.",
             "Your browsing on other websites.",
           ]}
         />
@@ -102,7 +102,8 @@ export default function PrivacyEnPage() {
           head={["Purpose", "Legal basis"]}
           rows={[
             ["Create and manage your account, run the app", "Performance of the contract (Terms of Use)"],
-            ["Sell and give access to library documents", "Performance of the contract (Terms of Sale)"],
+            ["Give access to library documents, know how our readers are spread by country and contact you about your account", "Performance of the contract (Terms of Use)"],
+            ["Keep access to documents purchased before November 25, 2026", "Performance of the contract (Terms of Sale)"],
             ["Geotag photos, access the camera, send notifications", "Your consent, which you can withdraw at any time in your phone settings"],
             ["Share a farm with a collaborator", "The promoter's choice (performance of the contract)"],
             ["Measure website audience and improve our content", "Legitimate interest; you may object (section 12)"],
@@ -137,7 +138,7 @@ export default function PrivacyEnPage() {
           rows={[
             ["Supabase Inc.", "Database, authentication, account emails, storage of photos and documents", "United States (Oregon)"],
             ["Vercel Inc.", "Website hosting, aggregated audience measurement", "United States, global network"],
-            ["NOKASH", "Library payments (Mobile Money and bank card), review of disputed payments", "Cameroon"],
+            ["NOKASH", "Payment of library purchases made before November 25, 2026, review of disputed payments", "Cameroon"],
             ["Resend", "Delivery of contact form messages", "United States"],
             ["Expo (EAS), Google (FCM), Apple (APNs)", "Delivery of app notifications", "United States"],
             ["Sentry", "App crash diagnosis", "European Union"],
@@ -163,7 +164,7 @@ export default function PrivacyEnPage() {
             ["App account", "As long as you use it"],
             ["Inactive app account", "Deleted with its projects after 6 consecutive months without sign-in (rule applied from November 12, 2026)"],
             ["App account deleted at your request", "Account and projects erased from our databases upon request; photos and backup copies erased within 30 days at most"],
-            ["Website account (library)", "Never deleted for inactivity, so your purchases remain accessible; deleted at your request"],
+            ["Website account (library)", "Never deleted for inactivity; deleted at your request"],
             ["Purchase records", "10 years, even after account deletion (accounting obligation)"],
             ["Website audience measurement (IP address, country, device)", "180 days, for audience measurement and proof of purchase in the event of a disputed payment"],
             ["Sign-in attempts (security)", "30 days"],
@@ -203,8 +204,7 @@ export default function PrivacyEnPage() {
             "Data encrypted in transit between your device and our servers (HTTPS).",
             "PIN codes and passwords stored only in hashed and salted form.",
             "Database access rules: each account only sees the data that concerns it.",
-            "Payments checked directly with the payment provider (NOKASH) before any document is unlocked.",
-            "Data encrypted at rest by our database host.",
+                        "Data encrypted at rest by our database host.",
           ]}
         />
         <P last>
@@ -215,7 +215,7 @@ export default function PrivacyEnPage() {
 
       <Section title="11. Minors">
         <P last>
-          Accounts and purchases are reserved for people aged 18 and over. If you believe a minor has sent us data, write to us
+          Accounts are reserved for people aged 18 and over. If you believe a minor has sent us data, write to us
           and we will delete it.
         </P>
       </Section>

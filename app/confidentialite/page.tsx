@@ -13,17 +13,17 @@ export default function ConfidentialitePage() {
       accent="confidentialité."
       meta={
         <>
-          Version 2.3 · Mise à jour le 19 octobre 2026 ·{" "}
+          Version 2.4 · Mise à jour le 27 novembre 2026 ·{" "}
           <Link href="/confidentialite/en" className="underline hover:text-amber">English version</Link>
         </>
       }
-      footerNote="Dernière mise à jour : 19 octobre 2026 · Version 2.3"
+      footerNote="Dernière mise à jour : 27 novembre 2026 · Version 2.4"
     >
       <div className="reveal">
         <P last>
           Cette politique explique quelles données personnelles Kessel Agritech (« <strong>Kessel</strong> », « nous ») collecte,
           pourquoi, avec qui elles sont partagées, combien de temps elles sont gardées et quels sont vos droits. Elle couvre
-          l&apos;ensemble de nos services : le site <strong>kesselagritech.com</strong> (dont la bibliothèque payante, le comparateur
+          l&apos;ensemble de nos services : le site <strong>kesselagritech.com</strong> (dont la bibliothèque, le comparateur
           de projets et l&apos;espace collaborateur) et l&apos;application mobile <strong>Kessel</strong> (iOS et Android).
           <strong> Nous ne vendons aucune donnée personnelle.</strong>
         </P>
@@ -66,8 +66,8 @@ export default function ConfidentialitePage() {
         <Table
           head={["Catégorie", "Données"]}
           rows={[
-            ["Compte du site", "Adresse e-mail et mot de passe (conservé sous forme hachée). Ce compte est distinct de celui de l'application."],
-            ["Achats", "Document acheté, montant, date, statut du paiement, prestataire et référence de transaction (NOKASH), opérateur ou type de carte utilisé, historique des consultations du document acheté. Votre adresse e-mail est transmise à NOKASH pour le paiement."],
+            ["Compte du site", "Adresse e-mail, mot de passe (conservé sous forme hachée), pays et numéro de téléphone, demandés à l'inscription. Ce compte est distinct de celui de l'application."],
+            ["Anciens achats (avant le 25 novembre 2026)", "Document acheté, montant, date, statut du paiement, prestataire et référence de transaction (NOKASH), opérateur ou type de carte utilisé, historique des consultations du document acheté. Votre adresse e-mail avait été transmise à NOKASH pour le paiement. Plus aucun paiement n'est collecté depuis cette date."],
             ["Mesure d'audience", "Pages consultées (adresse de la page, sans paramètres), identifiant aléatoire enregistré dans votre navigateur, adresse IP, pays et ville déduits de l'adresse IP, type d'appareil, site d'origine. Si vous êtes connecté, ces visites sont rattachées à votre compte."],
             ["Lecture des fiches", "Nombre de consultations de chaque fiche, compté par session de navigation"],
             ["Formulaire de contact", "Nom, e-mail, téléphone (facultatif), sujet et message"],
@@ -92,7 +92,7 @@ export default function ConfidentialitePage() {
             "Le carnet de contacts de votre téléphone.",
             "Les photos ou fichiers de votre téléphone autres que ceux pris dans l'application.",
             "Vos données biométriques.",
-            "Vos numéros de carte bancaire ou votre code Mobile Money : ils sont saisis sur la page sécurisée du prestataire de paiement (NOKASH), jamais chez nous.",
+            "Vos numéros de carte bancaire ou votre code Mobile Money.",
             "Votre navigation sur d'autres sites.",
           ]}
         />
@@ -103,7 +103,8 @@ export default function ConfidentialitePage() {
           head={["Finalité", "Fondement"]}
           rows={[
             ["Créer et gérer votre compte, faire fonctionner l'application", "Exécution du contrat (CGU)"],
-            ["Vendre et donner accès aux documents de la bibliothèque", "Exécution du contrat (CGV)"],
+            ["Donner accès aux documents de la bibliothèque, connaître la répartition de nos lecteurs par pays et vous contacter au sujet de votre compte", "Exécution du contrat (CGU)"],
+            ["Maintenir l'accès aux documents achetés avant le 25 novembre 2026", "Exécution du contrat (CGV)"],
             ["Géolocaliser les photos, accéder à la caméra, envoyer des notifications", "Votre consentement, retirable à tout moment dans les réglages du téléphone"],
             ["Partager une exploitation avec un collaborateur", "Choix du promoteur (exécution du contrat)"],
             ["Mesurer l'audience du site et améliorer nos contenus", "Intérêt légitime ; vous pouvez vous y opposer (section 12)"],
@@ -139,7 +140,7 @@ export default function ConfidentialitePage() {
           rows={[
             ["Supabase Inc.", "Base de données, authentification, e-mails de compte, stockage des photos et documents", "États-Unis (Oregon)"],
             ["Vercel Inc.", "Hébergement du site, mesure d'audience agrégée", "États-Unis, réseau mondial"],
-            ["NOKASH", "Paiement de la bibliothèque (Mobile Money et carte bancaire), vérification des paiements contestés", "Cameroun"],
+            ["NOKASH", "Paiement des achats de la bibliothèque faits avant le 25 novembre 2026, vérification des paiements contestés", "Cameroun"],
             ["Resend", "Acheminement des messages du formulaire de contact", "États-Unis"],
             ["Expo (EAS), Google (FCM), Apple (APNs)", "Acheminement des notifications de l'application", "États-Unis"],
             ["Sentry", "Diagnostic des pannes de l'application", "Union européenne"],
@@ -165,7 +166,7 @@ export default function ConfidentialitePage() {
             ["Compte de l'application", "Tant que vous l'utilisez"],
             ["Compte de l'application inactif", "Supprimé avec ses projets après 6 mois consécutifs sans connexion (règle appliquée à partir du 12 novembre 2026)"],
             ["Compte de l'application supprimé à votre demande", "Compte et projets effacés de nos bases dès la demande ; photos et copies de sauvegarde effacées sous 30 jours au plus"],
-            ["Compte du site (bibliothèque)", "Jamais supprimé pour inactivité, afin de préserver l'accès à vos achats ; supprimé à votre demande"],
+            ["Compte du site (bibliothèque)", "Jamais supprimé pour inactivité ; supprimé à votre demande"],
             ["Pièces des achats", "10 ans, même après suppression du compte (obligation comptable)"],
             ["Mesure d'audience du site (adresse IP, pays, appareil)", "180 jours, pour la mesure d'audience et la preuve des achats en cas de paiement contesté"],
             ["Tentatives de connexion (sécurité)", "30 jours"],
@@ -205,8 +206,7 @@ export default function ConfidentialitePage() {
             "Échanges chiffrés pendant leur transport entre votre appareil et nos serveurs (HTTPS).",
             "Codes PIN et mots de passe conservés uniquement sous forme hachée et salée.",
             "Règles d'accès en base de données : chaque compte ne voit que les données qui le concernent.",
-            "Paiements vérifiés directement auprès du prestataire de paiement (NOKASH) avant tout déblocage de document.",
-            "Données chiffrées au repos chez notre hébergeur de base de données.",
+                        "Données chiffrées au repos chez notre hébergeur de base de données.",
           ]}
         />
         <P last>
@@ -217,7 +217,7 @@ export default function ConfidentialitePage() {
 
       <Section title="11. Mineurs">
         <P last>
-          Les comptes et les achats sont réservés aux personnes de 18 ans et plus. Si vous pensez qu&apos;un mineur nous a
+          Les comptes sont réservés aux personnes de 18 ans et plus. Si vous pensez qu&apos;un mineur nous a
           transmis des données, écrivez-nous : nous les supprimerons.
         </P>
       </Section>

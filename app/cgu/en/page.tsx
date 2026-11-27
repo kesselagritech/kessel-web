@@ -15,18 +15,18 @@ export default function TermsEnPage() {
       accent="Use."
       meta={
         <>
-          Version 2.2 · Published October 19, 2026 ·{" "}
+          Version 2.3 · Published November 27, 2026 ·{" "}
           <Link href="/cgu" className="underline hover:text-amber">Version française</Link>
         </>
       }
-      footerNote="Last updated: October 19, 2026 · Version 2.2 · The French version prevails in case of discrepancy."
+      footerNote="Last updated: November 27, 2026 · Version 2.3 · The French version prevails in case of discrepancy."
     >
       <div className="reveal">
         <P last>
           These Terms of Use (&quot;<strong>Terms</strong>&quot;) govern the use of the <strong>kesselagritech.com</strong>{" "}
           website and the <strong>Kessel</strong> mobile app (together, the &quot;<strong>Service</strong>&quot;), published by
-          Kessel Agritech. By using the Service, you (&quot;<strong>User</strong>&quot;) accept these Terms. Library purchases are
-          also governed by the {CGV}.
+          Kessel Agritech. By using the Service, you (&quot;<strong>User</strong>&quot;) accept these Terms. Document purchases made before
+          November 25, 2026 remain governed by the {CGV}.
         </P>
       </div>
 
@@ -39,7 +39,7 @@ export default function TermsEnPage() {
         <P>Open to farm promoters and project holders across Africa, it offers:</P>
         <List
           items={[
-            "A paid library of business plans, technical sheets and educational guides.",
+            "A free library of business plans, technical sheets and educational guides, readable with a website account.",
             "A free farm project comparator.",
             "Free information pages (crops and livestock, agro-ecological zones, guides, technical itineraries).",
             "A collaborator space to follow, read-only, the farm of a promoter who has given you their code.",
@@ -54,7 +54,7 @@ export default function TermsEnPage() {
             "Track project finances (expenses, revenues, harvests).",
             "Invite farm technicians to your projects.",
             "Work with Kessel supervisors: messaging and specifications.",
-            "View indicative market prices, reminders and alerts.",
+            "Reminders and alerts.",
           ]}
         />
         <Box tone="amber">
@@ -69,12 +69,12 @@ export default function TermsEnPage() {
 
       <Section title="3. Access and accounts">
         <H3>3.1 Age</H3>
-        <P>Creating an account and making purchases are reserved for people aged 18 and over.</P>
+        <P>Creating an account is reserved for people aged 18 and over.</P>
         <H3>3.2 Two separate accounts</H3>
         <List
           items={[
             "App account: phone number and PIN code.",
-            "Website account: email address and password. It gives access to your purchases and the collaborator space.",
+            "Website account: email address, password, country and phone number. It gives access to the library and the collaborator space.",
           ]}
         />
         <P>
@@ -91,21 +91,22 @@ export default function TermsEnPage() {
         />
       </Section>
 
-      <Section title="4. What is free, what is paid">
+      <Section title="4. Free access">
         <P>
-          The app, the comparator, the information pages and the collaborator space are free. Library documents are paid, one
-          by one. In short:
+          The app, the comparator, the information pages, the collaborator space and, since November 25, 2026, all library
+          documents are free. In short:
         </P>
         <List
           items={[
-            "The price is shown in FCFA on each document page, before payment.",
-            "Payment goes through NOKASH, by Mobile Money (Orange Money, MTN Mobile Money) or bank card (Visa, Mastercard), in FCFA.",
-            "The document is read online from your website account, updates included.",
-            "No refund once the document is accessible, except double payment, payment without access, non-conforming document or fraudulent payment.",
-            "Personal or internal business use only: no resale, sharing or redistribution.",
+            "Documents are read in full, online, from your website account, updates included. Without an account, only the beginning of each document is visible.",
+            "No payment is required to read a document.",
+            "Personal or internal business use only: no resale, copying or redistribution.",
+            "Custom studies carried out on request are quoted separately.",
           ]}
         />
-        <P>Full details are in the {CGV}, which prevail in case of conflict.</P>
+        <P>
+          Documents purchased before November 25, 2026 remain accessible; those purchases remain governed by the {CGV}.
+        </P>
         <P last>
           A &quot;Kessel Team&quot; plan for organisations is under study. It is not active. No charge can be made without an
           explicit action on your part.
@@ -121,7 +122,7 @@ export default function TermsEnPage() {
             "Use the Service fraudulently or against public decency.",
             "Bypass security measures, decompile the code or overload the servers.",
             "Impersonate another user or share your accounts.",
-            "Copy, resell or distribute purchased documents.",
+            "Copy, resell or distribute library documents.",
             "Harass or make discriminatory remarks towards a technician, a supervisor or a promoter.",
             "Disclose data of a farm viewed in the collaborator space without the promoter's consent.",
             "Enter farm or financial information you know to be false.",
@@ -193,9 +194,8 @@ export default function TermsEnPage() {
         </Box>
         <H3>11.2 Website account (library)</H3>
         <P last>
-          It is <strong>never deleted for inactivity</strong>, so your purchases remain accessible. You can request its deletion
-          at {MAIL}; access to purchased documents is then permanently lost. Purchase records are kept for 10 years, as required
-          by accounting law.
+          It is <strong>never deleted for inactivity</strong>. You can request its deletion at {MAIL}. Records of purchases made
+          before November 25, 2026 are kept for 10 years, as required by accounting law.
         </P>
       </Section>
 

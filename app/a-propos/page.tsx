@@ -116,7 +116,7 @@ export default function AProposPage() {
             {[
               { title: "Fiabilité", desc: "Chaque donnée de nos documents est vérifiée et sourcée. Quand un chiffre est une estimation, nous le disons.", icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
               { title: "Proximité terrain", desc: "Nos contenus et notre application sont pensés pour la réalité des exploitations africaines, pas pour un bureau climatisé.", icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" },
-              { title: "Accessibilité", desc: "Application gratuite et utilisable hors connexion, documents à petit prix payables par Mobile Money, en français et en anglais.", icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" },
+              { title: "Accessibilité", desc: "Application et bibliothèque gratuites, application utilisable hors connexion, en français et en anglais.", icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" },
             ].map((value, i) => (
               <div key={i} className={`reveal reveal-delay-${i + 1} text-center`}>
                 <div className="w-16 h-16 bg-forest-light rounded-2xl flex items-center justify-center mx-auto mb-6">

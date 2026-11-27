@@ -164,8 +164,7 @@ function RecommendedCard({ doc }: { doc: Document }) {
             {doc.description}
           </p>
         )}
-        <div className="flex items-center justify-between pt-3 border-t border-neutral-mid mt-auto">
-          <span className="text-sm font-semibold" style={{ color: config.accent }}>Gratuit</span>
+        <div className="flex items-center justify-end pt-3 border-t border-neutral-mid mt-auto">
           <span className="inline-flex items-center gap-1.5 bg-amber hover:bg-amber-dark text-white text-sm font-semibold px-4 py-1.5 rounded-xl transition-colors">
             Découvrir
           </span>
@@ -431,9 +430,8 @@ export default function BibliothequePage() {
                           </p>
                         )}
 
-                        {/* Prix + CTA */}
-                        <div className="flex items-center justify-between pt-3 border-t border-neutral-mid mt-auto">
-                          <span className="text-sm font-semibold" style={{ color: config.accent }}>Gratuit</span>
+                        {/* CTA */}
+                        <div className="flex items-center justify-end pt-3 border-t border-neutral-mid mt-auto">
                           <span className="inline-flex items-center gap-1.5 bg-forest hover:bg-forest-dark text-white text-sm font-medium px-4 py-1.5 rounded-xl transition-colors ">
                             Consulter
                           </span>

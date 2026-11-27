@@ -222,7 +222,6 @@ export default function DocumentInteractive({
           ) : !user ? (
             /* ── VISITEUR : se connecter pour lire ── */
             <div className="bg-white rounded-2xl shadow-sm p-8 md:p-10 text-center">
-              <p className="text-amber font-semibold text-xs uppercase tracking-wider mb-3">Gratuit</p>
               <h3 className="text-2xl font-bold text-forest-dark mb-3" style={{ fontFamily: "var(--serif)" }}>
                 Lis ce document en entier
               </h3>
@@ -336,15 +335,7 @@ export default function DocumentInteractive({
                       {relatedDoc.description}
                     </p>
                   )}
-                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-neutral-mid">
-                    <div>
-                      <span
-                        className="text-sm font-semibold"
-                        style={{ color: TYPE_CONFIG[relatedDoc.type].accent }}
-                      >
-                        Gratuit
-                      </span>
-                    </div>
+                  <div className="flex items-center justify-end mt-auto pt-3 border-t border-neutral-mid">
                     <span className="inline-flex items-center gap-1.5 text-forest font-medium text-sm group-hover:gap-2 transition-all">
                       Consulter
                       <ArrowRight size={16} />
@@ -419,13 +410,7 @@ export default function DocumentInteractive({
                     >
                       {g.title}
                     </h4>
-                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-neutral-mid">
-                      <span
-                        className="text-sm font-bold"
-                        style={{ fontFamily: "var(--mono)", color: TYPE_CONFIG.guide.accent }}
-                      >
-                        Gratuit
-                      </span>
+                    <div className="flex items-center justify-end mt-auto pt-3 border-t border-neutral-mid">
                       <ArrowRight size={14} className="text-forest group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>

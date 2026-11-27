@@ -40,8 +40,8 @@ const faqs: { q: string; a: ReactNode }[] = [
     a: (
       <>
         Un compte de l&apos;application sans connexion pendant 6 mois consécutifs est supprimé avec ses projets (règle appliquée
-        à partir du 12 novembre 2026). Le compte du site n&apos;est jamais supprimé pour inactivité, pour que vos achats restent
-        accessibles. Voir l&apos;article 11 des <L href="/cgu">CGU</L>.
+        à partir du 12 novembre 2026). Le compte du site n&apos;est jamais supprimé pour inactivité, pour que vous gardiez votre accès
+        à la bibliothèque et à l&apos;espace collaborateur. Voir l&apos;article 11 des <L href="/cgu">CGU</L>.
       </>
     ),
   },
@@ -66,15 +66,11 @@ const faqs: { q: string; a: ReactNode }[] = [
     a: "Oui. Depuis l'application, invitez vos techniciens sur vos projets : ils envoient leurs rapports et observations directement depuis leur téléphone.",
   },
   {
-    q: "D'où viennent les prix de marché de l'application ?",
-    a: "Ce sont des relevés transmis par des collecteurs sur les marchés camerounais. Ils sont indicatifs et peuvent varier d'un jour à l'autre et d'un marché à l'autre.",
-  },
-  {
     q: "Mes données sont-elles protégées ?",
     a: (
       <>
         Nous ne vendons jamais vos données. Elles ne sont transmises qu&apos;aux prestataires indispensables au service
-        (hébergement, paiement, notifications) et aux personnes que vous choisissez d&apos;inviter. Tout est détaillé dans la{" "}
+        (hébergement, notifications) et aux personnes que vous choisissez d&apos;inviter. Tout est détaillé dans la{" "}
         <L href="/confidentialite">Politique de confidentialité</L>.
       </>
     ),

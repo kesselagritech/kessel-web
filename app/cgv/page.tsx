@@ -13,13 +13,20 @@ export default function CGVPage() {
       accent="de vente."
       meta={
         <>
-          Version 1.2 · En vigueur le 19 octobre 2026 ·{" "}
+          Version 1.3 · Mise à jour le 27 novembre 2026 ·{" "}
           <Link href="/cgv/en" className="underline hover:text-amber">English version</Link>
         </>
       }
-      footerNote="Dernière mise à jour : 19 octobre 2026 · Version 1.2"
+      footerNote="Dernière mise à jour : 27 novembre 2026 · Version 1.3"
     >
       <div className="reveal">
+        <Box tone="amber">
+          <p className="text-forest-dark font-semibold">La bibliothèque est gratuite depuis le 25 novembre 2026</p>
+          <p className="text-ink-mid text-sm">
+            Plus aucun document n&apos;est vendu. Ces CGV restent applicables aux seuls achats effectués avant cette date, qui
+            restent accessibles depuis votre compte. Pour toute question sur un ancien achat : {MAIL}.
+          </p>
+        </Box>
         <P last>
           Les présentes Conditions générales de vente (« <strong>CGV</strong> ») s&apos;appliquent à tout achat de document de la{" "}
           <strong>bibliothèque Kessel</strong> sur kesselagritech.com. Cliquer sur « Acheter » (ou sur le bouton du moyen de paiement choisi) vaut acceptation des CGV en vigueur

@@ -14,18 +14,18 @@ export default function CGUPage() {
       accent="d'utilisation."
       meta={
         <>
-          Version 2.2 · Publiée le 19 octobre 2026 ·{" "}
+          Version 2.3 · Publiée le 27 novembre 2026 ·{" "}
           <Link href="/cgu/en" className="underline hover:text-amber">English version</Link>
         </>
       }
-      footerNote="Dernière mise à jour : 19 octobre 2026 · Version 2.2"
+      footerNote="Dernière mise à jour : 27 novembre 2026 · Version 2.3"
     >
       <div className="reveal">
         <P last>
           Les présentes Conditions générales d&apos;utilisation (« <strong>CGU</strong> ») régissent l&apos;utilisation du site{" "}
           <strong>kesselagritech.com</strong> et de l&apos;application mobile <strong>Kessel</strong> (ensemble, le «{" "}
           <strong>Service</strong> »), édités par Kessel Agritech. En utilisant le Service, vous (« <strong>Utilisateur</strong> »)
-          acceptez les présentes CGU. Les achats de la bibliothèque relèvent en plus des {CGV}.
+          acceptez les présentes CGU. Les achats de documents faits avant le 25 novembre 2026 restent régis par les {CGV}.
         </P>
       </div>
 
@@ -38,7 +38,7 @@ export default function CGUPage() {
         <P>Ouvert aux promoteurs et porteurs de projets agricoles de toute l&apos;Afrique, il propose :</P>
         <List
           items={[
-            "Une bibliothèque payante de business plans, fiches techniques et guides éducatifs.",
+            "Une bibliothèque gratuite de business plans, fiches techniques et guides éducatifs, lisible avec un compte du site.",
             "Un comparateur de projets agricoles, gratuit.",
             "Des pages d'information gratuites (spéculations, zones agro-écologiques, guides, itinéraires techniques).",
             "Un espace collaborateur pour suivre en lecture seule l'exploitation d'un promoteur qui vous a transmis son code.",
@@ -53,7 +53,7 @@ export default function CGUPage() {
             "Le suivi financier des projets (dépenses, revenus, récoltes).",
             "L'invitation de techniciens agricoles sur vos projets.",
             "L'accompagnement par des superviseurs Kessel : messagerie et cahiers des charges.",
-            "La consultation de prix de marché indicatifs, des rappels et des alertes.",
+            "Des rappels et des alertes.",
           ]}
         />
         <Box tone="amber">
@@ -68,12 +68,12 @@ export default function CGUPage() {
 
       <Section title="3. Accès et comptes">
         <H3>3.1 Âge</H3>
-        <P>La création d&apos;un compte et les achats sont réservés aux personnes de 18 ans et plus.</P>
+        <P>La création d&apos;un compte est réservée aux personnes de 18 ans et plus.</P>
         <H3>3.2 Deux comptes distincts</H3>
         <List
           items={[
             "Compte de l'application : numéro de téléphone et code PIN.",
-            "Compte du site : adresse e-mail et mot de passe. Il donne accès à vos achats et à l'espace collaborateur.",
+            "Compte du site : adresse e-mail, mot de passe, pays et numéro de téléphone. Il donne accès à la bibliothèque et à l'espace collaborateur.",
           ]}
         />
         <P>
@@ -90,21 +90,22 @@ export default function CGUPage() {
         />
       </Section>
 
-      <Section title="4. Ce qui est gratuit, ce qui est payant">
+      <Section title="4. Gratuité">
         <P>
-          L&apos;application, le comparateur, les pages d&apos;information et l&apos;espace collaborateur sont gratuits. Les
-          documents de la bibliothèque sont payants, à l&apos;unité. En résumé :
+          L&apos;application, le comparateur, les pages d&apos;information, l&apos;espace collaborateur et, depuis le 25 novembre
+          2026, tous les documents de la bibliothèque sont gratuits. En résumé :
         </P>
         <List
           items={[
-            "Le prix est affiché en FCFA sur chaque fiche, avant paiement.",
-            "Le paiement se fait via NOKASH, par Mobile Money (Orange Money, MTN Mobile Money) ou par carte bancaire (Visa, Mastercard), en FCFA.",
-            "Le document se lit en ligne depuis votre compte du site, mises à jour comprises.",
-            "Pas de remboursement une fois le document accessible, sauf double paiement, paiement sans accès, document non conforme ou paiement frauduleux.",
-            "Usage personnel ou professionnel interne uniquement : ni revente, ni partage, ni diffusion.",
+            "Les documents se lisent en entier, en ligne, depuis votre compte du site, mises à jour comprises. Sans compte, seul le début de chaque document est visible.",
+            "Aucun paiement n'est demandé pour lire un document.",
+            "Usage personnel ou professionnel interne uniquement : ni revente, ni copie, ni diffusion.",
+            "Les études personnalisées réalisées sur demande font l'objet d'un devis distinct.",
           ]}
         />
-        <P>Le détail figure dans les {CGV}, qui prévalent en cas de contradiction.</P>
+        <P>
+          Les documents achetés avant le 25 novembre 2026 restent accessibles ; ces achats restent régis par les {CGV}.
+        </P>
         <P last>
           Une formule « Kessel Team » pour les organisations est à l&apos;étude. Elle n&apos;est pas active. Aucun prélèvement ne
           peut avoir lieu sans une action explicite de votre part.
@@ -120,7 +121,7 @@ export default function CGUPage() {
             "Utiliser le Service de manière frauduleuse ou contraire aux bonnes mœurs.",
             "Contourner les mesures de sécurité, décompiler le code ou surcharger les serveurs.",
             "Usurper l'identité d'un autre utilisateur ou partager vos comptes.",
-            "Copier, revendre ou diffuser les documents achetés.",
+            "Copier, revendre ou diffuser les documents de la bibliothèque.",
             "Harceler ou tenir des propos discriminatoires envers un technicien, un superviseur ou un promoteur.",
             "Divulguer les données d'une exploitation consultée dans l'espace collaborateur sans l'accord du promoteur.",
             "Saisir des informations agricoles ou financières que vous savez fausses.",
@@ -195,9 +196,8 @@ export default function CGUPage() {
         </Box>
         <H3>11.2 Compte du site (bibliothèque)</H3>
         <P last>
-          Il n&apos;est <strong>jamais supprimé pour inactivité</strong> : vos achats restent accessibles. Vous pouvez en demander la
-          suppression à {MAIL} ; l&apos;accès aux documents achetés est alors définitivement perdu. Les pièces des achats sont
-          conservées 10 ans, comme l&apos;exige la loi comptable.
+          Il n&apos;est <strong>jamais supprimé pour inactivité</strong>. Vous pouvez en demander la suppression à {MAIL}. Les
+          pièces des achats faits avant le 25 novembre 2026 sont conservées 10 ans, comme l&apos;exige la loi comptable.
         </P>
       </Section>
 

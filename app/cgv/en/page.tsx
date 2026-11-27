@@ -14,13 +14,20 @@ export default function TermsOfSaleEnPage() {
       accent="Sale."
       meta={
         <>
-          Version 1.2 · Effective October 19, 2026 ·{" "}
+          Version 1.3 · Updated November 27, 2026 ·{" "}
           <Link href="/cgv" className="underline hover:text-amber">Version française</Link>
         </>
       }
-      footerNote="Last updated: October 19, 2026 · Version 1.2 · The French version prevails in case of discrepancy."
+      footerNote="Last updated: November 27, 2026 · Version 1.3 · The French version prevails in case of discrepancy."
     >
       <div className="reveal">
+        <Box tone="amber">
+          <p className="text-forest-dark font-semibold">The library has been free since November 25, 2026</p>
+          <p className="text-ink-mid text-sm">
+            No document is sold any more. These Terms of Sale apply only to purchases made before that date, which remain
+            accessible from your account. For any question about a past purchase: {MAIL}.
+          </p>
+        </Box>
         <P last>
           These Terms of Sale apply to any purchase of a document from the <strong>Kessel library</strong> on
           kesselagritech.com. Clicking &quot;Buy&quot; (or the button of the chosen payment method) means accepting the Terms of Sale in force at that moment. They complement
